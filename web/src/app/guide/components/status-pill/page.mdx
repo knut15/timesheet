@@ -1,0 +1,54 @@
+export const metadata = { title: "Status Pill" };
+
+# Status Pill
+
+요청 상태 배지. 수정 요청·휴가·대타가 같이 쓴다.
+
+<ComponentPreview name="status-pill/states" />
+
+<FileLocation path="web/src/components/ui.tsx" importLine={`import { StatusPill } from "@/components/ui";`} />
+
+## 사용법
+
+```tsx
+<StatusPill status="pending" />
+```
+
+## 구성
+
+```
+StatusPill  <span rounded-full px-2 py-0.5 text-xs font-medium {tone}>
+└─ 상태 이름 글자
+```
+
+<SimpleTable
+  head={["status", "글자", "색"]}
+  rows={[
+    ["`pending`", "승인 대기", "amber"],
+    ["`requested`", "동료 수락 대기", "amber"],
+    ["`accepted`", "승인 대기", "amber"],
+    ["`approved`", "승인", "green"],
+    ["`rejected`", "거절", "warn"],
+    ["`declined`", "동료 거절", "warn"],
+    ["`canceled`", "취소", "line/muted"],
+  ]}
+/>
+
+## 모르는 값
+
+표에 없는 값은 그 글자 그대로 중립 색으로 보인다. `status="expired"` → `expired`.
+
+<ComponentPreview name="status-pill/unknown" />
+
+## 사용 규칙
+
+상태 흐름은 <DocLink path="docs/prd/08-correction-requests.md">PRD 08</DocLink>·<DocLink path="docs/prd/09-leave-substitution.md">PRD 09</DocLink>.
+
+## 하지 말 것
+
+- 상태 글자를 화면에서 따로 쓰지 않는다 — 글자를 바꾸려면 `ui.tsx` `STATUS` 한 곳을 고친다.
+- `pending` 과 `accepted` 는 글자가 같다(`승인 대기`). 둘을 구별해야 하는 화면이면 배지 밖 글자로 보충한다.
+
+## API 레퍼런스
+
+<PropsTable rows={[{ prop: "status", type: "string", required: true, description: "위 표의 값. 그 밖은 원문 표시" }]} />

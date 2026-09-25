@@ -2,11 +2,18 @@ import type { Invite, Membership, Shift, Store, User } from "@prisma/client";
 
 export const toUserDto = (u: User) => ({ id: u.id, email: u.email, nickname: u.nickname, createdAt: u.createdAt.toISOString() });
 
-export const toStoreDto = (s: Store) => ({ id: s.id, name: s.name, lat: s.lat, lng: s.lng, fivePlus: s.fivePlus });
+export const toStoreDto = (s: Omit<Store, "logo">) => ({
+  id: s.id,
+  name: s.name,
+  lat: s.lat,
+  lng: s.lng,
+  fivePlus: s.fivePlus,
+  logoUrl: s.logoUpdatedAt ? `/api/stores/me/logo?v=${s.logoUpdatedAt.getTime()}` : null,
+});
 
 const terms = (m: Membership) => ({ hourlyWage: m.hourlyWage, weeklyHours: m.weeklyHours, workDaysPerWeek: m.workDaysPerWeek });
 
-export const toMyMembershipDto = (m: Membership & { store: Store }) => ({ role: m.role, ...terms(m), store: toStoreDto(m.store) });
+export const toMyMembershipDto = (m: Membership & { store: Omit<Store, "logo"> }) => ({ role: m.role, ...terms(m), store: toStoreDto(m.store) });
 
 export const toMemberDto = (m: Membership & { user: User }) => ({
   userId: m.userId,

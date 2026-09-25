@@ -1,0 +1,45 @@
+export const metadata = { title: "Calendar Legend" };
+
+# Calendar Legend
+
+달력 범례. 칸에 쓰는 것과 같은 표시 요소 + 보이는 설명 글자. 첫 미리보기는 멤버(두 줄)다.
+
+<ComponentPreview name="calendar-legend/member" width="max-w-md" />
+
+<FileLocation path="web/src/components/calendar/CalendarLegend.tsx" importLine={`import { CalendarLegend } from "@/components/calendar/CalendarLegend";`} />
+
+## 사용법
+
+```tsx
+<CalendarLegend role="member" />
+```
+
+## 구성
+
+```
+CalendarLegend  <div text-[11px] text-muted>
+├─ <ul flex-wrap>
+│  ├─ OpenDot + "근무 중"
+│  ├─ TriangleAlert 10px + "퇴근 기록 없음"
+│  ├─ Hourglass 10px + "요청 대기"
+│  └─ 점선 상자 12×10 + "휴가·대타"(member) / "쉰 사람 있음"(master)
+└─ <p> "유급·무급: 휴가 · 대타: 대타로 쉰 날" (member 만)
+```
+
+## 마스터
+
+`role="master"` — 한 줄.
+
+<ComponentPreview name="calendar-legend/master" width="max-w-md" />
+
+## 사용 규칙
+
+<DocLink path="docs/design/calendar.md" hash="범례-calendarlegend">달력 명세 §3 범례</DocLink>.
+
+## 하지 말 것
+
+- 범례 글자를 `aria-hidden` 하지 않는다 — 표시 모양만 숨긴다.
+
+## API 레퍼런스
+
+<PropsTable rows={[{ prop: "role", type: '"member" | "master"', required: true, description: "넷째 항목 글자와 둘째 줄 유무" }]} />

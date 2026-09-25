@@ -31,7 +31,15 @@ export const LoginBody = z.object({ email: z.string().max(254), password: z.stri
 export const Role = z.enum(["master", "member"]).meta({ id: "Role" });
 
 export const StoreDto = z
-  .object({ id: z.string(), name: z.string(), lat: z.number().nullable(), lng: z.number().nullable(), fivePlus: z.boolean() })
+  .object({
+    id: z.string(),
+    name: z.string(),
+    lat: z.number().nullable(),
+    lng: z.number().nullable(),
+    fivePlus: z.boolean(),
+    // 로고 주소. ?v= 가 바뀌면 브라우저가 새로 받는다. 없으면 null (docs/prd/11)
+    logoUrl: z.string().nullable(),
+  })
   .meta({ id: "StoreDto" });
 
 export const PayTerms = {
@@ -251,6 +259,25 @@ path("get", "/api/users/me", "내 정보와 소속", { auth: true, ok: [200, MeD
 path("post", "/api/stores", "매장 만들기 (마스터가 된다)", { auth: true, body: CreateStoreBody, ok: [201, MyMembershipDto], errors: { 409: "ALREADY_IN_STORE" } });
 path("get", "/api/stores/me", "내 매장", { auth: true, ok: [200, StoreDto], errors: { 404: "NO_STORE" } });
 path("patch", "/api/stores/me", "매장 설정 (마스터)", { auth: true, body: UpdateStoreBody, ok: [200, StoreDto], errors: { 403: "FORBIDDEN" } });
+registry.registerPath({
+  method: "put",
+  path: "/api/stores/me/logo",
+  summary: "매장 로고 올리기 (마스터) — 본문은 파일 바이트",
+  security: secured,
+  request: {
+    headers: csrfHeader,
+    body: { content: Object.fromEntries(["image/png", "image/jpeg", "image/svg+xml"].map((t) => [t, { schema: z.string().meta({ format: "binary" }) }])) },
+  },
+  responses: { 200: json(StoreDto), 400: err("LOGO_INVALID"), 403: err("FORBIDDEN"), 413: err("PAYLOAD_TOO_LARGE") },
+});
+path("delete", "/api/stores/me/logo", "매장 로고 지우기 (마스터)", { auth: true, ok: [204, null], errors: { 403: "FORBIDDEN" } });
+registry.registerPath({
+  method: "get",
+  path: "/api/stores/me/logo",
+  summary: "매장 로고 이미지 (소속)",
+  security: secured,
+  responses: { 200: { description: "이미지 바이트" }, 404: err("NOT_FOUND") },
+});
 path("get", "/api/stores/me/invites", "초대 코드 목록 (마스터)", { auth: true, ok: [200, z.array(InviteDto)], errors: { 403: "FORBIDDEN" } });
 path("post", "/api/stores/me/invites", "초대 코드 발급 (마스터)", { auth: true, ok: [201, InviteDto], errors: { 403: "FORBIDDEN" } });
 path("delete", "/api/stores/me/invites/{inviteId}", "초대 코드 취소 (마스터)", { auth: true, params: id("inviteId"), ok: [204, null], errors: { 404: "NOT_FOUND" } });

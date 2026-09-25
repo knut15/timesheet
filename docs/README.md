@@ -13,11 +13,13 @@
   - [08. 기록 수정 요청과 승인](prd/08-correction-requests.md)
   - [09. 휴가와 대타 근무](prd/09-leave-substitution.md)
   - [10. 근무 달력](prd/10-calendar.md)
+  - [11. 매장 로고](prd/11-store-logo.md)
 
 ## 디자인
 
 - [디자인 문서](design/README.md)
   - [근무 달력 화면 명세](design/calendar.md)
+  - [컴포넌트 가이드 명세](design/component-guide.md) — 페이지는 웹 `/guide`
 
 ## API
 
@@ -43,3 +45,4 @@
 - [작업 카드 양식](team/task-template.md)
 - [TS-001 기록 수정 요청 팀 인수](team/tasks/TS-001-corrections.md)
 - [TS-002 근무 달력](team/tasks/TS-002-calendar.md)
+- [TS-003 디자인 컴포넌트 가이드](team/tasks/TS-003-component-guide.md)

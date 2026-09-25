@@ -45,13 +45,22 @@ export function Avatar({ name, seed, size = "md", label }: { name: string; seed:
 }
 
 /** 모든 화면의 머리. 위 작은 줄(매장·역할) + 화면 제목, 오른쪽에 내 아바타와 동작. */
-/** width 는 본문 폭과 같게 준다 — 멤버 max-w-md, 관리 max-w-3xl. */
-export function AppHeader({ eyebrow, title, me, actions, width = "max-w-3xl" }: { eyebrow: string; title: string; me: { id: string; nickname: string }; actions?: React.ReactNode; width?: string }) {
+/**
+ * width 는 본문 폭과 같게 준다 — 멤버 max-w-md, 관리 max-w-3xl.
+ * logoUrl 이 있으면 eyebrow 줄 맨 앞에 매장 로고(높이 20px, 가로 최대 96px, 비율 유지)를 둔다 (docs/prd/11).
+ * 로고가 매장 이름을 대신한다 — 부르는 쪽은 eyebrow 에서 매장 이름을 빼고, 이름은 logoAlt 로 넘긴다.
+ */
+export function AppHeader({ eyebrow, title, me, actions, width = "max-w-3xl", logoUrl, logoAlt = "" }: { eyebrow: string; title: string; me: { id: string; nickname: string }; actions?: React.ReactNode; width?: string; logoUrl?: string | null; logoAlt?: string }) {
   return (
     <header className="sticky top-0 z-20 border-b border-line bg-background/90 backdrop-blur">
       <div className={`mx-auto flex ${width} items-center justify-between gap-3 px-5 py-3`}>
         <div className="min-w-0">
-          <p className="truncate text-xs font-medium text-muted">{eyebrow}</p>
+          <p className="flex min-w-0 items-center gap-1.5 text-xs font-medium text-muted">
+            {/* 로고가 매장 이름 글자를 대신하므로 alt 에 매장 이름을 둔다 (2026-09-25 사용자 요청: 로고 옆 이름 글자 제거) */}
+            {/* eslint-disable-next-line @next/next/no-img-element -- 인증 쿠키로 받는 API 이미지라 next/image 최적화 대상이 아니다 */}
+            {logoUrl && <img src={logoUrl} alt={logoAlt} className="h-5 w-auto max-w-24 shrink-0 object-contain" />}
+            {eyebrow && <span className="truncate">{eyebrow}</span>}
+          </p>
           <h1 className="truncate text-xl font-bold tracking-tight">{title}</h1>
         </div>
         <div className="flex shrink-0 items-center gap-2">

@@ -1,0 +1,62 @@
+export const metadata = { title: "기초" };
+
+# 기초
+
+색·글자·간격·모서리·아이콘. 원본은 `web/src/app/globals.css` 와 각 컴포넌트다.
+
+## 색 토큰
+
+`@theme inline` 으로 Tailwind 색 이름(`bg-surface`, `text-muted`, `border-line` …)이 된다. 다크는 `prefers-color-scheme: dark` 로만 바뀌고, 가이드에 테마 전환 버튼은 두지 않는다. 다크 견본은 hex 를 직접 칠한 것이다.
+
+<ColorTokens />
+
+### 토큰 밖에서 쓰는 색
+
+새 토큰 없이 Tailwind 색을 직접 쓴다.
+
+<SimpleTable
+  head={["색", "쓰는 곳", "근거"]}
+  rows={[
+    ["아바타 8색 `#2563eb` `#7c3aed` `#db2777` `#dc2626` `#c2410c` `#15803d` `#0f766e` `#4338ca`", "`Avatar` 배경 (`shell.tsx` `AVATAR_COLORS`)", "흰 글자 대비 4.5:1 이상"],
+    ["`amber-500/15` 바탕 + `amber-600` / `dark:amber-400` 글자", "`StatusPill` 대기 상태", "`ui.tsx` `STATUS`"],
+    ["`green-500/15` 바탕 + `green-700` / `dark:green-400` 글자", "`StatusPill` 승인", "`ui.tsx` `STATUS`"],
+    ["`green-600` / `dark:green-400`", "근무 중 점 `OpenDot`", "달력 명세 §8"],
+    ["`amber-700` / `dark:amber-400`", "요청 대기 아이콘 `Hourglass`", "달력 명세 §8"],
+  ]}
+/>
+
+아바타 색 규칙은 <DocLink path=".claude/skills/timesheet-ui/SKILL.md" hash="3-멤버-아바타--avatar">스킬 §3</DocLink>, 달력 색은 <DocLink path="docs/design/calendar.md" hash="8-다크-모드--새-토큰-없음">달력 명세 §8</DocLink>.
+
+## 타이포
+
+- 글꼴: `body` 의 `system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif`. `layout.tsx` 가 Geist 변수를 싣지만 `body` 글꼴 지정이 우선하므로, Geist 는 `font-sans`·`font-mono` 클래스를 준 요소에만 나온다.
+- 숫자(금액·시간·날짜)는 `tabular-nums`.
+- 굵기: `font-medium`(메뉴·배지) · `font-semibold`(카드 소제목·금액·아바타) · `font-bold`(화면 제목·총액·오늘 숫자).
+
+<TypeScale />
+
+## 간격·모서리·높이
+
+<SimpleTable
+  head={["항목", "값", "쓰는 곳"]}
+  rows={[
+    ["본문 가로 여백", "`px-5` (20px)", "헤더 안쪽, `main`"],
+    ["본문 아래 여백", "`pb-28` (112px)", "하단 내비(64px + 안전 영역)에 가리지 않게"],
+    ["카드 안쪽", "`p-5` (20px)", "`Card` 기본. 달력 격자만 `px-2 py-3`"],
+    ["카드 사이", "`space-y-4` (16px)", "`PayView`"],
+    ["본문 폭", "멤버 `max-w-md`(448px) · 마스터 `max-w-3xl`(768px)", "스킬 §1"],
+    ["모서리", "`rounded-2xl`(16px) 카드 · `rounded-xl`(12px) 입력칸·보기 전환 틀 · `rounded-lg`(8px) 달력 칸·전환 버튼 · `rounded-full` 아바타·배지·아이콘 버튼", ""],
+    ["누르는 높이", "아이콘 버튼 40×40, 보기 전환 40, 내비 항목 64, 달력 칸 52/60", "터치 영역 40px 이상"],
+  ]}
+/>
+
+## 아이콘
+
+- **lucide-react 만** 쓴다. 규칙·확인 명령은 <DocLink path=".claude/skills/timesheet-ui/SKILL.md" hash="아이콘은-lucide-react-만">스킬 §2 "아이콘은 lucide-react 만"</DocLink>. 설치 버전 1.47.0.
+- 크기는 쓰는 곳이 정한다: 내비 22 · 아이콘 버튼 20 · 보기 전환 16 · 달력 표시·범례 10.
+- 선 굵기: 활성 2.4 / 비활성 내비 1.8 / 비활성 보기 전환 2.
+- 아이콘은 항상 `aria-hidden`, 접근 이름은 옆 글자나 `aria-label` 이 가진다.
+
+지금 쓰는 아이콘:
+
+<IconGrid />

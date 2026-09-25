@@ -1,0 +1,57 @@
+export const metadata = { title: "Month Picker" };
+
+# Month Picker
+
+달 이동. 왼쪽·오른쪽 버튼과 가운데 `2026년 9월`.
+
+<ComponentPreview name="month-picker/basic" width="max-w-md" />
+
+<FileLocation path="web/src/components/ui.tsx" importLine={`import { MonthPicker, useMonthCursor } from "@/components/ui";`} />
+
+## 사용법
+
+```tsx
+const [cursor, setCursor] = useMonthCursor(); // 오늘이 든 달로 시작
+<MonthPicker cursor={cursor} onChange={setCursor} />
+```
+
+예시는 미리보기가 날마다 바뀌지 않도록 `useState` 에 고정 시작값을 쓴다.
+
+## 구성
+
+```
+MonthPicker  <div flex justify-between>
+├─ <button aria-label="이전 달">◀</button>
+├─ <p font-semibold>{year}년 {month + 1}월</p>
+└─ <button aria-label="다음 달">▶</button>
+```
+
+## 해 넘김
+
+2026년 12월에서 다음을 누르면 `2027년 1월`.
+
+<ComponentPreview name="month-picker/year-end" width="max-w-md" />
+
+## 사용 규칙
+
+`month` 는 0~11 (`Date#getMonth` 와 같다). 달력과 함께 쓸 때는 <DocLink path="docs/design/calendar.md" hash="7-접근성">달력 명세 §7</DocLink> 키보드 항목.
+
+## 하지 말 것
+
+- `month` 에 1~12 를 넣지 않는다.
+- `form` 안에 두지 않는다 — 두 버튼에 `type` 이 없어 form 안에서는 submit 으로 동작한다.
+
+## API 레퍼런스
+
+### MonthPicker
+
+<PropsTable
+  rows={[
+    { prop: "cursor", type: "{ year: number; month: number }", required: true, description: "`month` 0~11" },
+    { prop: "onChange", type: "(c: { year: number; month: number }) => void", required: true, description: "새 달" },
+  ]}
+/>
+
+### useMonthCursor()
+
+`[cursor, setCursor]` 를 돌려준다 (`useState` 반환 그대로). 처음 값은 오늘이 든 달.

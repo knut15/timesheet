@@ -1,0 +1,78 @@
+export const metadata = { title: "App Header" };
+
+# App Header
+
+모든 화면의 머리. 위 작은 줄(매장·역할)과 화면 제목, 오른쪽에 동작과 내 아바타.
+
+<ComponentPreview name="app-header/basic" width="max-w-md" fixed />
+
+<FileLocation path="web/src/components/shell.tsx" importLine={`import { AppHeader } from "@/components/shell";`} />
+
+## 사용법
+
+```tsx
+<AppHeader eyebrow="데모 카페 성수점" title="출퇴근" me={{ id: "user-demo-01", nickname: "김하늘" }} width="max-w-md" />
+```
+
+## 구성
+
+```
+AppHeader  <header sticky top-0, border-b, bg-background/90 blur>
+└─ 폭 틀  <div mx-auto {width} px-5 py-3>
+   ├─ 글자 묶음
+   │  ├─ eyebrow 줄  <p text-xs text-muted>
+   │  │  ├─ 로고 <img alt={logoAlt} h-5 max-w-24> (logoUrl 있을 때 — 매장 이름 글자를 대신)
+   │  │  └─ eyebrow  <span 한 줄 자름>
+   │  └─ title    <h1 text-xl font-bold, 한 줄 자름>
+   └─ 오른쪽 묶음
+      ├─ actions  (넘긴 그대로)
+      └─ Avatar md, label "<nickname> (나)"
+```
+
+## 마스터 + 로그아웃
+
+`actions` 자리에 `IconButton` 을 둔다. 폭은 기본값(`max-w-3xl`).
+
+<ComponentPreview name="app-header/master" fixed />
+
+## 긴 글자 자르기
+
+매장·제목이 길면 한 줄에서 말줄임한다. 틀 폭 320px.
+
+<ComponentPreview name="app-header/truncate" width="max-w-[320px]" fixed />
+
+## 제목은 활성 메뉴
+
+`BottomNav` 와 함께 두면 제목이 곧 활성 메뉴 이름이다. 아래 메뉴를 눌러 보면 제목이 따라 바뀐다.
+
+<ComponentPreview name="app-header/with-nav" fixed />
+
+## 로고
+
+매장 로고가 있으면 `logoUrl` 로 넘긴다. eyebrow 줄 맨 앞에 높이 20px, 가로 최대 96px 로 비율을 지켜 놓인다. **로고가 매장 이름 글자를 대신한다** — eyebrow 에서 매장 이름을 빼고(멤버는 빈 값, 마스터는 `"사장님"`), 이름은 `logoAlt` 로 넘겨 스크린리더가 읽게 한다. 규칙은 <DocLink path="docs/prd/11-store-logo.md">PRD 11</DocLink>.
+
+<ComponentPreview name="app-header/logo" width="max-w-md" fixed />
+
+## 사용 규칙
+
+<DocLink path=".claude/skills/timesheet-ui/SKILL.md" hash="1-헤더--appheader">timesheet-ui 스킬 §1 헤더</DocLink> — eyebrow·title·width 값.
+
+## 하지 말 것
+
+- 화면마다 `header` 를 새로 만들지 않는다.
+- `me.id` 에 이름을 넣지 않는다 — 아바타 색이 화면마다 달라진다.
+- `width` 를 본문 폭과 다르게 주지 않는다.
+
+## API 레퍼런스
+
+<PropsTable
+  rows={[
+    { prop: "eyebrow", type: "string", required: true, description: "위 작은 줄" },
+    { prop: "title", type: "string", required: true, description: "화면 제목(`h1`)" },
+    { prop: "me", type: "{ id: string; nickname: string }", required: true, description: "내 아바타. `id` 가 색 seed" },
+    { prop: "actions", type: "React.ReactNode", description: "아바타 앞 동작" },
+    { prop: "width", type: "string (Tailwind max-w 클래스)", default: '"max-w-3xl"', description: "안쪽 폭" },
+    { prop: "logoUrl", type: "string | null", description: "매장 로고 주소. 있으면 eyebrow 줄 맨 앞에 두고 매장 이름 글자를 대신한다" },
+    { prop: "logoAlt", type: "string", default: '""', description: "로고의 대체 텍스트 — 매장 이름. 로고가 이름을 대신하므로 비우지 않는다" },
+  ]}
+/>

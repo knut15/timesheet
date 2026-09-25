@@ -36,9 +36,11 @@ function AdminShell({ me, children }: { me: Me; children: React.ReactNode }) {
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col">
       <AppHeader
-        eyebrow={`${me.membership!.store.name} · 사장님`}
+        eyebrow={me.membership!.store.logoUrl ? "사장님" : `${me.membership!.store.name} · 사장님`}
         title={title}
         me={me.user}
+        logoUrl={me.membership!.store.logoUrl}
+        logoAlt={me.membership!.store.name}
         actions={<IconButton icon={LogOut} label="로그아웃" onClick={() => logout()} />}
       />
       <main className="flex-1 px-5 pb-28 pt-5">{children}</main>

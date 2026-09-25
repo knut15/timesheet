@@ -64,7 +64,14 @@ function MemberHome({ me, membership }: { me: Me; membership: MyMembership }) {
 
   return (
     <div className="mx-auto flex w-full max-w-md flex-1 flex-col">
-      <AppHeader eyebrow={membership.store.name} title={TABS.find((t) => t.id === tab)!.label} me={me.user} width="max-w-md" />
+      <AppHeader
+        eyebrow={membership.store.logoUrl ? "" : membership.store.name}
+        logoUrl={membership.store.logoUrl}
+        logoAlt={membership.store.name}
+        title={TABS.find((t) => t.id === tab)!.label}
+        me={me.user}
+        width="max-w-md"
+      />
       <main className="flex-1 px-5 pb-28 pt-4">
         {tab === "clock" && <ClockPanel shifts={shifts} membership={membership} onChange={reload} />}
         {tab === "records" && (

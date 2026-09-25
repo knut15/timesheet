@@ -1,0 +1,95 @@
+export const metadata = { title: "Bottom Nav" };
+
+# Bottom Nav
+
+화면 하단 고정 내비게이션. 아이콘 위, 이름 아래. 모든 로그인 화면의 푸터.
+
+<ComponentPreview name="bottom-nav/basic" fixed />
+
+<FileLocation path="web/src/components/shell.tsx" importLine={`import { BottomNav, type NavItem } from "@/components/shell";`} />
+
+## 사용법
+
+```tsx
+const [tab, setTab] = useState("clock");
+const items: NavItem[] = [
+  { key: "clock", label: "출퇴근", icon: Clock, onSelect: () => setTab("clock") },
+  { key: "records", label: "기록", icon: CalendarDays, onSelect: () => setTab("records") },
+];
+<BottomNav items={items} active={tab} width="max-w-md" />
+```
+
+## 구성
+
+```
+BottomNav  <nav aria-label="주요 메뉴", fixed bottom-0, bg-surface/95, 안전 영역 여백>
+└─ <ul grid, 열 수 = items.length>
+   └─ <li> × items
+      └─ <Link href> 또는 <button onSelect>   aria-current="page" (활성)
+         ├─ 활성 윗선  <span h-0.5 bg-accent> (활성만)
+         ├─ 아이콘 틀
+         │  ├─ Icon 22px (선 2.4 활성 / 1.8)
+         │  └─ 배지  <span bg-warn, 9 초과는 "9+"> (badge > 0 일 때)
+         ├─ label
+         └─ sr-only " (처리할 것 N건)" (badge > 0 일 때)
+```
+
+## 마스터
+
+마스터 5메뉴. 실제 화면은 `href` 로 이동하지만, 가이드에서는 이동하지 않도록 `onSelect` 로 바꿔 쓴다.
+
+<ComponentPreview name="bottom-nav/master" fixed />
+
+## 배지
+
+처리할 요청 수. 요청 항목에 `badge: 3`.
+
+<ComponentPreview name="bottom-nav/badge" fixed />
+
+## 배지 9+
+
+10 이상은 `9+` 로 보이고, 읽는 글자는 실제 수다 — 스크린리더는 `(처리할 것 12건)` 을 읽는다.
+
+<ComponentPreview name="bottom-nav/badge-overflow" fixed />
+
+## 항목 3개
+
+최소 구성.
+
+<ComponentPreview name="bottom-nav/three-items" fixed />
+
+## 사용 규칙
+
+<DocLink path=".claude/skills/timesheet-ui/SKILL.md" hash="2-푸터--bottomnav">timesheet-ui 스킬 §2 푸터</DocLink> — 메뉴·아이콘 표, 항목 수, 하위 경로 활성, 본문 `pb-28`.
+
+## 하지 말 것
+
+- 아이콘에 `aria-label` 을 따로 달지 않는다 — 이름 글자가 접근 이름이다.
+- 한 목록에 `href` 항목과 `onSelect` 항목을 섞지 않는다. 코드는 허용하지만 실제 화면은 역할별로 한 방식만 쓴다: 멤버 `onSelect`, 마스터 `href`.
+- `badge: 0` 으로 배지를 숨기려 하지 않아도 된다 — 0·`undefined` 는 원래 안 보인다.
+
+## API 레퍼런스
+
+### BottomNav
+
+<PropsTable
+  rows={[
+    { prop: "items", type: "NavItem[]", required: true, description: "메뉴 항목" },
+    { prop: "active", type: "string", required: true, description: "활성 항목의 `key`" },
+    { prop: "width", type: "string", default: '"max-w-3xl"', description: "안쪽 폭" },
+  ]}
+/>
+
+### NavItem
+
+<PropsTable
+  first="필드"
+  rows={[
+    { prop: "key", type: "string", required: true, description: "항목 식별자, `active` 와 비교" },
+    { prop: "label", type: "string", required: true, description: "이름 글자" },
+    { prop: "icon", type: "LucideIcon", required: true, description: "lucide 아이콘 컴포넌트" },
+    { prop: "badge", type: "number", description: "0 보다 크면 배지. 9 초과는 `9+`" },
+    { prop: "href", type: "string", description: "`href` 와 `onSelect` 중 **하나만**. `href` 면 `next/link`" },
+    { prop: "onSelect", type: "() => void", description: "버튼으로 그린다" },
+  ]}
+/>

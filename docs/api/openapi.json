@@ -77,6 +77,8 @@
               "REQUEST_CLOSED",
               "LEAVE_OVERLAP",
               "SUBSTITUTE_NOT_ACCEPTED",
+              "LOGO_INVALID",
+              "PAYLOAD_TOO_LARGE",
               "INTERNAL"
             ]
           },
@@ -232,6 +234,12 @@
           },
           "fivePlus": {
             "type": "boolean"
+          },
+          "logoUrl": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         },
         "required": [
@@ -239,7 +247,8 @@
           "name",
           "lat",
           "lng",
-          "fivePlus"
+          "fivePlus",
+          "logoUrl"
         ]
       },
       "CreateStoreBody": {
@@ -1363,6 +1372,146 @@
           },
           "403": {
             "description": "FORBIDDEN",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stores/me/logo": {
+      "put": {
+        "summary": "매장 로고 올리기 (마스터) — 본문은 파일 바이트",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "image/png": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            },
+            "image/jpeg": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            },
+            "image/svg+xml": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "LOGO_INVALID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "PAYLOAD_TOO_LARGE",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "매장 로고 지우기 (마스터)",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "403": {
+            "description": "FORBIDDEN",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "매장 로고 이미지 (소속)",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "이미지 바이트"
+          },
+          "404": {
+            "description": "NOT_FOUND",
             "content": {
               "application/json": {
                 "schema": {

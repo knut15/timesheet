@@ -455,6 +455,133 @@ export interface paths {
         };
         trace?: never;
     };
+    "/api/stores/me/logo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 매장 로고 이미지 (소속) */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 이미지 바이트 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        /** 매장 로고 올리기 (마스터) — 본문은 파일 바이트 */
+        put: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "image/png": string;
+                    "image/jpeg": string;
+                    "image/svg+xml": string;
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["StoreDto"];
+                    };
+                };
+                /** @description LOGO_INVALID */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description FORBIDDEN */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description PAYLOAD_TOO_LARGE */
+                413: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        /** 매장 로고 지우기 (마스터) */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description FORBIDDEN */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/stores/me/invites": {
         parameters: {
             query?: never;
@@ -2258,7 +2385,7 @@ export interface components {
         ErrorResponse: {
             statusCode: number;
             /** @enum {string} */
-            code: "VALIDATION_FAILED" | "INVALID_CREDENTIALS" | "ACCESS_TOKEN_INVALID" | "REFRESH_TOKEN_INVALID" | "REFRESH_TOKEN_REUSED" | "REFRESH_TOKEN_ROTATED" | "CSRF_ORIGIN_REJECTED" | "CSRF_TOKEN_INVALID" | "EMAIL_TAKEN" | "TOO_MANY_REQUESTS" | "FORBIDDEN" | "NOT_FOUND" | "NO_STORE" | "ALREADY_IN_STORE" | "INVITE_INVALID" | "ALREADY_CLOCKED_IN" | "NOT_CLOCKED_IN" | "REQUEST_PENDING" | "REQUEST_CLOSED" | "LEAVE_OVERLAP" | "SUBSTITUTE_NOT_ACCEPTED" | "INTERNAL";
+            code: "VALIDATION_FAILED" | "INVALID_CREDENTIALS" | "ACCESS_TOKEN_INVALID" | "REFRESH_TOKEN_INVALID" | "REFRESH_TOKEN_REUSED" | "REFRESH_TOKEN_ROTATED" | "CSRF_ORIGIN_REJECTED" | "CSRF_TOKEN_INVALID" | "EMAIL_TAKEN" | "TOO_MANY_REQUESTS" | "FORBIDDEN" | "NOT_FOUND" | "NO_STORE" | "ALREADY_IN_STORE" | "INVITE_INVALID" | "ALREADY_CLOCKED_IN" | "NOT_CLOCKED_IN" | "REQUEST_PENDING" | "REQUEST_CLOSED" | "LEAVE_OVERLAP" | "SUBSTITUTE_NOT_ACCEPTED" | "LOGO_INVALID" | "PAYLOAD_TOO_LARGE" | "INTERNAL";
             message: string;
         };
         SignupBody: {
@@ -2294,6 +2421,7 @@ export interface components {
             lat: number | null;
             lng: number | null;
             fivePlus: boolean;
+            logoUrl: string | null;
         };
         CreateStoreBody: {
             name: string;

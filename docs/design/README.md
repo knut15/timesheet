@@ -3,3 +3,4 @@
 화면 셸 규칙(헤더·하단 내비·아바타)의 원본은 [timesheet-ui 스킬](../../.claude/skills/timesheet-ui/SKILL.md)이다. 이 폴더에는 기능별 화면·상태 명세를 둔다.
 
 - [근무 달력](calendar.md) — 멤버 기록 탭의 달력, 마스터 달력 화면(내비 진입점 결정 포함), 칸 표시·상태·접근성
+- [컴포넌트 가이드 명세](component-guide.md) — `/guide` 페이지 구성, 기초 토큰, 컴포넌트 15개의 예시·props 표

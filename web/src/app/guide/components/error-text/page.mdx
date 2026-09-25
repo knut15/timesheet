@@ -1,0 +1,35 @@
+export const metadata = { title: "Error Text" };
+
+# Error Text
+
+오류 한 줄. 내용이 없으면 아무것도 그리지 않는다.
+
+<ComponentPreview name="error-text/basic" width="max-w-md" />
+
+<FileLocation path="web/src/components/ui.tsx" importLine={`import { ErrorText } from "@/components/ui";`} />
+
+## 사용법
+
+```tsx
+<ErrorText>{error}</ErrorText>
+```
+
+## 구성
+
+```
+ErrorText  children 이 있으면 <p text-sm text-warn>, 없으면 null
+```
+
+## 빈 값
+
+오류가 없을 때(`error = ""`) 자리를 차지하지 않는다.
+
+<ComponentPreview name="error-text/empty" width="max-w-md" />
+
+## 하지 말 것
+
+- 오류를 `text-red-*` 로 직접 칠하지 않는다 — `ErrorText` 또는 `text-warn`.
+
+## API 레퍼런스
+
+<PropsTable rows={[{ prop: "children", type: "React.ReactNode", required: true, description: "거짓 값(빈 문자열·`null`·`undefined`)이면 렌더 안 함" }]} />
