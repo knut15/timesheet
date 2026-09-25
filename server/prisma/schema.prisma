@@ -6,3 +6,121 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// docs/prd/05-auth.md
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique // 소문자로 정규화해 저장
+  nickname     String
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  membership    Membership?
+  refreshTokens RefreshToken[]
+  shifts        Shift[]
+  invitesUsed   Invite[]       @relation("InviteUsedBy")
+
+  @@map("users")
+}
+
+enum RevokeReason {
+  rotated
+  logout
+  logout_all
+  session_deleted
+  reuse_detected
+}
+
+// web-auth 스킬 refresh-rotation.md 의 테이블 그대로
+model RefreshToken {
+  id               String        @id @default(uuid()) @db.Uuid
+  userId           String        @map("user_id") @db.Uuid
+  familyId         String        @map("family_id") @db.Uuid
+  tokenHash        String        @unique @map("token_hash")
+  expiresAt        DateTime      @map("expires_at") @db.Timestamptz
+  sessionExpiresAt DateTime      @map("session_expires_at") @db.Timestamptz
+  createdAt        DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  revokedAt        DateTime?     @map("revoked_at") @db.Timestamptz
+  revokeReason     RevokeReason? @map("revoke_reason")
+  replacedBy       String?       @map("replaced_by") @db.Uuid
+  userAgent        String?       @map("user_agent")
+  ip               String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+// docs/prd/06-store-invite.md
+model Store {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  lat       Float?
+  lng       Float?
+  fivePlus  Boolean  @default(true) @map("five_plus")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  memberships Membership[]
+  invites     Invite[]
+  shifts      Shift[]
+
+  @@map("stores")
+}
+
+enum Role {
+  master
+  member
+}
+
+// 한 사용자는 매장 하나에만 속한다. 내보내면 행을 지우고 근무 기록은 남긴다.
+model Membership {
+  userId          String   @id @map("user_id") @db.Uuid
+  storeId         String   @map("store_id") @db.Uuid
+  role            Role
+  hourlyWage      Int      @default(10320) @map("hourly_wage")
+  weeklyHours     Float    @default(20) @map("weekly_hours")
+  workDaysPerWeek Int      @default(5) @map("work_days_per_week")
+  joinedAt        DateTime @default(now()) @map("joined_at") @db.Timestamptz
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([storeId])
+  @@map("memberships")
+}
+
+model Invite {
+  id        String    @id @default(uuid()) @db.Uuid
+  storeId   String    @map("store_id") @db.Uuid
+  code      String    @unique
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz
+  usedAt    DateTime? @map("used_at") @db.Timestamptz
+  usedBy    String?   @map("used_by") @db.Uuid
+  revokedAt DateTime? @map("revoked_at") @db.Timestamptz
+
+  store      Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  usedByUser User? @relation("InviteUsedBy", fields: [usedBy], references: [id], onDelete: SetNull)
+
+  @@index([storeId])
+  @@map("invites")
+}
+
+// 열린 기록(end IS NULL)은 사용자당 하나 — 마이그레이션 SQL 의 부분 유니크 인덱스가 강제한다.
+model Shift {
+  id        String    @id @default(uuid()) @db.Uuid
+  storeId   String    @map("store_id") @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  start     DateTime  @db.Timestamptz
+  end       DateTime? @db.Timestamptz
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([storeId, start])
+  @@index([userId, start])
+  @@map("shifts")
+}

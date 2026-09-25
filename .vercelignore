@@ -1,0 +1,12 @@
+# 원격 빌드에 올리지 않는 것. 로컬 비밀값(.env)과 빌드 산출물.
+node_modules
+**/node_modules
+.env
+**/.env
+**/.env.local
+.omc
+**/.omc
+.vercel
+web/.next
+**/*.tsbuildinfo
+server/dist
