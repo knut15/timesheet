@@ -1,5 +1,7 @@
 "use client";
 // 멤버 출퇴근 탭 — 시계 카드와 오늘 근무 대시보드. API 를 부르지 않는 표시 컴포넌트다. docs/design/member-today.md, docs/prd/12-member-today.md
+import { ACT_CANCEL } from "@/components/buttons";
+import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 import { ArrowLeftRight, CalendarOff, ChevronRight, CircleCheck, CircleDashed, Hourglass, RefreshCw, TriangleAlert } from "lucide-react";
 import type { MyRequests } from "@/api/client";
@@ -8,7 +10,7 @@ import { computeMonth, computeWeek, computeWeeks, shiftMinutes, startOfWeek, typ
 import { todayShifts, todayState, type TodayState } from "@/lib/today";
 import { OpenDot } from "./calendar/MonthGrid";
 import { holidayStatus } from "./PayView";
-import { Card, date, dayLabel, ErrorText, hm, ProgressBar, time, won } from "./ui";
+import { Bone, Card, date, dayLabel, ErrorText, hm, Loading, ProgressBar, time, won } from "./ui";
 
 export type ClockState = TodayState | { kind: "loading" } | { kind: "error" };
 
@@ -103,16 +105,11 @@ export function ClockCard({
       );
       break;
     case "loading":
-      // 상태를 모르는 동안 누르지 않게 버튼을 막는다 (§2-4)
+      // 상태를 모르는 동안 버튼 자리는 막대로 둔다 — 누를 것이 없다 (§2-4)
       body = (
-        <>
-          <p role="status" className="mt-3 inline-flex items-center rounded-full border border-line px-3 py-1 text-sm text-muted">
-            상태 확인 중…
-          </p>
-          <button disabled className={`${BUTTON} bg-line text-muted`}>
-            출근
-          </button>
-        </>
+        <Loading label="상태 확인 중">
+          <ClockLoadingBody />
+        </Loading>
       );
       break;
     case "error":
@@ -139,6 +136,34 @@ export function ClockCard({
           <ErrorText>{error}</ErrorText>
         </div>
       )}
+    </Card>
+  );
+}
+
+/** 알약·버튼 자리 막대. 크기는 before 와 같다: 알약 30px(py-1 + text-sm 줄 20 + 테두리 2) · 버튼 60px(py-4 + text-lg 줄 28) */
+function ClockLoadingBody() {
+  return (
+    <>
+      <div className="mt-3 flex justify-center">
+        <Bone className="h-[30px] w-[88px] rounded-full" />
+      </div>
+      <Bone className="mt-4 h-15 w-full rounded-xl" />
+    </>
+  );
+}
+
+/**
+ * 로그인 확인 전 첫 화면용 시계 카드 — 날짜·시계 글자까지 막대. 서버 렌더와 브라우저의 시각이 달라
+ * 시계 글자를 그리면 hydration 이 어긋난다. 크기는 ClockCard 의 loading 과 같다 (text-sm 줄 20 · text-5xl 줄 48)
+ */
+export function ClockCardSkeleton() {
+  return (
+    <Card className="text-center">
+      <Loading label="상태 확인 중">
+        <div className="flex h-5 items-center justify-center"><Bone className="h-4 w-36" /></div>
+        <div className="mt-1 flex h-12 items-center justify-center"><Bone className="h-11 w-56" /></div>
+        <ClockLoadingBody />
+      </Loading>
     </Card>
   );
 }
@@ -182,20 +207,17 @@ export function TodayDashboard({
     };
   }, [shifts, absences, settings, now]);
 
-  if (status !== "ready") {
+  if (status === "loading") return <TodayDashboardSkeleton now={now} progress={settings.weeklyHours > 0} />;
+  if (status === "error") {
     return (
       <Card className="p-0">
-        {status === "loading" ? (
-          <p className="px-5 py-4 text-sm text-muted">불러오는 중…</p>
-        ) : (
-          <div className="space-y-3 px-5 py-4">
-            <ErrorText>오늘 근무를 불러오지 못했어요.</ErrorText>
-            <button onClick={onRetry} className="inline-flex items-center gap-2 rounded-xl border border-accent px-4 py-2.5 text-sm font-semibold text-accent">
-              <RefreshCw aria-hidden size={16} />
-              다시 불러오기
-            </button>
-          </div>
-        )}
+        <div className="space-y-3 px-5 py-4">
+          <ErrorText>오늘 근무를 불러오지 못했어요.</ErrorText>
+          <button onClick={onRetry} className={cn(ACT_CANCEL, "h-10 flex-none gap-2 px-4")}>
+            <RefreshCw aria-hidden size={16} />
+            다시 불러오기
+          </button>
+        </div>
       </Card>
     );
   }
@@ -295,6 +317,72 @@ export function TodayDashboard({
         </button>
       </section>
     </Card>
+  );
+}
+
+/**
+ * 기록·휴가를 읽는 동안의 자리 — ready 와 같은 Card·구역·줄 높이에 값 대신 막대 (§3-5).
+ * 구역 이름처럼 데이터와 무관한 글자는 그대로 둔다. 오늘 기록은 2행, 처리할 것 구역은 없는 것(0건)으로 둔다.
+ * progress: 소정 시간이 있어 이번 주 진행 막대 줄이 생기는지 (settings.weeklyHours > 0)
+ * now 가 없으면(로그인 확인 전, 서버 렌더) 월 글자도 막대 — 서버와 브라우저의 달이 다를 수 있다
+ */
+export function TodayDashboardSkeleton({ now, progress = true }: { now?: number; progress?: boolean }) {
+  const value = <dd className="flex h-5 items-center justify-end"><Bone className="h-4 w-24" /></dd>;
+  return (
+    <Loading>
+      <Card className="divide-y divide-line p-0">
+        <section className="px-5 py-4">
+          <div className="flex h-6 items-center justify-between gap-2">
+            <h2 className="text-sm font-semibold">오늘</h2>
+            <Bone className="h-5 w-20" />
+          </div>
+          <ul className="mt-2 text-sm">
+            {[0, 1].map((i) => (
+              <li key={i} className="flex h-7 items-center justify-between gap-2">
+                <Bone className="h-4 w-32" />
+                <Bone className="h-4 w-16" />
+              </li>
+            ))}
+          </ul>
+        </section>
+        <section className="px-5 py-4">
+          <div className="flex h-5 items-center justify-between gap-x-2">
+            <h2 className="text-sm font-semibold">이번 주</h2>
+            <Bone className="h-3 w-28" />
+          </div>
+          <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-sm">
+            <dt className="text-muted">근무 시간</dt>
+            {value}
+            {progress && (
+              <dd className="col-span-2 py-1">
+                <Bone className="h-2 w-full rounded-full" />
+              </dd>
+            )}
+            <dt className="text-muted">근무한 날</dt>
+            {value}
+            <dt className="text-muted">주휴수당</dt>
+            {value}
+          </dl>
+        </section>
+        <section>
+          <div className="flex min-h-11 w-full flex-wrap items-end justify-between gap-x-3 gap-y-1 px-5 py-4">
+            <span>
+              {now === undefined ? (
+                <span className="flex h-5 items-center"><Bone className="h-4 w-32" /></span>
+              ) : (
+                <span className="block text-sm text-muted">{new Date(now).getMonth() + 1}월 예상 급여 (세전)</span>
+              )}
+              <span className="flex h-7 items-center"><Bone className="h-6 w-28" /></span>
+            </span>
+            {/* 고정 글자는 그대로 — 좁은 폭에서 불러온 뒤와 같은 자리에서 줄바꿈된다 */}
+            <span className="inline-flex shrink-0 items-center gap-0.5 text-sm text-accent">
+              급여 탭에서 자세히
+              <ChevronRight aria-hidden size={16} />
+            </span>
+          </div>
+        </section>
+      </Card>
+    </Loading>
   );
 }
 

@@ -1,4 +1,5 @@
 "use client";
+import { BLOCK_PRIMARY } from "@/components/buttons";
 import Link from "next/link";
 import { useState } from "react";
 import { useArea } from "@/auth/hooks";
@@ -62,7 +63,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             </Field>
           )}
           <ErrorText>{error}</ErrorText>
-          <button disabled={busy} className="w-full rounded-xl bg-accent py-3 font-semibold text-white disabled:opacity-50">
+          <button disabled={busy} className={BLOCK_PRIMARY}>
             {mode === "login" ? "로그인" : "가입하고 시작하기"}
           </button>
         </form>

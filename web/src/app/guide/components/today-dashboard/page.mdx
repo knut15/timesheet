@@ -6,7 +6,7 @@ export const metadata = { title: "Today Dashboard" };
 
 <ComponentPreview name="today-dashboard/basic" width="max-w-md" />
 
-<FileLocation path="web/src/components/TodayDashboard.tsx" importLine={`import { TodayDashboard } from "@/components/TodayDashboard";`} />
+<FileLocation path="web/src/components/TodayDashboard.tsx" importLine={`import { TodayDashboard, TodayDashboardSkeleton } from "@/components/TodayDashboard";`} />
 
 ## 사용법
 
@@ -42,7 +42,7 @@ TodayDashboard  Card p-0 divide-y divide-line
 └─ ④ 이번 달  <button min-h-11>  "{월}월 예상 급여 (세전)" + won() + "급여 탭에서 자세히"
 ```
 
-`status` 가 `"loading"`·`"error"` 면 구역 없이 한 줄 또는 오류 + `다시 불러오기` 만 그린다.
+`status` 가 `"loading"` 이면 같은 구역·줄 틀에 값 대신 막대(`TodayDashboardSkeleton`), `"error"` 면 구역 없이 오류 + `다시 불러오기` 만 그린다.
 
 예시는 모두 2026년 9월 25일(금), `now` 에는 `minuteNow`(14:32)를 넘긴다. 기록은 아래 파일 하나를 Clock Card 예시와 같이 쓴다. 기본 absence 는 9월 24일 대타.
 
@@ -80,7 +80,7 @@ Basic 에서 소정 주 14시간 → 주휴 `대상 아님 (주 15시간 미만)
 
 ## 불러오는 중
 
-구역 없이 한 줄 `불러오는 중…`. `Spinner`(py-20)는 첫 화면에서 너무 높아 쓰지 않는다.
+ready 와 같은 Card·구역·줄 높이에 값 대신 막대. 구역 이름(`오늘`·`이번 주`·`근무 시간` …)과 `{월}월 예상 급여 (세전)` 은 데이터와 무관해 글자 그대로 둔다. 오늘 기록은 2행, `처리할 것` 은 0건(구역 없음)으로 잡는다 — 실제 행 수·요청 수가 다르면 그 차이만큼은 움직인다. 로그인 확인 전 첫 화면도 이 모양을 쓴다(`TodayDashboardSkeleton` export).
 
 <ComponentPreview name="today-dashboard/loading" width="max-w-md" />
 
@@ -128,5 +128,16 @@ Basic 에서 소정 주 14시간 → 주휴 `대상 아님 (주 15시간 미만)
     { prop: "onRetry", type: "() => void", required: true },
     { prop: "onOpenPay", type: "() => void", required: true, description: "급여 탭(이번 달)으로" },
     { prop: "onOpenRequests", type: "() => void", required: true, description: "요청 탭으로" },
+  ]}
+/>
+
+### TodayDashboardSkeleton
+
+`status="loading"` 일 때 TodayDashboard 가 그리는 모양. 로그인 확인 전 첫 화면처럼 settings 가 아직 없는 자리에서 직접 쓴다.
+
+<PropsTable
+  rows={[
+    { prop: "now", type: "number", description: "`{월}월 예상 급여` 의 월. 없으면(서버 렌더되는 로그인 확인 전) 그 글자도 막대" },
+    { prop: "progress", type: "boolean", default: "true", description: "이번 주 진행 막대 줄 — `settings.weeklyHours > 0`" },
   ]}
 />

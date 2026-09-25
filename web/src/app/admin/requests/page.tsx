@@ -1,12 +1,15 @@
 "use client";
 // 마스터 요청 화면 — 기록 수정 요청 승인·거절, 휴가·대타 승인·거절, 직접 등록·삭제. docs/prd/08·09
 // 흐름 규칙은 .claude/skills/timesheet-requests/SKILL.md
+import { ACT_CANCEL, ACT_SAVE, BLOCK_PRIMARY, BLOCK_SECONDARY, BTN_WARN } from "@/components/buttons";
+import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { parseDay } from "@/lib/pay";
 import { api, errorCode, type Correction, type LeaveReq, type Member, type Substitution } from "@/api/client";
 import { Avatar } from "@/components/shell";
-import { Card, date, ErrorText, Field, Spinner, StatusPill, time } from "@/components/ui";
+import { Card, date, ErrorText, Field, StatusPill, time } from "@/components/ui";
 import { useApi } from "@/lib/useApi";
+import { RequestsSkeleton } from "../_skeletons";
 
 const MESSAGES: Record<string, string> = {
   REQUEST_CLOSED: "이미 처리된 요청이에요.",
@@ -24,7 +27,7 @@ const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60_00
 export default function RequestsPage() {
   const req = useApi(() => api.GET("/api/stores/me/requests"), "");
   const members = useApi(() => api.GET("/api/stores/me/members"), "");
-  if (!req.data || !members.data) return <Spinner />;
+  if (!req.data || !members.data) return <RequestsSkeleton />;
   const { corrections, leaves, substitutions } = req.data;
   const team = members.data.filter((m) => m.role === "member");
   const reload = req.reload;
@@ -130,8 +133,8 @@ function Review({ onApprove, onReject, onDone, approveLabel = "승인", canAppro
       <input value={note} onChange={(e) => setNote(e.target.value)} maxLength={200} placeholder="메모 (거절 사유 등, 선택)" className="field text-sm" />
       <ErrorText>{error}</ErrorText>
       <div className="flex gap-2">
-        {canApprove && <button disabled={busy} onClick={() => run(onApprove)} className="flex-1 rounded-xl bg-accent py-2.5 text-sm font-semibold text-white disabled:opacity-50">{approveLabel}</button>}
-        <button disabled={busy} onClick={() => run(() => onReject(note))} className="flex-1 rounded-xl border border-line py-2.5 text-sm disabled:opacity-50">거절</button>
+        {canApprove && <button disabled={busy} onClick={() => run(onApprove)} className={cn(ACT_SAVE, "h-10")}>{approveLabel}</button>}
+        <button disabled={busy} onClick={() => run(() => onReject(note))} className={cn(ACT_CANCEL, "h-10")}>거절</button>
       </div>
     </div>
   );
@@ -238,7 +241,7 @@ function DirectLeave({ team, onDone }: { team: Member[]; onDone: () => void }) {
         </label>
         <Field label="사유"><input required maxLength={200} value={reason} onChange={(e) => setReason(e.target.value)} className="field" /></Field>
         <ErrorText>{error}</ErrorText>
-        <button className="w-full rounded-xl bg-accent py-3 font-semibold text-white">등록 (바로 확정)</button>
+        <button className={BLOCK_PRIMARY}>등록 (바로 확정)</button>
       </form>
     </Card>
   );
@@ -269,7 +272,7 @@ function DirectSub({ team, onDone }: { team: Member[]; onDone: () => void }) {
         <Field label="날짜"><input type="date" required value={day} onChange={(e) => setDay(e.target.value)} className="field" /></Field>
         <Field label="사유"><input required maxLength={200} value={reason} onChange={(e) => setReason(e.target.value)} className="field" /></Field>
         <ErrorText>{error}</ErrorText>
-        <button className="w-full rounded-xl border border-accent py-3 font-semibold text-accent">등록 (바로 확정)</button>
+        <button className={BLOCK_SECONDARY}>등록 (바로 확정)</button>
       </form>
     </Card>
   );
@@ -285,7 +288,7 @@ function ConfirmedRow({ seed, who, text, onDelete, onDone }: { seed: string; who
           await onDelete();
           onDone();
         }}
-        className="shrink-0 text-xs text-warn"
+        className={BTN_WARN}
       >
         삭제
       </button>

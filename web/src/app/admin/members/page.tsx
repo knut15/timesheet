@@ -6,14 +6,16 @@ import { ChevronRight, Plus, TicketPlus } from "lucide-react";
 import { api, type Member, type Schedule } from "@/api/client";
 import { Avatar } from "@/components/shell";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Card, date, ErrorText, Field, Spinner, useNow, won } from "@/components/ui";
+import { Card, date, ErrorText, Field, Loading, useNow, won } from "@/components/ui";
 import { dayKey, MINIMUM_WAGE, parseDay } from "@/lib/pay";
 import { DAY_NAMES, digitsOf, scheduleProblem, scheduleTerms, scheduleText, TIME_OPTIONS, WEEK_ORDER, withCommas } from "@/lib/schedule";
 import { useApi } from "@/lib/useApi";
+import { ACT_CANCEL, ACT_SAVE, BTN_ACCENT, BTN_WARN } from "../_buttons";
+import { ExceptionRowsSkeleton, MembersSkeleton } from "../_skeletons";
 
 export default function MembersPage() {
   const { data, reload } = useApi(() => api.GET("/api/stores/me/members"), "");
-  if (!data) return <Spinner />;
+  if (!data) return <MembersSkeleton />;
   const members = data.filter((m) => m.role === "member");
   return (
     <div className="space-y-3">
@@ -46,16 +48,6 @@ function InviteEntry() {
     </Link>
   );
 }
-
-// 카드 안 동작은 글자 링크가 아니라 버튼 모양으로 (2026-09-25 사용자 요청 "텍스트 전부 버튼 디자인으로")
-// 작게 — 2026-09-25 "버튼 작게"
-const BTN = "inline-flex h-8 shrink-0 items-center justify-center rounded-lg border px-2.5 text-xs font-semibold";
-const BTN_ACCENT = `${BTN} border-accent text-accent hover:bg-accent/10`;
-const BTN_WARN = `${BTN} border-warn text-warn hover:bg-warn/10`;
-// 저장·취소 — 한 사이즈 작게 (옛 py-2.5 → h-9)
-const ACT = "h-9 flex-1 rounded-lg text-sm font-semibold";
-const ACT_SAVE = `${ACT} bg-accent text-white`;
-const ACT_CANCEL = `${ACT} border border-line`;
 
 function MemberRow({ member, onChange }: { member: Member; onChange: () => void }) {
   const [editing, setEditing] = useState(false);
@@ -142,7 +134,7 @@ function MemberRow({ member, onChange }: { member: Member; onChange: () => void 
                         type="button"
                         aria-pressed={on}
                         onClick={() => toggleDay(d)}
-                        className={`h-11 rounded-xl border text-sm font-semibold ${on ? "border-accent bg-accent text-white" : "border-line text-muted"}`}
+                        className={`h-11 rounded-xl border text-sm font-semibold ${on ? "border-foreground bg-foreground text-surface" : "border-line text-muted hover:text-foreground"}`}
                       >
                         {DAY_NAMES[d]}
                       </button>
@@ -208,8 +200,11 @@ function ScheduleExceptions({ userId }: { userId: string }) {
       <p className="font-semibold">날짜별 변경</p>
       {loadError ? (
         <ErrorText>불러오지 못했어요.</ErrorText>
+      ) : !data ? (
+        <Loading>
+          <ExceptionRowsSkeleton />
+        </Loading>
       ) : (
-        data &&
         data.length > 0 && (
           <ul className="mt-1">
             {data.map((e) => (

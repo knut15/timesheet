@@ -29,8 +29,9 @@
   --color-popover: var(--surface);
   --color-popover-foreground: var(--foreground);
   --color-muted-foreground: var(--muted);
-  --color-primary: var(--accent);
-  --color-primary-foreground: #ffffff;
+  /* 주 버튼은 검정(다크 모드 흰색) — 2026-09-25 "파랑 빨강 촌스럽다, 모던하게" */
+  --color-primary: var(--foreground);
+  --color-primary-foreground: var(--surface);
   --color-secondary: var(--line);
   --color-secondary-foreground: var(--foreground);
   --color-destructive: var(--warn);

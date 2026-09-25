@@ -22,12 +22,14 @@ description: >
 | 스크롤 영역 | shadcn ScrollArea (2절) | 2026-09-25 요청 15 |
 | 달력 선택 | 테두리 없음 — 배경 + 굵은 날짜 (4절) | 2026-09-25 요청 11 |
 | 로고 | 로고가 있으면 매장 이름 글자 대신 (1절) | 2026-09-25 요청 12·14 |
-| 카드 안 동작 | 글자 링크 대신 **작은 버튼 모양** — 테두리 `h-8 rounded-lg border px-2.5 text-xs font-semibold`, 보통은 `border-accent text-accent`, 지우기·퇴사처리는 `border-warn text-warn` (멤버 카드 `web/src/app/admin/members/page.tsx` 의 `BTN_*`). 폼의 저장·취소는 `h-9 rounded-lg text-sm`(`ACT_*`). 조건 수정 같은 긴 폼은 카드 안에 펼치지 않고 shadcn Dialog 모달로 | 2026-09-25 "텍스트 전부 버튼 디자인으로", "버튼 작게, 조건 수정은 모달로, 저장·취소도 한 사이즈 작게" |
+| 버튼 | `web/src/components/buttons.ts` 만 쓴다(shadcn `buttonVariants` + 크기). **색 테두리(파랑·빨강) 없음** — 주 동작 검정(다크 흰색) `ACT_SAVE`·`BLOCK_PRIMARY`, 보통 회색 채움 `BTN_ACCENT`·`ACT_CANCEL`·`BLOCK_SECONDARY`, 지우기·퇴사처리는 회색 글자에 올리면 빨강 `BTN_WARN`. 카드 안 작은 버튼 h-8, 폼 저장·취소 h-9, 한 줄 버튼 h-12. 긴 폼은 shadcn Dialog 모달. 예외: 멤버 출퇴근 카드 출근·퇴근 큰 버튼과 50m 배너(상태 색) | 2026-09-25 "텍스트 전부 버튼 디자인으로", "버튼 작게·조건 수정 모달·저장 취소 한 사이즈 작게", "촌스럽다 파랑 빨강, 모던하게" |
+| 하위 화면 | 헤더 제목에 브레드크럼(`crumbs` — `멤버 › 근무 기록`), 헤더 아래 `SubHeader`(헤더 폭 띠 + 뒤로 가기). 본문에 "← 멤버" 글자 링크를 두지 않는다 | 2026-09-25 멤버 상세 요청 |
+| 불러오는 중 | **스켈레톤, 불러온 뒤와 같은 크기** — 글자·`Spinner` 를 쓰지 않는다. 같은 틀(Card·padding·gap)에 줄 높이 칸 + `Bone`(shadcn Skeleton + `bg-line`), 영역은 `Loading`(aria-busy). 로그인 확인 전은 `HeaderSkeleton`·`BottomNavSkeleton`. 크기 표는 가이드 `/guide/components/skeleton` | 2026-09-25 "모든 디자인에 layout shift 없도록 원래 사이즈에서 스켈레톤" |
 | 입력칸 | `.field` 하나로 input·date·select 모두 높이 44px, `min-w-0`, 날짜 칸 기본 모양 끔, select 는 lucide chevron-down 배경. 두 칸 격자는 `Field` 에 맡긴다(`min-w-0`) — 칸마다 높이·폭을 따로 주지 않는다 | 2026-09-25 모바일 겹침 수정 |
 
 ### shadcn 컴포넌트를 들일 때
 
-- 사용자가 지목한 것만 들인다 (지금: ScrollArea, Dialog — Dialog 가 부르는 Button 은 원본 의존이라 같이). 전체 도입이 아니다 — 가이드는 "문서 형식만 따른다" 가 사용자 결정이었다
+- 사용자가 지목한 것만 들인다 (지금: ScrollArea, Dialog, Skeleton — Dialog 가 부르는 Button 은 원본 의존이라 같이). 전체 도입이 아니다 — 가이드는 "문서 형식만 따른다" 가 사용자 결정이었다
 - 레지스트리 원본(`https://ui.shadcn.com/r/styles/base-nova/<이름>.json`)을 `web/src/components/ui/<이름>.tsx` 에 **그대로** 둔다. 고칠 것이 있으면 바깥에서 className 으로
 - 원본이 쓰는 테마 이름(`bg-border`, `ring-ring` …)은 `globals.css` `@theme` 에서 우리 토큰으로 잇는다. 새 색을 만들지 않는다
 - `cn` 은 `web/src/lib/utils.ts` (clsx + tailwind-merge)

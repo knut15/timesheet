@@ -1,10 +1,11 @@
 "use client";
 // 가입 뒤 소속이 없는 사용자. 매장을 만들면 마스터, 초대 코드를 등록하면 멤버. docs/prd/06-store-invite.md
+import { BLOCK_PRIMARY, BLOCK_SECONDARY } from "@/components/buttons";
 import { useState } from "react";
 import { api, errorCode } from "@/api/client";
 import { useArea } from "@/auth/hooks";
 import { logout, reloadMe } from "@/auth/session";
-import { Card, ErrorText, Field, Spinner } from "@/components/ui";
+import { Bone, Card, ErrorText, Field, Loading } from "@/components/ui";
 import { clearInviteCode, peekInviteCode } from "@/lib/inviteLink";
 
 const MESSAGES: Record<string, string> = {
@@ -20,7 +21,7 @@ export default function OnboardingPage() {
   const [storeName, setStoreName] = useState("");
   const [error, setError] = useState<{ which: "code" | "store"; msg: string } | null>(null);
   const [busy, setBusy] = useState(false);
-  if (!me) return <Spinner />;
+  if (!me) return <OnboardingSkeleton />;
 
   const run = async (which: "code" | "store", send: () => Promise<{ error?: unknown }>) => {
     setBusy(true);
@@ -52,7 +53,7 @@ export default function OnboardingPage() {
             <input required value={code} onChange={(e) => setCode(e.target.value)} placeholder="예: K7PX3MWA" autoCapitalize="characters" className="field font-mono tracking-widest uppercase" />
           </Field>
           {error?.which === "code" && <ErrorText>{error.msg}</ErrorText>}
-          <button disabled={busy} className="w-full rounded-xl bg-accent py-3 font-semibold text-white disabled:opacity-50">코드 등록</button>
+          <button disabled={busy} className={BLOCK_PRIMARY}>코드 등록</button>
         </form>
       </Card>
 
@@ -70,11 +71,38 @@ export default function OnboardingPage() {
             <input required maxLength={50} value={storeName} onChange={(e) => setStoreName(e.target.value)} className="field" />
           </Field>
           {error?.which === "store" && <ErrorText>{error.msg}</ErrorText>}
-          <button disabled={busy} className="w-full rounded-xl border border-accent py-3 font-semibold text-accent disabled:opacity-50">매장 만들기</button>
+          <button disabled={busy} className={BLOCK_SECONDARY}>매장 만들기</button>
         </form>
       </Card>
 
       <button onClick={() => logout()} className="w-full py-2 text-sm text-muted">로그아웃</button>
     </div>
+  );
+}
+
+/** 로그인 확인 전 — 아래 화면과 같은 틀·같은 줄 높이 (2026-09-25 "layout shift 없도록 스켈레톤") */
+function OnboardingSkeleton() {
+  const card = (
+    <Card>
+      <div className="flex h-6 items-center"><Bone className="h-4 w-24" /></div>
+      <div className="mt-1 flex h-5 items-center"><Bone className="h-3.5 w-52" /></div>
+      <div className="mt-4 space-y-3">
+        <div>
+          <div className="flex h-5 items-center"><Bone className="h-3.5 w-16" /></div>
+          <Bone className="mt-1 h-11 rounded-xl" />
+        </div>
+        <Bone className="h-12 rounded-xl" />
+      </div>
+    </Card>
+  );
+  return (
+    <Loading className="mx-auto w-full max-w-sm flex-1 space-y-4 px-5 py-10">
+      <div>
+        <div className="flex h-8 items-center"><Bone className="h-6 w-48" /></div>
+        <div className="mt-1 flex h-5 items-center"><Bone className="h-3.5 w-32" /></div>
+      </div>
+      {card}
+      {card}
+    </Loading>
   );
 }

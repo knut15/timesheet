@@ -53,6 +53,12 @@ AppHeader  <header sticky top-0, border-b, bg-background/90 blur>
 
 <ComponentPreview name="app-header/logo" width="max-w-md" fixed />
 
+## 하위 화면 — 브레드크럼과 서브헤더
+
+탭 안의 하위 화면(멤버 › 근무 기록, 멤버 › 초대 코드)은 `crumbs` 로 상위 화면 링크를 제목 앞에 붙이고, 헤더 바로 아래 `SubHeader` 로 뒤로 가기를 둔다. 서브헤더는 헤더와 같은 폭의 띠(`bg-surface` + 아래 선)라 본문과 확실히 나뉜다 (2026-09-25 사용자 요청).
+
+<ComponentPreview name="app-header/breadcrumb" width="max-w-3xl" />
+
 ## 사용 규칙
 
 <DocLink path=".claude/skills/timesheet-ui/SKILL.md" hash="1-헤더--appheader">timesheet-ui 스킬 §1 헤더</DocLink> — eyebrow·title·width 값.
@@ -74,5 +80,16 @@ AppHeader  <header sticky top-0, border-b, bg-background/90 blur>
     { prop: "width", type: "string (Tailwind max-w 클래스)", default: '"max-w-3xl"', description: "안쪽 폭" },
     { prop: "logoUrl", type: "string | null", description: "매장 로고 주소. 있으면 eyebrow 줄 맨 앞에 두고 매장 이름 글자를 대신한다" },
     { prop: "logoAlt", type: "string", default: '""', description: "로고의 대체 텍스트 — 매장 이름. 로고가 이름을 대신하므로 비우지 않는다" },
+    { prop: "crumbs", type: "{ label: string; href: string }[]", description: "상위 화면 링크. 있으면 제목이 `멤버 › 근무 기록` 모양이 된다" },
+  ]}
+/>
+
+### SubHeader
+
+<PropsTable
+  rows={[
+    { prop: "backHref", type: "string", required: true, description: "돌아갈 화면" },
+    { prop: "backLabel", type: "string", required: true, description: "버튼 글자 (예: 멤버 목록)" },
+    { prop: "width", type: "string", default: '"max-w-3xl"', description: "헤더와 같은 안쪽 폭" },
   ]}
 />

@@ -6,7 +6,7 @@ export const metadata = { title: "Pay View" };
 
 <ComponentPreview name="pay-view/basic" width="max-w-md" />
 
-<FileLocation path="web/src/components/PayView.tsx" importLine={`import { PayView, holidayStatus } from "@/components/PayView";`} />
+<FileLocation path="web/src/components/PayView.tsx" importLine={`import { PayView, PayViewSkeleton, holidayStatus } from "@/components/PayView";`} />
 
 ## 사용법
 
@@ -55,6 +55,12 @@ PayView  <div space-y-4>
 
 <ComponentPreview name="pay-view/empty" width="max-w-md" />
 
+## 불러오는 중
+
+`PayViewSkeleton` — 요약 카드와 주 카드를 같은 틀·줄 높이로 두고 값 대신 막대. 주 카드 수는 "일요일이 이 달에 있고 `now` 까지 시작한 주" 수로 잡는다(매주 근무하는 사람의 주 카드 수와 같다). 휴가수당 줄·한도 경고는 없는 것으로 둔다 — 있으면 그 줄만큼 움직인다.
+
+<ComponentPreview name="pay-view/loading" width="max-w-md" />
+
 ## 사용 규칙
 
 계산식은 <DocLink path="docs/prd/02-pay.md">PRD 02</DocLink>·<DocLink path="docs/prd/03-overtime.md">PRD 03</DocLink>, 휴가는 <DocLink path="docs/prd/09-leave-substitution.md">PRD 09</DocLink>. 프로젝트 규칙 "화면 컴포넌트에서 금액을 계산하지 않는다"(`CLAUDE.md` §2).
@@ -77,6 +83,16 @@ PayView  <div space-y-4>
     { prop: "month", type: "number", required: true, description: "0~11" },
     { prop: "now", type: "number", required: true, description: "진행 중 근무와 주 진행 여부 기준 시각" },
     { prop: "absences", type: 'Absence[] ({ date: "YYYY-MM-DD"; kind: "paid_leave" | "unpaid_leave" | "substitution" })', default: "[]", description: "승인된 휴가·대타" },
+  ]}
+/>
+
+### PayViewSkeleton
+
+<PropsTable
+  rows={[
+    { prop: "year", type: "number", required: true },
+    { prop: "month", type: "number", required: true, description: "0~11" },
+    { prop: "now", type: "number", required: true, description: "주 카드 수를 정하는 기준 시각" },
   ]}
 />
 

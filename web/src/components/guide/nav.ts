@@ -26,12 +26,14 @@ export const GUIDE_NAV: { title: string; items: GuidePage[] }[] = [
       { href: "/guide/components/status-pill", label: "Status Pill", description: "요청 상태 배지. 수정 요청·휴가·대타가 같이 쓴다." },
       { href: "/guide/components/card", label: "Card", description: "화면 본문을 묶는 흰 바탕 둥근 상자." },
       { href: "/guide/components/spinner", label: "Spinner", description: "불러오는 중 자리 표시 글자." },
+      { href: "/guide/components/skeleton", label: "Skeleton", description: "불러온 뒤와 같은 크기의 자리 표시 막대. 화면이 움직이지 않는다." },
       { href: "/guide/components/progress-bar", label: "Progress Bar", description: "목표 대비 값을 보이는 가로 막대. 읽는 값은 글자로." },
     ],
   },
   {
     title: "입력",
     items: [
+      { href: "/guide/components/button", label: "Button", description: "주 동작 검정·보통 회색·지우기 글자 버튼." },
       { href: "/guide/components/field", label: "Field", description: "입력칸 이름표와 .field 입력칸." },
       { href: "/guide/components/error-text", label: "Error Text", description: "오류 한 줄. 내용이 없으면 그리지 않는다." },
       { href: "/guide/components/month-picker", label: "Month Picker", description: "이전·다음 달 이동." },

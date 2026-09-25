@@ -1,6 +1,8 @@
 "use client";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { IconButton } from "./shell";
+import { Skeleton } from "./ui/skeleton";
+import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import type { ShiftDto } from "@/api/client";
 import type { Shift } from "@/lib/pay";
@@ -122,6 +124,25 @@ export function ProgressBar({ value, max, label, valueText }: { value: number; m
       className="h-2 w-full overflow-hidden rounded-full bg-line"
     >
       <div className="h-full rounded-full bg-accent" style={{ width: `${pct}%` }} />
+    </div>
+  );
+}
+
+/**
+ * 스켈레톤 막대 — shadcn Skeleton 원본에 바탕색만 덮는다. 원본의 bg-muted 는 우리 쪽에서 글자색이라 너무 진하다.
+ * 불러온 뒤 모양과 **같은 크기**로 둔다: 글자 줄은 그 글자 크기의 줄 높이(text-xs h-4, text-sm h-5, text-base h-6, text-lg·xl h-7).
+ * 규칙은 timesheet-ui 스킬 §0 "불러오는 중".
+ */
+export function Bone({ className }: { className?: string }) {
+  return <Skeleton aria-hidden className={cn("bg-line", className)} />;
+}
+
+/** 스켈레톤 영역을 감싼다 — 스크린리더에는 "불러오는 중" 한 번만 읽힌다 */
+export function Loading({ children, className, label = "불러오는 중" }: { children: React.ReactNode; className?: string; label?: string }) {
+  return (
+    <div aria-busy="true" className={className}>
+      <span className="sr-only" role="status">{label}</span>
+      {children}
     </div>
   );
 }
