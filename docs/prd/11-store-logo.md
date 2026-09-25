@@ -14,7 +14,7 @@
 | LG-2 | 형식 검사 | 확장자·Content-Type 이 아니라 **파일 첫 바이트**로 판정한다 (PNG 서명 `89 50 4E 47 0D 0A 1A 0A`, JPEG `FF D8 FF`, SVG 는 `<svg` 로 시작하는 XML). 맞지 않으면 400 `LOGO_INVALID` |
 | LG-3 | SVG 안전 | `<script>`, `<foreignObject>`, `on*=` 속성, `javascript:`, 외부 참조(`href` 가 `#` 로 시작하지 않음), `<iframe>`·`<embed>`·`<object>` 가 있으면 400 `LOGO_INVALID`. 응답에도 `Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; sandbox` 와 `X-Content-Type-Options: nosniff` |
 | LG-4 | 크기 | 1MB 초과는 413 `PAYLOAD_TOO_LARGE` |
-| LG-5 | 노출 | 헤더 eyebrow 줄에 로고(높이 20px, 가로 최대 96px, 비율 유지) + 매장 이름. 로고가 없으면 지금처럼 이름만 |
+| LG-5 | 노출 | 헤더 eyebrow 줄에 로고(높이 20px, 가로 최대 96px, 비율 유지). **로고가 있으면 매장 이름 글자는 보이지 않는다**(2026-09-25 변경) — 멤버는 로고만, 마스터는 로고 · 사장님. 이름은 로고의 대체 텍스트로 읽힌다. 로고가 없으면 지금처럼 이름만 |
 | LG-6 | 권한 | 올리기·지우기는 마스터(멤버 403). 보기는 그 매장 소속(마스터·멤버), 다른 매장·비로그인 401/404 |
 | LG-7 | 교체·삭제 | 다시 올리면 바뀐다(주소의 `?v=` 가 바뀌어 캐시가 갱신). 지우면 이름만 |
 

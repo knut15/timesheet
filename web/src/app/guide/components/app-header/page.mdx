@@ -21,7 +21,7 @@ AppHeader  <header sticky top-0, border-b, bg-background/90 blur>
 └─ 폭 틀  <div mx-auto {width} px-5 py-3>
    ├─ 글자 묶음
    │  ├─ eyebrow 줄  <p text-xs text-muted>
-   │  │  ├─ 로고 <img alt="" h-5 max-w-24> (logoUrl 있을 때)
+   │  │  ├─ 로고 <img alt={logoAlt} h-5 max-w-24> (logoUrl 있을 때 — 매장 이름 글자를 대신)
    │  │  └─ eyebrow  <span 한 줄 자름>
    │  └─ title    <h1 text-xl font-bold, 한 줄 자름>
    └─ 오른쪽 묶음
@@ -49,7 +49,7 @@ AppHeader  <header sticky top-0, border-b, bg-background/90 blur>
 
 ## 로고
 
-매장 로고가 있으면 `logoUrl` 로 넘긴다. eyebrow 줄 앞에 높이 20px, 가로 최대 96px 로 비율을 지켜 놓인다. 옆에 매장 이름이 있으므로 이미지는 장식(`alt=""`)이다. 규칙은 <DocLink path="docs/prd/11-store-logo.md">PRD 11</DocLink>.
+매장 로고가 있으면 `logoUrl` 로 넘긴다. eyebrow 줄 맨 앞에 높이 20px, 가로 최대 96px 로 비율을 지켜 놓인다. **로고가 매장 이름 글자를 대신한다** — eyebrow 에서 매장 이름을 빼고(멤버는 빈 값, 마스터는 `"사장님"`), 이름은 `logoAlt` 로 넘겨 스크린리더가 읽게 한다. 규칙은 <DocLink path="docs/prd/11-store-logo.md">PRD 11</DocLink>.
 
 <ComponentPreview name="app-header/logo" width="max-w-md" fixed />
 
@@ -72,6 +72,7 @@ AppHeader  <header sticky top-0, border-b, bg-background/90 blur>
     { prop: "me", type: "{ id: string; nickname: string }", required: true, description: "내 아바타. `id` 가 색 seed" },
     { prop: "actions", type: "React.ReactNode", description: "아바타 앞 동작" },
     { prop: "width", type: "string (Tailwind max-w 클래스)", default: '"max-w-3xl"', description: "안쪽 폭" },
-    { prop: "logoUrl", type: "string | null", description: "매장 로고 주소. 있으면 eyebrow 줄 앞에 장식 이미지로 둔다" },
+    { prop: "logoUrl", type: "string | null", description: "매장 로고 주소. 있으면 eyebrow 줄 맨 앞에 두고 매장 이름 글자를 대신한다" },
+    { prop: "logoAlt", type: "string", default: '""', description: "로고의 대체 텍스트 — 매장 이름. 로고가 이름을 대신하므로 비우지 않는다" },
   ]}
 />
