@@ -7,6 +7,7 @@ import { logout } from "@/auth/session";
 import { GEOFENCE_RADIUS_M } from "@/lib/geo";
 import { MINIMUM_WAGE, shiftMinutes, type PaySettings, type Shift } from "@/lib/pay";
 import { setDeviceSettings, useDeviceSettings } from "@/lib/storage";
+import { clockText } from "@/lib/format";
 import { useApi } from "@/lib/useApi";
 import { requestAlertPermissions, useGeofence } from "@/lib/useGeofence";
 import { CalendarDays, ClipboardList, Clock, UserRound, Wallet } from "lucide-react";
@@ -158,7 +159,8 @@ function ClockPanel({ shifts, membership, onChange }: { shifts: Shift[]; members
 
       <Card className="text-center">
         <p className="text-sm text-muted">{date(now)}</p>
-        <p className="mt-1 font-mono text-5xl font-semibold tabular-nums">{new Date(now).toLocaleTimeString("ko-KR", { hour12: false })}</p>
+        {/* 한 줄 고정: HH:MM:SS + 줄바꿈 금지 (2026-09-25 모바일에서 초가 다음 줄로 넘어가던 것) */}
+        <p className="mt-1 whitespace-nowrap font-mono text-5xl font-semibold tabular-nums">{clockText(now)}</p>
         {open ? (
           <>
             <p className="mt-4 text-sm text-muted">
