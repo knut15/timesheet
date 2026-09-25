@@ -25,11 +25,11 @@ FE 와 API 를 서로 다른 `*.vercel.app` 주소로 직접 부르면 **다른 
 
 | 항목 | 값 |
 |---|---|
-| 액세스 토큰 | JWT HS256, 10분, 클레임 `sub`·`sid`·`jti`·`iss`·`aud`. 응답 본문으로 주고 FE 메모리에만 둔다 |
-| 리프레시 토큰 | 32바이트 난수, DB 에 SHA-256 해시만. 쿠키 `refresh_token; HttpOnly; Secure; SameSite=Strict; Path=/api/auth`, 최대 14일 |
+| 액세스 토큰 | JWT HS256, 10분, 클레임 `sub`·`sid`·`jti`·`iss`·`aud`. **쿠키 `access_token; HttpOnly; Secure; SameSite=Strict; Path=/api`** — 응답 본문에 없다, JS 가 보지 않는다 (2026-09-25 변경, 사용자 결정) |
+| 리프레시 토큰 | 32바이트 난수, DB 에 SHA-256 해시만. 쿠키 `refresh_token; HttpOnly; Secure; SameSite=Strict; Path=/api/auth`, 30일 |
 | 회전 | refresh 마다 새로 발급, 옛 것은 `rotated`. 10초 뒤 옛 것이 다시 오면 세션 전체 폐기 (`REFRESH_TOKEN_REUSED`) |
-| 세션 상한 | 첫 로그인부터 30일 |
-| CSRF | `login`·`refresh`·`logout` 에 SameSite + Origin 검사 + 서명된 `X-CSRF-Token` |
+| 세션 유지 | **슬라이딩** — refresh 할 때마다 한도를 지금 + 30일로 다시 잡는다. 30일 동안 안 쓰면 끊긴다 |
+| CSRF | **모든 POST·PUT·PATCH·DELETE** 에 SameSite + Origin 검사 + 서명된 `X-CSRF-Token` — 액세스 토큰이 쿠키라 브라우저가 자동으로 싣기 때문 |
 | 비밀번호 | argon2id (`m=19456, t=2, p=1`), 8자 이상 |
 | 로그인 제한 | IP 당 1분 5회 실패 → 429 |
 
@@ -42,7 +42,7 @@ FE 와 API 를 서로 다른 `*.vercel.app` 주소로 직접 부르면 **다른 
 | `POST /api/auth/login` | — | ✅ | 200 토큰 + 리프레시 쿠키 |
 | `POST /api/auth/refresh` | 쿠키 | ✅ | 회전 |
 | `POST /api/auth/logout` | 쿠키 | ✅ | 204, 멱등 |
-| `GET /api/users/me` | Bearer | — | 내 정보 + 소속 매장·역할 |
+| `GET /api/users/me` | 쿠키 | — | 내 정보 + 소속 매장·역할 |
 
 에러 응답은 `{ statusCode, code, message }` 이고 FE 는 `code` 로 분기한다. 코드 목록은 `web-auth` 스킬의 api-contract 와 같다.
 API 문서(OpenAPI)는 `server` 가 `/api/docs` 로 낸다 (운영에서는 끈다).
@@ -59,5 +59,5 @@ API 문서(OpenAPI)는 `server` 가 `/api/docs` 로 낸다 (운영에서는 끈�
 
 ## 수용 기준
 
-`web-auth` 스킬 verify.md 의 S1~S14, S19~S22 를 돌리고 결과를 [docs/verify/auth.md](../verify/auth.md) 에 남긴다.
+`web-auth` 스킬 verify.md 의 S1~S14, S19~S22 와 cookie-session 변형의 X-1·X-2 를 돌리고 결과를 [docs/verify/auth.md](../verify/auth.md) 에 남긴다. 구현 규칙은 프로젝트 스킬 [timesheet-auth](../../.claude/skills/timesheet-auth/SKILL.md).
 S15·S16(세션 목록·전체 로그아웃)은 범위 밖이라 뺀다.

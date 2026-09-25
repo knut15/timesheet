@@ -10,6 +10,8 @@
   - [05. 로그인](prd/05-auth.md)
   - [06. 매장과 초대 코드](prd/06-store-invite.md)
   - [07. 마스터 관리 화면과 대시보드](prd/07-admin.md)
+  - [08. 기록 수정 요청과 승인](prd/08-correction-requests.md)
+  - [09. 휴가와 대타 근무](prd/09-leave-substitution.md)
 
 ## API
 
@@ -27,3 +29,10 @@
 
 - [작업 히스토리](history/) — 날짜별 결정·실패·수정 기록
   - [2026-09-25](history/2026-09-25.md)
+
+## 에이전트 팀
+
+- [팀 운영과 호출 방법](team/README.md)
+- [6개 역할과 권한](team/roles.md)
+- [작업 카드 양식](team/task-template.md)
+- [TS-001 기록 수정 요청 팀 인수](team/tasks/TS-001-corrections.md)
