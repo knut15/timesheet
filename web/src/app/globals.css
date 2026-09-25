@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* shadcn Dialog 의 열고 닫힘 움직임(animate-in·fade-in 등) */
+@import "tw-animate-css";
 
 :root {
   /* 스크롤바·폼 컨트롤을 OS 테마에 맞춘다 — 없으면 다크 모드에서도 흰 스크롤바가 그려진다 */
@@ -23,6 +25,16 @@
   /* shadcn 컴포넌트가 쓰는 이름을 우리 토큰에 잇는다 (scroll-area 의 bg-border, ring-ring) */
   --color-border: var(--line);
   --color-ring: var(--accent);
+  /* shadcn Dialog·Button 이 쓰는 이름 (2026-09-25 조건 수정 모달). muted 는 우리 쪽이 글자색이라 잇지 않는다 — 바탕이 필요한 곳은 바깥 className 으로 */
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted);
+  --color-primary: var(--accent);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--line);
+  --color-secondary-foreground: var(--foreground);
+  --color-destructive: var(--warn);
+  --color-input: var(--line);
   --font-sans: var(--font-pretendard);
   --font-mono: var(--font-geist-mono);
 }

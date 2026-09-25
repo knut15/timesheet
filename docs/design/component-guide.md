@@ -19,7 +19,7 @@
 |---|---|
 | `/guide` | 첫 화면 — 소개, 기초 토큰 요약, 컴포넌트 목록 |
 | `/guide/foundations` | 기초 — 색·타이포·간격·모서리·아이콘 (§2) |
-| `/guide/components/<slug>` | 컴포넌트 페이지 18개 (§4) |
+| `/guide/components/<slug>` | 컴포넌트 페이지 19개 (§4) |
 
 ### 1-2. `/guide` 첫 화면
 
@@ -53,6 +53,7 @@
 | 입력 | `field` | Field |
 | | `error-text` | Error Text |
 | | `month-picker` | Month Picker |
+| | `dialog` | Dialog |
 | 달력 | `month-grid` | Month Grid |
 | | `calendar-legend` | Calendar Legend |
 | | `view-toggle` | View Toggle |
@@ -185,6 +186,7 @@ shadcn Avatar 페이지와 같은 순서다. "설치" 는 timesheet 에서 **파
 | `field` | `Field` + CSS 클래스 `.field` | `ui.tsx`, `globals.css` | 4 |
 | `error-text` | `ErrorText` | `ui.tsx` | 2 |
 | `month-picker` | `MonthPicker`, 훅 `useMonthCursor` | `ui.tsx` | 2 |
+| `dialog` | shadcn `Dialog`·`DialogContent`·`DialogHeader`·`DialogTitle`·`DialogFooter` (원본 그대로, 닫기 버튼은 `ui/button.tsx`) | `ui/dialog.tsx` | 1 |
 | `month-grid` | `MonthGrid`, 타입 `Marks`, `OpenDot` | `calendar/MonthGrid.tsx` | 7 |
 | `calendar-legend` | `CalendarLegend` | `calendar/CalendarLegend.tsx` | 2 |
 | `view-toggle` | `ViewToggle` | `calendar/ViewToggle.tsx` | 2 |
@@ -1118,9 +1120,21 @@ status 가 loading·error 면 구역 없이 한 줄 / 오류 + 다시 불러오�
 
 ---
 
+### 4-19. `dialog` — Dialog
+
+**설명**: 화면 위 모달. 멤버 카드 "조건 수정" 이 쓴다 (2026-09-25 사용자 요청 "조건 수정은 모달로", shadcn Dialog 지정). 원본(`https://ui.shadcn.com/r/styles/base-nova/dialog.json`, `button.json`)을 그대로 두고 바깥 `className` 으로 맞춘다 — 타임시트 스킬 §0 "shadcn 컴포넌트를 들일 때".
+
+**패키지**: `class-variance-authority`(Button), `tw-animate-css`(열고 닫힘 움직임) — 2026-09-25 사용자 승인 뒤 설치.
+
+**맞춤**: `DialogContent` 에 `bg-surface p-5 sm:max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto`, `DialogFooter` 에 `-mx-5 -mb-5 flex-row border-line bg-transparent px-5 py-4`. 푸터 버튼은 `h-9 flex-1 rounded-lg text-sm font-semibold`(취소 테두리 · 저장 accent 채움). 원본의 `bg-muted` 는 우리 `muted`(글자색)와 이름이 겹쳐 잇지 않고 덮는다.
+
+| 예시 (H2) | 설명 |
+|---|---|
+| Basic | 작은 "조건 수정" 버튼으로 열고, 시급 입력칸(천 단위 쉼표) + 취소·저장 |
+
 ## 5. 개발팀 전달 요점
 
-1. 페이지 18개 + `/guide` + `/guide/foundations`. slug·순서·묶음은 §1-3 표 그대로.
+1. 페이지 19개 + `/guide` + `/guide/foundations`. slug·순서·묶음은 §1-3 표 그대로.
 2. 페이지 틀은 §1-4 의 9절 순서. 예시 이름이 곧 H2.
 3. 미리보기는 실제 컴포넌트를 import 한다. 가이드용 복제 컴포넌트를 만들지 않는다.
 4. `BottomNav`·`AppHeader` 미리보기는 `transform` 틀 안에 넣는다 (§1-5).

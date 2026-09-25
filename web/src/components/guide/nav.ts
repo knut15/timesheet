@@ -35,6 +35,7 @@ export const GUIDE_NAV: { title: string; items: GuidePage[] }[] = [
       { href: "/guide/components/field", label: "Field", description: "입력칸 이름표와 .field 입력칸." },
       { href: "/guide/components/error-text", label: "Error Text", description: "오류 한 줄. 내용이 없으면 그리지 않는다." },
       { href: "/guide/components/month-picker", label: "Month Picker", description: "이전·다음 달 이동." },
+      { href: "/guide/components/dialog", label: "Dialog", description: "화면 위 모달. 조건 수정 폼과 취소·저장." },
     ],
   },
   {
