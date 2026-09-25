@@ -74,9 +74,10 @@ export function useMonthCursor() {
 
 export function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="block text-sm">
+    // min-w-0: 격자 칸 안에서 줄어들 수 있게. 안쪽은 span — label 안에는 글자 수준 요소만 둔다
+    <label className="block min-w-0 text-sm">
       <span className="text-muted">{label}</span>
-      <div className="mt-1">{children}</div>
+      <span className="mt-1 block">{children}</span>
     </label>
   );
 }

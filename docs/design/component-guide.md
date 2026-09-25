@@ -576,6 +576,8 @@ AvatarStack  <span aria-hidden flex>
 
 ### 4-9. `field` — Field
 
+> 입력칸 규칙(2026-09-25): 종류와 상관없이 높이 44px(`h-11`), 격자 안에서 줄어들 수 있게 `min-w-0`, 날짜 칸은 기본 모양을 끄고 왼쪽 정렬, select 는 기본 화살표 대신 lucide chevron-down. 모바일 요청 화면에서 날짜 두 칸이 겹치고 날짜·선택 높이가 달랐던 것을 고친 규칙이다. 선택 예시는 "날짜 + 선택" 두 칸.
+
 **설명**: 입력칸 이름표. 이름 글자 아래에 입력 요소를 둔다. 입력 요소 자체는 CSS 클래스 `.field` 로 꾸민다.
 
 **파일**: `Field` 는 `web/src/components/ui.tsx`, `.field` 는 `web/src/app/globals.css` `@layer components`.
