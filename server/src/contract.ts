@@ -64,6 +64,7 @@ export const InviteDto = z
     createdAt: z.string(),
     expiresAt: z.string(),
     status: z.enum(["active", "used", "expired", "revoked"]),
+    usedByUserId: z.string().nullable(),
     usedByNickname: z.string().nullable(),
   })
   .meta({ id: "InviteDto" });

@@ -9,16 +9,18 @@ import { MINIMUM_WAGE, shiftMinutes, type PaySettings, type Shift } from "@/lib/
 import { setDeviceSettings, useDeviceSettings } from "@/lib/storage";
 import { useApi } from "@/lib/useApi";
 import { requestAlertPermissions, useGeofence } from "@/lib/useGeofence";
+import { CalendarDays, Clock, UserRound, Wallet } from "lucide-react";
 import { PayView } from "./PayView";
+import { AppHeader, Avatar, BottomNav, type NavItem } from "./shell";
 import { Card, date, ErrorText, hm, MonthPicker, monthRange, Spinner, time, toShift, useMonthCursor, useNow, won } from "./ui";
 
 type Tab = "clock" | "records" | "pay" | "me";
-const TABS: { id: Tab; label: string }[] = [
-  { id: "clock", label: "출퇴근" },
-  { id: "records", label: "기록" },
-  { id: "pay", label: "급여" },
-  { id: "me", label: "내 정보" },
-];
+const TABS = [
+  { id: "clock", label: "출퇴근", icon: Clock },
+  { id: "records", label: "기록", icon: CalendarDays },
+  { id: "pay", label: "급여", icon: Wallet },
+  { id: "me", label: "내 정보", icon: UserRound },
+] as const;
 
 export default function TimesheetApp() {
   const { me } = useArea("member");
@@ -45,11 +47,8 @@ function MemberHome({ me, membership }: { me: Me; membership: MyMembership }) {
 
   return (
     <div className="mx-auto flex w-full max-w-md flex-1 flex-col">
-      <header className="px-5 pb-3 pt-6">
-        <p className="text-sm text-muted">{membership.store.name}</p>
-        <h1 className="text-2xl font-bold tracking-tight">{me.user.nickname}님의 타임시트</h1>
-      </header>
-      <main className="flex-1 px-5 pb-28">
+      <AppHeader eyebrow={membership.store.name} title={TABS.find((t) => t.id === tab)!.label} me={me.user} width="max-w-md" />
+      <main className="flex-1 px-5 pb-28 pt-4">
         {tab === "clock" && <ClockPanel shifts={shifts} membership={membership} onChange={reload} />}
         {tab === "records" && (
           <div className="space-y-4">
@@ -65,15 +64,7 @@ function MemberHome({ me, membership }: { me: Me; membership: MyMembership }) {
         )}
         {tab === "me" && <MePanel me={me} membership={membership} />}
       </main>
-      <nav className="fixed inset-x-0 bottom-0 border-t border-line bg-surface/95 backdrop-blur">
-        <div className="mx-auto grid max-w-md grid-cols-4">
-          {TABS.map((t) => (
-            <button key={t.id} onClick={() => setTab(t.id)} className={`py-4 text-sm font-medium ${tab === t.id ? "text-accent" : "text-muted"}`}>
-              {t.label}
-            </button>
-          ))}
-        </div>
-      </nav>
+      <BottomNav width="max-w-md" active={tab} items={TABS.map((t): NavItem => ({ key: t.id, label: t.label, icon: t.icon, onSelect: () => setTab(t.id) }))} />
     </div>
   );
 }
@@ -215,9 +206,13 @@ function RecordsList({ shifts, year, month }: { shifts: Shift[]; year: number; m
 function MePanel({ me, membership }: { me: Me; membership: MyMembership }) {
   return (
     <div className="space-y-4">
-      <Card>
-        <h2 className="font-semibold">{me.user.nickname}</h2>
-        <p className="text-sm text-muted">{me.user.email}</p>
+      <Card className="flex items-center gap-4">
+        <Avatar name={me.user.nickname} seed={me.user.id} size="lg" />
+        <div className="min-w-0">
+          <h2 className="truncate text-lg font-semibold">{me.user.nickname}</h2>
+          <p className="truncate text-sm text-muted">{me.user.email}</p>
+          <p className="mt-1 text-xs text-muted">{membership.store.name} · 멤버</p>
+        </div>
       </Card>
       <Card>
         <h2 className="font-semibold">근무 조건</h2>

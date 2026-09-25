@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { api, type Member } from "@/api/client";
 import { holidayStatus } from "@/components/PayView";
+import { Avatar } from "@/components/shell";
 import { Card, dayLabel, hm, MonthPicker, Spinner, time, toShift, useMonthCursor, useNow, won } from "@/components/ui";
 import { computeMonth, computeWeeks, dayKey, MINIMUM_WAGE, shiftMinutes, startOfWeek, type PaySettings } from "@/lib/pay";
 import { useApi } from "@/lib/useApi";
@@ -57,8 +58,14 @@ export default function DashboardPage() {
           ) : (
             <ul className="mt-3 space-y-2">
               {working.map(({ member, shift }) => (
-                <li key={shift.id} className="flex justify-between text-sm">
-                  <span className="font-medium">{member.nickname}</span>
+                <li key={shift.id} className="flex items-center justify-between gap-3 text-sm">
+                  <span className="flex min-w-0 items-center gap-2 font-medium">
+                    <span className="relative">
+                      <Avatar name={member.nickname} seed={member.userId} size="sm" />
+                      <span aria-hidden className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-surface bg-green-500" />
+                    </span>
+                    <span className="truncate">{member.nickname}</span>
+                  </span>
                   <span className="tabular-nums text-muted">{time(shift.start)} 출근 · {hm(shiftMinutes(shift, now))}</span>
                 </li>
               ))}
@@ -97,7 +104,8 @@ export default function DashboardPage() {
             {rows.map((r) => (
               <li key={r.member.userId}>
                 <Link href={`/admin/members/${r.member.userId}`} className="flex items-center justify-between gap-3 px-5 py-4 hover:bg-background">
-                  <div className="min-w-0">
+                  <Avatar name={r.member.nickname} seed={r.member.userId} />
+                  <div className="min-w-0 flex-1">
                     <p className="font-medium">{r.member.nickname}</p>
                     <p className="text-xs text-muted">
                       {hm(r.month.workedMinutes)} · 이번 주 주휴 {r.thisWeek ? holidayStatus(r.thisWeek, r.settings, now) : "기록 없음"}

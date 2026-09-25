@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { api, type Member } from "@/api/client";
+import { Avatar } from "@/components/shell";
 import { Card, ErrorText, Field, Spinner, won } from "@/components/ui";
 import { MINIMUM_WAGE } from "@/lib/pay";
 import { useApi } from "@/lib/useApi";
@@ -49,8 +50,9 @@ function MemberRow({ member, onChange }: { member: Member; onChange: () => void 
   return (
     <li>
       <Card>
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
+        <div className="flex items-center justify-between gap-3">
+          <Avatar name={member.nickname} seed={member.userId} />
+          <div className="min-w-0 flex-1">
             <Link href={`/admin/members/${member.userId}`} className="font-semibold hover:underline">{member.nickname}</Link>
             <p className="truncate text-sm text-muted">{member.email}</p>
           </div>

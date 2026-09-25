@@ -13,14 +13,24 @@
 
 파트타임 근무자의 출퇴근 기록과 급여를 관리하는 앱이다. 로그인부터 배포까지 직접 구현하는 것이 목표다.
 
+사장(마스터)이 매장을 만들고 초대 코드로 알바생(멤버)을 불러들인다. 알바생은 매장 50m 안에 들어가면 출근 알림을 받고, 급여는 시급 + 주휴수당 + 연장근로 가산으로 계산된다.
+
+| | 주소 |
+|---|---|
+| 웹 | https://timesheet-brown-ten.vercel.app |
+| API | https://timesheet-api-hazel.vercel.app (웹이 `/api/*` 를 넘긴다) |
+
 ## 무엇으로 만들었나
 
 서버와 클라이언트를 pnpm 워크스페이스 하나에서 관리한다.
 
 | 폴더 | 패키지 | 역할 |
 |---|---|---|
-| `server/` | `timesheet-server` | Express API. Prisma 로 Postgres 에 붙는다 |
-| `web/` | `timesheet-web` | Next.js App Router 클라이언트 |
+| `server/` | `timesheet-server` | Express API. Prisma 로 Postgres 에 붙는다. 로그인(JWT·argon2·CSRF)·매장·초대·근무 기록 |
+| `web/` | `timesheet-web` | Next.js App Router. 멤버 화면 `/`, 마스터 관리 화면 `/admin`. `/api/*` 를 rewrites 로 서버에 넘긴다 |
+
+- 급여 계산은 `web/src/lib/pay.ts` 한 곳에만 있다. 서버는 기록과 조건만 내려준다
+- API 계약은 `server/src/contract.ts`(zod)에서 `docs/api/openapi.json` 으로 내보내고, 웹은 그 파일로 타입을 만든다
 
 문서는 [docs/](docs/README.md) 에 있다.
 
@@ -33,16 +43,22 @@ pnpm install
 
 # DB (Postgres 18.6, 호스트 포트 5434)
 cp server/.env.example server/.env
+# server/.env 의 JWT_ACCESS_SECRET·CSRF_SECRET 에 서로 다른 값을 넣는다: openssl rand -base64 48
 pnpm --filter timesheet-server db:up
+pnpm --filter timesheet-server exec prisma migrate deploy
 
-# 서버 → http://localhost:4200/health
+# 서버 → http://localhost:4200/health, API 문서 /api/docs
 pnpm dev:server
 
 # 웹 → http://localhost:3200
 pnpm dev:web
 ```
 
-타입 검사는 루트에서 `pnpm typecheck` 로 돌린다.
+| 검사 | 명령 |
+|---|---|
+| 타입 | `pnpm typecheck` |
+| 급여·알림 단위 테스트 | `pnpm --filter timesheet-web test` |
+| API e2e (서버가 떠 있어야 한다) | `pnpm --filter timesheet-server test:e2e` |
 
 ## 어디까지 왔나
 
@@ -53,4 +69,15 @@ pnpm dev:web
 | 서버 연동 — 매장·초대 코드·근무 기록 | 완료 |
 | 로그인 (JWT 직접 구현, 리프레시 회전·재사용 탐지) | 완료 — [검증 기록](docs/verify/auth.md) |
 | 마스터 관리 화면·대시보드 | 완료 |
+| 화면 셸 — 헤더·하단 내비(lucide)·멤버 아바타 | 완료 — 규칙은 [`.claude/skills/timesheet-ui`](.claude/skills/timesheet-ui/SKILL.md) |
+| 기록 수정 요청·승인, 휴가·대타 근무 | 진행 중 |
 | 배포 | 웹 https://timesheet-brown-ten.vercel.app · API·Neon DB ([docs/deploy.md](docs/deploy.md)) |
+
+## 문서
+
+| 문서 | 내용 |
+|---|---|
+| [docs/prd/](docs/prd/README.md) | 요구사항 01~07 — 급여 규칙은 공식 출처와 함께 |
+| [docs/verify/auth.md](docs/verify/auth.md) | 로그인·매장·초대 검증 결과 (로컬·운영) |
+| [docs/deploy.md](docs/deploy.md) | 배포 절차와 환경변수 |
+| [docs/history/](docs/history/) | 작업 히스토리 — 결정·실패·수정 기록 |

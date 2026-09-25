@@ -315,6 +315,12 @@
               "revoked"
             ]
           },
+          "usedByUserId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "usedByNickname": {
             "type": [
               "string",
@@ -328,6 +334,7 @@
           "createdAt",
           "expiresAt",
           "status",
+          "usedByUserId",
           "usedByNickname"
         ]
       },

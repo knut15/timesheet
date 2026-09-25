@@ -2,6 +2,7 @@
 // 초대 코드 발급·복사·취소. docs/prd/06-store-invite.md
 import { useState } from "react";
 import { api, type Invite } from "@/api/client";
+import { Avatar } from "@/components/shell";
 import { Card, dayLabel, Spinner } from "@/components/ui";
 import { useApi } from "@/lib/useApi";
 
@@ -46,9 +47,14 @@ export default function InvitesPage() {
                   <p className="font-mono text-xl font-semibold tracking-widest">{i.code}</p>
                   <span className={`shrink-0 text-xs ${i.status === "active" ? "text-accent" : "text-muted"}`}>{STATUS[i.status]}</span>
                 </div>
-                <p className="mt-1 text-xs text-muted">
-                  {i.status === "used" ? `${i.usedByNickname ?? "알 수 없음"}님이 사용` : `${dayLabel(Date.parse(i.expiresAt))}까지`}
-                </p>
+                {i.status === "used" ? (
+                  <p className="mt-2 flex items-center gap-2 text-xs text-muted">
+                    <Avatar name={i.usedByNickname ?? "?"} seed={i.usedByUserId ?? i.id} size="sm" />
+                    {i.usedByNickname ?? "알 수 없음"}님이 사용
+                  </p>
+                ) : (
+                  <p className="mt-1 text-xs text-muted">{dayLabel(Date.parse(i.expiresAt))}까지</p>
+                )}
                 {i.status === "active" && (
                   <div className="mt-3 flex gap-4 text-sm">
                     <button onClick={() => copy(i.code)} className="text-accent">{copied === i.code ? "복사됨" : "복사"}</button>
