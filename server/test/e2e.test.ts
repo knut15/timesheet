@@ -295,6 +295,7 @@ if (process.env.S17) {
       const byId = Object.fromEntries(list.body.map((i: { id: string; status: string }) => [i.id, i]));
       assert.equal(byId[inv.body.id].status, "used");
       assert.equal(byId[inv.body.id].usedByNickname, "알바");
+      assert.equal(byId[inv.body.id].usedByUserId, albaUser.id);
       assert.equal(byId[inv2.body.id].status, "revoked");
       assert.equal(byId[inv3.body.id].status, "expired");
 

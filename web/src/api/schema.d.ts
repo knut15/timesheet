@@ -1147,6 +1147,7 @@ export interface components {
             expiresAt: string;
             /** @enum {string} */
             status: "active" | "used" | "expired" | "revoked";
+            usedByUserId: string | null;
             usedByNickname: string | null;
         };
         RedeemBody: {

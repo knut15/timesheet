@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { api, errorCode, type ShiftDto } from "@/api/client";
 import { useSession } from "@/auth/hooks";
 import { PayView } from "@/components/PayView";
+import { Avatar } from "@/components/shell";
 import { Card, date, ErrorText, Field, hm, MonthPicker, monthRange, Spinner, time, toLocalInput, toShift, useMonthCursor, useNow } from "@/components/ui";
 import { shiftMinutes, type PaySettings } from "@/lib/pay";
 import { useApi } from "@/lib/useApi";
@@ -45,7 +46,13 @@ export default function MemberDetailPage() {
     <div className="space-y-4">
       <div>
         <Link href="/admin/members" className="text-sm text-muted">← 멤버</Link>
-        <h2 className="mt-1 text-xl font-bold">{member.nickname}</h2>
+        <div className="mt-2 flex items-center gap-3">
+          <Avatar name={member.nickname} seed={member.userId} size="lg" />
+          <div className="min-w-0">
+            <h2 className="truncate text-xl font-bold">{member.nickname}</h2>
+            <p className="truncate text-sm text-muted">{member.email}</p>
+          </div>
+        </div>
       </div>
       <MonthPicker cursor={cursor} onChange={setCursor} />
       <div className="grid grid-cols-2 rounded-xl border border-line p-1 text-sm">

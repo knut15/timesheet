@@ -32,6 +32,7 @@ export function toInviteDto(i: Invite & { usedByUser?: { nickname: string } | nu
     createdAt: i.createdAt.toISOString(),
     expiresAt: i.expiresAt.toISOString(),
     status,
+    usedByUserId: i.usedBy,
     usedByNickname: i.usedByUser?.nickname ?? null,
   } as const;
 }
