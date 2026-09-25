@@ -23,7 +23,7 @@
   /* shadcn 컴포넌트가 쓰는 이름을 우리 토큰에 잇는다 (scroll-area 의 bg-border, ring-ring) */
   --color-border: var(--line);
   --color-ring: var(--accent);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-pretendard);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -42,7 +42,8 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  /* Pretendard 가 없을 때만 시스템 글꼴 */
+  font-family: var(--font-pretendard), system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
 }
 
 @layer components {

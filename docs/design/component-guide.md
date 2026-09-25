@@ -121,7 +121,7 @@ shadcn Avatar 페이지와 같은 순서다. "설치" 는 timesheet 에서 **파
 
 ### 2-2. 타이포
 
-- 글꼴: `body` 의 `system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif`. `layout.tsx` 가 Geist 변수(`--font-geist-sans`·`--font-geist-mono`)를 싣지만 `body` 글꼴 지정이 우선하므로, Geist 는 `font-sans`·`font-mono` 클래스를 준 요소에만 나온다.
+- 글꼴: 본문은 **Pretendard**(가변, `next/font/local` 로 앱이 직접 제공 — `layout.tsx` 의 `--font-pretendard`, `font-sans` 도 같은 글꼴). 없을 때만 `system-ui` 계열로 떨어진다. 코드는 `font-mono` = Geist Mono.
 - 숫자(금액·시간·날짜)는 `tabular-nums`.
 
 | 크기 | 클래스 | 실제 쓰는 곳 |
@@ -158,6 +158,13 @@ shadcn Avatar 페이지와 같은 순서다. "설치" 는 timesheet 에서 **파
 - 페이지에 지금 쓰는 아이콘 목록을 격자로 보인다: `Clock` `CalendarDays` `ClipboardList` `Wallet` `UserRound`(멤버 내비) · `LayoutDashboard` `Inbox` `Users` `Store`(마스터 내비) · `LogOut` · `List` · `Hourglass` `TriangleAlert`(달력). 2026-09-25 에 전부 `typeof === "object"` 확인.
 
 ---
+
+
+### 2-5. 스크롤 영역·화살표
+
+- 화면 안에서 따로 스크롤되는 곳(코드 블록·넓은 표·긴 목차)은 shadcn **ScrollArea** (`@/components/ui/scroll-area`, Base UI·base-nova 원본). 브라우저 기본 스크롤바(`overflow-auto`)를 쓰지 않는다. 페이지 전체 스크롤은 대상이 아니다
+- 월 이동 같은 좌우 화살표는 lucide `ChevronLeft`/`ChevronRight` 를 `IconButton` 으로. `◀` `▶` 글자를 쓰지 않는다
+- 규칙 원본: timesheet-ui 스킬 §0·§2
 
 ## 3. 컴포넌트 목록
 

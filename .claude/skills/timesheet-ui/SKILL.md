@@ -11,6 +11,30 @@ description: >
 컴포넌트별 props·예시는 [컴포넌트 가이드 명세](../../../docs/design/component-guide.md)(웹 `/guide`)에 있다. 규칙의 원본은 이 문서다.
 2026-09-25 에 정했다. 따를 시안이 없어 기존 색 토큰(`web/src/app/globals.css` 의 `--accent` 등) 위에서 정한 것이다.
 
+
+## 0. 디자인 기초 — 사용자가 정한 것
+
+| 무엇 | 규칙 | 정한 날·요청 |
+|---|---|---|
+| 글꼴 | 본문 **Pretendard**(가변, `next/font/local` — npm `pretendard` 파일을 앱이 직접 제공, CDN 없음). 코드는 Geist Mono. 새 글꼴을 CDN 으로 붙이지 않는다 | 2026-09-25 "폰트는 pretendard로 수정" |
+| 아이콘 | lucide-react 만 (2절) | 2026-09-25 요청 4 |
+| 좌우 화살표 | lucide `ChevronLeft`/`ChevronRight` + `IconButton` (2절 스크롤 항목) | 2026-09-25 요청 15 |
+| 스크롤 영역 | shadcn ScrollArea (2절) | 2026-09-25 요청 15 |
+| 달력 선택 | 테두리 없음 — 배경 + 굵은 날짜 (4절) | 2026-09-25 요청 11 |
+| 로고 | 로고가 있으면 매장 이름 글자 대신 (1절) | 2026-09-25 요청 12·14 |
+
+### shadcn 컴포넌트를 들일 때
+
+- 사용자가 지목한 것만 들인다 (지금: ScrollArea). 전체 도입이 아니다 — 가이드는 "문서 형식만 따른다" 가 사용자 결정이었다
+- 레지스트리 원본(`https://ui.shadcn.com/r/styles/base-nova/<이름>.json`)을 `web/src/components/ui/<이름>.tsx` 에 **그대로** 둔다. 고칠 것이 있으면 바깥에서 className 으로
+- 원본이 쓰는 테마 이름(`bg-border`, `ring-ring` …)은 `globals.css` `@theme` 에서 우리 토큰으로 잇는다. 새 색을 만들지 않는다
+- `cn` 은 `web/src/lib/utils.ts` (clsx + tailwind-merge)
+- 필요한 패키지 설치는 사용자 승인 뒤 — 설치한 이름·버전을 히스토리와 완료 보고에 남긴다
+
+### 컴포넌트 가이드(`/guide`)와 같이 움직인다
+
+컴포넌트를 추가하거나 props·모양을 바꾼 커밋에는 **가이드 페이지(`web/src/app/guide/components/<slug>/page.mdx`, `_examples/<slug>/*`)와 명세(`docs/design/component-guide.md`)의 해당 절**이 같이 들어간다. 새 컴포넌트는 가이드 목차(`web/src/components/guide/nav.ts`)에도 한 줄. 사용자가 따로 말하지 않아도 한다.
+
 ## 1. 헤더 — `AppHeader`
 
 | 자리 | 무엇 |
@@ -87,6 +111,8 @@ import { Clock } from "lucide-react";   // ✓ 이름으로 하나씩 가져온�
 | 아바타 겹침 | 최대 3개, 4명 이상이면 2개 + `+N` |
 
 ## 5. 바꾸면 같이 고칠 것
+
+- 가이드 페이지·명세 (0절 "컴포넌트 가이드와 같이 움직인다")
 
 - 이 문서의 표 (메뉴·아이콘·크기)
 - 화면이 바뀌었으면 `work-history` 스킬 3절대로 배포·README·히스토리까지 반영한다

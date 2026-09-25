@@ -2,7 +2,7 @@ export const metadata = { title: "기초" };
 
 # 기초
 
-색·글자·간격·모서리·아이콘. 원본은 `web/src/app/globals.css` 와 각 컴포넌트다.
+색·글자·간격·모서리·아이콘·스크롤. 원본은 `web/src/app/globals.css` 와 각 컴포넌트다.
 
 ## 색 토큰
 
@@ -29,7 +29,7 @@ export const metadata = { title: "기초" };
 
 ## 타이포
 
-- 글꼴: `body` 의 `system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif`. `layout.tsx` 가 Geist 변수를 싣지만 `body` 글꼴 지정이 우선하므로, Geist 는 `font-sans`·`font-mono` 클래스를 준 요소에만 나온다.
+- 글꼴: 본문은 **Pretendard**(가변, `next/font/local` 로 앱이 직접 제공 — `layout.tsx` 의 `--font-pretendard`, `font-sans` 도 같은 글꼴). 없을 때만 `system-ui` 계열로 떨어진다. 코드는 `font-mono` = Geist Mono.
 - 숫자(금액·시간·날짜)는 `tabular-nums`.
 - 굵기: `font-medium`(메뉴·배지) · `font-semibold`(카드 소제목·금액·아바타) · `font-bold`(화면 제목·총액·오늘 숫자).
 
@@ -60,3 +60,10 @@ export const metadata = { title: "기초" };
 지금 쓰는 아이콘:
 
 <IconGrid />
+
+## 스크롤 영역·화살표
+
+- 화면 안에서 따로 스크롤되는 곳(코드 블록·넓은 표·긴 목차)은 shadcn **ScrollArea** 를 쓴다 (`@/components/ui/scroll-area`, Base UI·base-nova 원본 그대로). 브라우저 기본 스크롤바를 쓰지 않는다. 이 가이드의 코드 블록·표·목차가 전부 ScrollArea 다.
+- 월 이동 같은 좌우 화살표는 lucide `ChevronLeft`/`ChevronRight` 를 `IconButton` 에 태운다. `◀` `▶` 글자를 쓰지 않는다.
+- 규칙 원본은 <DocLink path=".claude/skills/timesheet-ui/SKILL.md">timesheet-ui 스킬</DocLink> §0·§2.
+
