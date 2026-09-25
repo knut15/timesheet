@@ -20,8 +20,8 @@ const [open, setOpen] = useState(false);
     </DialogHeader>
     {/* 입력칸 */}
     <DialogFooter className="-mx-5 -mb-5 flex-row border-line bg-transparent px-5 py-4">
-      <button className="h-9 flex-1 rounded-lg border border-line text-sm font-semibold">취소</button>
-      <button className="h-9 flex-1 rounded-lg bg-accent text-sm font-semibold text-white">저장</button>
+      <button className={ACT_CANCEL}>취소</button>
+      <button className={ACT_SAVE}>저장</button>
     </DialogFooter>
   </DialogContent>
 </Dialog>

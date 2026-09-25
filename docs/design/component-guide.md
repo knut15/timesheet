@@ -1149,7 +1149,7 @@ status 가 loading 이면 같은 구역 틀에 막대(TodayDashboardSkeleton), e
 
 **패키지**: `class-variance-authority`(Button), `tw-animate-css`(열고 닫힘 움직임) — 2026-09-25 사용자 승인 뒤 설치.
 
-**맞춤**: `DialogContent` 에 `bg-surface p-5 sm:max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto`, `DialogFooter` 에 `-mx-5 -mb-5 flex-row border-line bg-transparent px-5 py-4`. 푸터 버튼은 `h-9 flex-1 rounded-lg text-sm font-semibold`(취소 테두리 · 저장 accent 채움). 원본의 `bg-muted` 는 우리 `muted`(글자색)와 이름이 겹쳐 잇지 않고 덮는다.
+**맞춤**: `DialogContent` 에 `bg-surface p-5 sm:max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto`, `DialogFooter` 에 `-mx-5 -mb-5 flex-row border-line bg-transparent px-5 py-4`. 푸터 버튼은 `components/buttons.ts` 의 `ACT_CANCEL`·`ACT_SAVE`(h-9, 취소 회색 · 저장 검정 — §4-21). 원본의 `bg-muted` 는 우리 `muted`(글자색)와 이름이 겹쳐 잇지 않고 덮는다.
 
 | 예시 (H2) | 설명 |
 |---|---|
