@@ -7,7 +7,7 @@ export type TodayState =
   | { kind: "done"; lastEnd: number }
   | { kind: "off"; absence: Absence["kind"] };
 
-// 같은 날 absence 가 여러 건이면 유급 휴가 > 무급 휴가 > 대타 (computeWeek 의 "유급이 이긴다" 와 같은 방향)
+// 같은 날 absence 가 여러 건이면 유급 휴가 > 무급 휴가 > 대타 (computeWeek 의 "유급이 우선한다" 와 같은 방향)
 const RANK: Record<Absence["kind"], number> = { paid_leave: 0, unpaid_leave: 1, substitution: 2 };
 
 /** 순서: 열린 기록 → 오늘 기록 → 오늘 absence → 출근 전. 기록이 있으면 absence 가 있어도 근무로 센다 (PRD 09 L-4). */

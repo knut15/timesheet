@@ -89,7 +89,7 @@ Card text-center
 - 알약에 `role="status"`(= `aria-live="polite"`). 출근·퇴근을 누른 뒤 상태 이름이 바뀌면 한 번 읽힌다.
 - 버튼 높이·모서리·글자 크기는 네 상태가 같다(`py-4 rounded-xl text-lg font-bold w-full`). 버튼이 위아래로 움직이지 않게 상태 설명 줄은 없을 때 아예 빠진다(빈 줄을 두지 않는다) — before 는 알약 다음 바로 버튼.
 - 휴가·대타 날에도 출근은 막지 않는다. 기록이 생기면 그날은 근무로 센다([PRD 09](../prd/09-leave-substitution.md) L-4). 그래서 버튼을 보조 모양으로 낮추고 아래에 `text-xs text-muted` 한 줄: `쉬는 날에도 출근하면 근무로 기록돼요.`
-- 같은 날 absence 가 여러 건이면 유급 휴가 > 무급 휴가 > 대타 순으로 하나만 보인다(`computeWeek` 의 "유급이 이긴다" 와 같은 방향).
+- 같은 날 absence 가 여러 건이면 유급 휴가 > 무급 휴가 > 대타 순으로 하나만 보인다(`computeWeek` 의 "유급이 우선한다" 와 같은 방향).
 - 오늘 기록이 있으면 absence 가 있어도 working/done 이다 (L-4).
 
 #### 근무 중 — 경과 시간 갱신 단위
