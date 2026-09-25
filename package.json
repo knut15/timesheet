@@ -1,0 +1,11 @@
+{
+  "name": "timesheet",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.20.0",
+  "scripts": {
+    "dev:server": "pnpm --filter timesheet-server dev",
+    "dev:web": "pnpm --filter timesheet-web dev",
+    "typecheck": "pnpm -r --if-present typecheck"
+  }
+}
