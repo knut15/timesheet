@@ -12,6 +12,12 @@
   - [07. 마스터 관리 화면과 대시보드](prd/07-admin.md)
   - [08. 기록 수정 요청과 승인](prd/08-correction-requests.md)
   - [09. 휴가와 대타 근무](prd/09-leave-substitution.md)
+  - [10. 근무 달력](prd/10-calendar.md)
+
+## 디자인
+
+- [디자인 문서](design/README.md)
+  - [근무 달력 화면 명세](design/calendar.md)
 
 ## API
 
@@ -36,3 +42,4 @@
 - [6개 역할과 권한](team/roles.md)
 - [작업 카드 양식](team/task-template.md)
 - [TS-001 기록 수정 요청 팀 인수](team/tasks/TS-001-corrections.md)
+- [TS-002 근무 달력](team/tasks/TS-002-calendar.md)

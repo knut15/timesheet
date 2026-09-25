@@ -23,7 +23,7 @@ export function initials(name: string) {
   return [...t][0]!;
 }
 
-const SIZES = { sm: "h-8 w-8 text-xs", md: "h-10 w-10 text-sm", lg: "h-16 w-16 text-xl" } as const;
+const SIZES = { xs: "h-[18px] w-[18px] text-[9px]", sm: "h-8 w-8 text-xs", md: "h-10 w-10 text-sm", lg: "h-16 w-16 text-xl" } as const;
 
 /**
  * 멤버 아바타. 사진 업로드가 없으므로 이름 이니셜 + 사용자 id 로 고정된 색.

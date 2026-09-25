@@ -14,7 +14,7 @@ import { RecordsPanel } from "./member/RecordsPanel";
 import { RequestsPanel } from "./member/RequestsPanel";
 import { PayView } from "./PayView";
 import { AppHeader, Avatar, BottomNav, type NavItem } from "./shell";
-import { Card, date, ErrorText, hm, MonthPicker, monthRange, Spinner, time, toShift, useMonthCursor, useNow, won } from "./ui";
+import { Card, date, ErrorText, hm, keyed, MonthPicker, monthRange, Spinner, time, toShift, useMonthCursor, useNow, won } from "./ui";
 
 type Tab = "clock" | "records" | "requests" | "pay" | "me";
 const TABS = [
@@ -35,10 +35,13 @@ function MemberHome({ me, membership }: { me: Me; membership: MyMembership }) {
   const [tab, setTab] = useState<Tab>("clock");
   const [cursor, setCursor] = useMonthCursor();
   const range = monthRange(cursor.year, cursor.month);
-  const { data, reload } = useApi(() => api.GET("/api/shifts/me", { params: { query: range } }), `${range.from}|${range.to}`);
-  const shifts = useMemo(() => (data ?? []).map(toShift), [data]);
-  const absRes = useApi(() => api.GET("/api/absences/me", { params: { query: range } }), `${range.from}|${range.to}`);
-  const absences: Absence[] = useMemo(() => absRes.data ?? [], [absRes.data]);
+  const rangeKey = `${range.from}|${range.to}`;
+  // data 에 읽은 달의 키를 같이 담는다 — 달을 넘긴 직후 이전 달 data 를 새 달로 그리지 않게 (달력 명세 §6)
+  const { data, error, reload } = useApi(() => keyed(rangeKey, api.GET("/api/shifts/me", { params: { query: range } })), rangeKey);
+  const shifts = useMemo(() => (data?.value ?? []).map(toShift), [data]);
+  const absRes = useApi(() => keyed(rangeKey, api.GET("/api/absences/me", { params: { query: range } })), rangeKey);
+  const absences: Absence[] = useMemo(() => absRes.data?.value ?? [], [absRes.data]);
+  const recordsLoading = data?.key !== rangeKey || absRes.data?.key !== rangeKey;
   const reqRes = useApi(() => api.GET("/api/requests/me"), "");
   const colleagues = useApi(() => api.GET("/api/stores/me/colleagues"), "");
   // 요청 상태가 바뀌면 기록·휴가도 바뀔 수 있다
@@ -67,7 +70,17 @@ function MemberHome({ me, membership }: { me: Me; membership: MyMembership }) {
         {tab === "records" && (
           <div className="space-y-4">
             <MonthPicker cursor={cursor} onChange={setCursor} />
-            <RecordsPanel shifts={shifts} absences={absences} corrections={reqRes.data?.corrections ?? []} year={cursor.year} month={cursor.month} onChange={reloadAll} />
+            <RecordsPanel
+              shifts={shifts}
+              absences={absences}
+              corrections={reqRes.data?.corrections ?? []}
+              year={cursor.year}
+              month={cursor.month}
+              loading={recordsLoading}
+              failed={!!error || !!absRes.error}
+              onRetry={() => (reload(), absRes.reload())}
+              onChange={reloadAll}
+            />
           </div>
         )}
         {tab === "requests" && <RequestsPanel requests={reqRes.data} colleagues={colleagues.data ?? []} onChange={reloadAll} />}
