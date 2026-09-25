@@ -1,5 +1,6 @@
 // 기초 페이지와 첫 화면의 견본 블록. 값은 docs/design/component-guide.md §2 (원본은 web/src/app/globals.css).
 // 다크 값은 테마 전환 없이 hex 를 직접 칠해 보인다 — 토큰은 prefers-color-scheme 로만 바뀐다(§1-5).
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import Link from "next/link";
 import {
   CalendarDays, ClipboardList, Clock, Hourglass, Inbox, LayoutDashboard, List, LogOut, Store, TriangleAlert, UserRound, Users, Wallet,
@@ -52,9 +53,9 @@ export function TokenSummary() {
 
 /** 기초 페이지 색 토큰 표 */
 export function ColorTokens() {
-  // relative: 안의 sr-only(절대 위치)가 스크롤 틀 밖으로 나가 문서 폭을 넓히지 않게
+  // overflow-hidden: 안의 sr-only(절대 위치)가 스크롤 틀 밖으로 나가 문서 폭을 넓히지 않게
   return (
-    <div className="relative my-6 overflow-x-auto rounded-2xl border border-line bg-surface">
+    <ScrollArea className="my-6 overflow-hidden rounded-2xl border border-line bg-surface">
       <table className="w-full min-w-[40rem] text-left text-sm">
         <thead className="border-b border-line text-xs text-muted">
           <tr>
@@ -77,7 +78,8 @@ export function ColorTokens() {
           ))}
         </tbody>
       </table>
-    </div>
+      <ScrollBar orientation="horizontal" />
+    </ScrollArea>
   );
 }
 
@@ -95,7 +97,7 @@ const TYPE = [
 /** 글자 크기 표. 견본은 그 클래스로 실제로 그린다 */
 export function TypeScale() {
   return (
-    <div className="relative my-6 overflow-x-auto rounded-2xl border border-line bg-surface">
+    <ScrollArea className="my-6 overflow-hidden rounded-2xl border border-line bg-surface">
       <table className="w-full min-w-[36rem] text-left text-sm">
         <thead className="border-b border-line text-xs text-muted">
           <tr>
@@ -116,7 +118,8 @@ export function TypeScale() {
           ))}
         </tbody>
       </table>
-    </div>
+      <ScrollBar orientation="horizontal" />
+    </ScrollArea>
   );
 }
 

@@ -659,9 +659,9 @@ const [cursor, setCursor] = useMonthCursor(); // 오늘이 든 달로 시작
 
 ```
 MonthPicker  <div flex justify-between>
-├─ <button aria-label="이전 달">◀</button>
+├─ <IconButton icon={ChevronLeft} label="이전 달" />
 ├─ <p font-semibold>{year}년 {month + 1}월</p>
-└─ <button aria-label="다음 달">▶</button>
+└─ <IconButton icon={ChevronRight} label="다음 달" />
 ```
 
 **예시**

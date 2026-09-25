@@ -20,6 +20,9 @@
   --color-muted: var(--muted);
   --color-accent: var(--accent);
   --color-warn: var(--warn);
+  /* shadcn 컴포넌트가 쓰는 이름을 우리 토큰에 잇는다 (scroll-area 의 bg-border, ring-ring) */
+  --color-border: var(--line);
+  --color-ring: var(--accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

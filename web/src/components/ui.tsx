@@ -1,4 +1,6 @@
 "use client";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { IconButton } from "./shell";
 import { useEffect, useState } from "react";
 import type { ShiftDto } from "@/api/client";
 import type { Shift } from "@/lib/pay";
@@ -56,9 +58,9 @@ export function MonthPicker({ cursor, onChange }: { cursor: { year: number; mont
   };
   return (
     <div className="flex items-center justify-between">
-      <button onClick={() => move(-1)} className="px-3 py-2 text-muted" aria-label="이전 달">◀</button>
+      <IconButton icon={ChevronLeft} label="이전 달" onClick={() => move(-1)} />
       <p className="font-semibold">{cursor.year}년 {cursor.month + 1}월</p>
-      <button onClick={() => move(1)} className="px-3 py-2 text-muted" aria-label="다음 달">▶</button>
+      <IconButton icon={ChevronRight} label="다음 달" onClick={() => move(1)} />
     </div>
   );
 }

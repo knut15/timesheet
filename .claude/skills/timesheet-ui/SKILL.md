@@ -48,6 +48,16 @@ import { Clock } from "lucide-react";   // ✓ 이름으로 하나씩 가져온�
 - 새 아이콘은 쓰기 전에 이름이 설치된 버전에 있는지 확인한다: `node -e "console.log(typeof require('lucide-react').Clock)"` → `object`
 - 아이콘만 있는 버튼은 `IconButton` 으로 — `aria-label` 과 `title` 이 같이 붙는다
 
+
+### 스크롤 영역은 shadcn ScrollArea
+
+화면 안에서 따로 스크롤되는 영역(코드 블록, 넓은 표, 긴 목차)은 `@/components/ui/scroll-area` 의 `ScrollArea`(+ 가로는 `<ScrollBar orientation="horizontal" />`)로 만든다. `overflow-auto`·`overflow-x-auto` 로 브라우저 기본 스크롤바를 쓰지 않는다 (2026-09-25 사용자 지시, [shadcn Base UI ScrollArea](https://ui.shadcn.com/docs/components/base/scroll-area)).
+
+- `scroll-area.tsx` 는 shadcn(base-nova) 원본 그대로 둔다. 최대 높이는 바깥에서 `[&>[data-slot=scroll-area-viewport]]:max-h-[28rem]` 처럼 viewport 에 준다 — Root 에만 주면 viewport 가 늘어나 스크롤이 생기지 않는다
+- 안에 `sr-only` 같은 절대 위치 요소가 있으면 Root 에 `overflow-hidden` — 문서 폭이 넓어지는 것을 막는다
+- 페이지 전체 스크롤(body)은 대상이 아니다
+- 월 이동 같은 좌우 화살표는 lucide `ChevronLeft`/`ChevronRight` 를 `IconButton` 으로 (글자 `◀` `▶` 쓰지 않는다)
+
 ## 3. 멤버 아바타 — `Avatar`
 
 사진 업로드가 없다. **이름 이니셜 + 사용자 id 로 고정된 색**이다.

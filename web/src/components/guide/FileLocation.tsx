@@ -5,10 +5,15 @@ export function FileLocation({ path, importLine }: { path: string; importLine?: 
       <p className="text-xs font-medium text-muted">파일 위치</p>
       <p className="mt-1 break-all font-mono text-[13px]">{path}</p>
       {importLine && (
-        <pre className="mt-3 overflow-x-auto rounded-xl bg-background px-3 py-2 text-[13px]">
-          <code className="font-mono">{importLine}</code>
-        </pre>
+        <ScrollArea className="mt-3 overflow-hidden rounded-xl bg-background">
+          <pre className="px-3 py-2 text-[13px]">
+            <code className="font-mono">{importLine}</code>
+          </pre>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
       )}
     </div>
   );
 }
+
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";

@@ -1,6 +1,7 @@
 "use client";
 // 가이드 목차. 넓은 화면에서는 왼쪽 고정 목록, 좁은 화면에서는 "목차" 버튼으로 펼치는 목록이다.
 // 항목은 ./nav.ts 의 GUIDE_NAV.
+import { ScrollArea } from "@/components/ui/scroll-area";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -38,7 +39,7 @@ export function GuideNav() {
   );
 
   return (
-    <nav aria-label="가이드 목차" className="md:sticky md:top-0 md:max-h-screen md:self-start md:overflow-y-auto md:py-8 md:[scrollbar-width:thin]">
+    <nav aria-label="가이드 목차" className="md:sticky md:top-0 md:self-start md:py-8">
       {/* 좁은 화면: 접힌 목차 */}
       <div className="border-b border-line py-2 md:hidden">
         <button
@@ -55,7 +56,8 @@ export function GuideNav() {
           {list(() => setOpen(false))}
         </div>
       </div>
-      <div className="hidden md:block">{list()}</div>
+      {/* 넓은 화면: 화면 높이(위아래 py-8 을 뺀 만큼)를 넘으면 목차만 스크롤 */}
+      <ScrollArea className="hidden md:block [&>[data-slot=scroll-area-viewport]]:max-h-[calc(100vh-4rem)]">{list()}</ScrollArea>
     </nav>
   );
 }
