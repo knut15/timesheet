@@ -25,7 +25,7 @@ Claude Code: `.claude/skills/timesheet-team`과 `.claude/agents/`를 사용한�
 | TS-001 기록 수정 요청 팀 인수 | ready | [TS-001](tasks/TS-001-corrections.md) |
 | TS-002 근무 달력 | review | [TS-002](tasks/TS-002-calendar.md) |
 | TS-003 디자인 컴포넌트 가이드 | review | [TS-003](tasks/TS-003-component-guide.md) |
-| TS-004 멤버 오늘 근무 대시보드 | in_progress | [TS-004](tasks/TS-004-member-today.md) |
+| TS-004 멤버 오늘 근무 대시보드 | review | [TS-004](tasks/TS-004-member-today.md) |
 
 현재 상태의 원본은 각 카드다. 완료는 구현뿐 아니라 관련 검증 증거가 있어야 한다. 실패·환경 부족·정책 질문은 구분해 기록한다.
 

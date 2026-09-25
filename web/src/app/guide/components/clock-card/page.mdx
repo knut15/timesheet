@@ -1,0 +1,159 @@
+export const metadata = { title: "Clock Card" };
+
+# Clock Card
+
+멤버 출퇴근 탭의 시계 카드. 날짜, 한 줄 시계, 지금 상태, 출근·퇴근 버튼을 한 카드에 둔다. API 를 부르지 않는 표시 컴포넌트라 상태는 부르는 쪽이 `todayState` 로 정해 넘긴다.
+
+<ComponentPreview name="clock-card/before" width="max-w-md" />
+
+<FileLocation path="web/src/components/TodayDashboard.tsx" importLine={`import { ClockCard, type ClockState } from "@/components/TodayDashboard";`} />
+
+## 사용법
+
+```tsx
+const now = useNow(1_000);
+const minuteNow = toMinute(now);
+const state: ClockState = loading ? { kind: "loading" } : failed ? { kind: "error" } : todayState(shifts, absences, minuteNow);
+
+<ClockCard now={now} minuteNow={minuteNow} state={state} busy={busy} error={error} onPunch={punch} onRetry={reload} />
+```
+
+`todayState`·`toMinute` 는 `@/lib/today`, `useNow` 는 `@/components/ui`.
+
+## 구성
+
+```
+ClockCard  Card text-center
+├─ 날짜        <p text-sm text-muted>  date(now) → "9월 25일 (금)"
+├─ 시계        <p mt-1 font-mono text-5xl font-semibold tabular-nums whitespace-nowrap>  clockText(now)
+├─ 상태 알약   <p mt-3 role="status" rounded-full border>  아이콘(aria-hidden) + 상태 이름
+│              off 만 border-dashed border-muted, 나머지 border-line
+├─ 상태 설명   <p mt-2 text-sm text-muted>  (없는 상태는 줄째 없음)
+├─ 버튼        <button mt-4 w-full rounded-xl py-4 text-lg font-bold>
+├─ 쉬는 날 안내 <p mt-2 text-xs text-muted>  off 만
+└─ 오류        <div mt-3><ErrorText>  error 가 있을 때
+```
+
+<SimpleTable
+  head={["state", "알약", "설명", "버튼"]}
+  rows={[
+    ["`working`", "`OpenDot` · 근무 중", "`오후 01:30 출근 · 지금까지 1시간 2분`", "**퇴근** 채움 `bg-foreground`"],
+    ["`done`", "`CircleCheck` accent · 오늘 퇴근함", "`오후 06:05 퇴근`", "**다시 출근** 보조 모양"],
+    ["`off`", "`CalendarOff` muted · 오늘 휴가 / 오늘 대타, 점선", "유급·무급·대타 문구", "**출근** 보조 모양 + 안내 한 줄"],
+    ["`before`", "`CircleDashed` muted · 출근 전", "없음", "**출근** 채움 `bg-accent`"],
+    ["`loading`", "아이콘 없이 `상태 확인 중…`", "없음", "비활성 **출근**"],
+    ["`error`", "`TriangleAlert` warn · 상태를 불러오지 못했어요", "없음", "**다시 불러오기** → `onRetry`"],
+  ]}
+/>
+
+아래 예시는 모두 2026년 9월 25일(금) 14:32:07, `minuteNow` 는 14:32 로 고정한다. 기록은 Today Dashboard 예시와 같은 파일을 쓴다.
+
+<SourceCode name="today-dashboard/demo-data" />
+
+## 근무 중
+
+초록 점 + `퇴근`. 설명의 출근 시각은 오늘 첫 출근이 아니라 **지금 열린 기록**(`s4`)의 출근 시각이다.
+
+<ComponentPreview name="clock-card/working" width="max-w-md" />
+
+## 근무 중 — 어제 출근
+
+어제 22:00 에 출근해 퇴근하지 않은 기록. 설명에 날짜가 붙는다 — `9. 24. 오후 10:00 출근 · 지금까지 16시간 32분`.
+
+<ComponentPreview name="clock-card/working-yesterday" width="max-w-md" />
+
+## 오늘 퇴근함
+
+오늘 기록 중 가장 늦은 퇴근 시각과 보조 모양 `다시 출근`.
+
+<ComponentPreview name="clock-card/done" width="max-w-md" />
+
+## 오늘 휴가
+
+점선 알약과 유급 문구. 휴가 날에도 출근은 막지 않아 버튼을 보조 모양으로 낮추고 아래에 안내 한 줄.
+
+<ComponentPreview name="clock-card/off-paid" width="max-w-md" />
+
+## 오늘 대타
+
+점선 알약과 대타 문구 `오늘은 동료가 대신 근무해요`.
+
+<ComponentPreview name="clock-card/off-substitution" width="max-w-md" />
+
+## 불러오는 중
+
+상태를 모르는 동안 버튼을 막는다. 이미 출근한 사람에게 `출근` 이 눌리지 않게 한다.
+
+<ComponentPreview name="clock-card/loading" width="max-w-md" />
+
+## 불러오기 실패
+
+`다시 불러오기` 가 `onRetry` 를 부른다.
+
+<ComponentPreview name="clock-card/error" width="max-w-md" />
+
+## 저장 실패
+
+출근·퇴근 저장이 실패하면 상태는 그대로 두고 버튼 아래 오류 글자.
+
+<ComponentPreview name="clock-card/save-error" width="max-w-md" />
+
+## 320px 한 줄
+
+320px 폭 기기(본문 좌우 여백 20px 을 빼면 카드 안쪽 240px)에서도 시계가 한 줄이다.
+
+<ComponentPreview name="clock-card/narrow" />
+
+## 접근성
+
+<SimpleTable
+  head={["항목", "값"]}
+  rows={[
+    ["상태 구별", "아이콘 모양 + 상태 이름 + 버튼 글자, 휴가·대타는 점선 테두리까지. 색은 보조"],
+    ["상태 바뀜 알림", "상태 알약 `role=\"status\"` — 출근·퇴근 뒤 상태 이름이 한 번 읽힌다. 시계에는 live 영역을 두지 않는다(매초 읽힌다)"],
+    ["누르는 곳", "출근·퇴근 버튼 높이 약 60px"],
+    ["아이콘", "전부 `aria-hidden`, 이름은 옆 글자가 가진다"],
+    ["좁은 폭", "시계만 `whitespace-nowrap`. 320px 기기에서도 한 줄(위 예시)"],
+  ]}
+/>
+
+## 사용 규칙
+
+<DocLink path="docs/design/member-today.md" hash="2-시계-카드--clockcard-t-1">오늘 근무 대시보드 명세 §2 시계 카드</DocLink>(네 상태·로딩·오류·갱신 단위), <DocLink path="docs/design/member-today.md" hash="7-접근성-요약">§7 접근성</DocLink>, <DocLink path="docs/prd/12-member-today.md">PRD 12</DocLink>.
+
+## 하지 말 것
+
+- 경과 시간을 `now`(1초)로 계산하지 않는다 — `minuteNow` 를 넘긴다. 대시보드 오늘 합계와 1분 어긋난다.
+- 시계 글자에 `aria-live` 를 걸지 않는다.
+- 상태 알약에 색 바탕(`bg-green-500/15` 등)을 쓰지 않는다 — 작은 글자 대비 4.5 미달(명세 §8).
+- 예시에서 `now` 를 `Date.now()` 로 두지 않는다.
+
+## API 레퍼런스
+
+### ClockCard
+
+<PropsTable
+  rows={[
+    { prop: "now", type: "number", required: true, description: "1초 단위 시각(시계용)" },
+    { prop: "state", type: 'TodayState | { kind: "loading" } | { kind: "error" }', required: true, description: "네 상태 + 로딩·오류. 타입 이름 `ClockState`" },
+    { prop: "minuteNow", type: "number", required: true, description: "경과 시간 계산용 분 단위 시각 (`toMinute(now)`)" },
+    { prop: "busy", type: "boolean", default: "false", description: "저장 중 — 버튼 비활성(`disabled:opacity-50`)" },
+    { prop: "error", type: "string | null", default: "null", description: "저장 실패 글자 → `ErrorText`" },
+    { prop: "onPunch", type: '(kind: "in" | "out") => void', required: true, description: 'working 이면 `"out"`, 그 밖은 `"in"`' },
+    { prop: "onRetry", type: "() => void", required: true, description: "error 상태의 `다시 불러오기`" },
+  ]}
+/>
+
+### TodayState (`@/lib/today`)
+
+<PropsTable
+  first="kind"
+  rows={[
+    { prop: "before", type: "{}", description: "출근 전" },
+    { prop: "working", type: "{ open: Shift }", description: "퇴근 안 한 기록이 있다(어제 출근한 것 포함)" },
+    { prop: "done", type: "{ lastEnd: number }", description: "오늘 기록이 있고 모두 퇴근했다" },
+    { prop: "off", type: '{ absence: "paid_leave" | "unpaid_leave" | "substitution" }', description: "오늘 기록이 없고 오늘 휴가·대타가 있다" },
+  ]}
+/>
+
+`todayState(shifts, absences, now): TodayState` — 판정 순서는 열린 기록 → 오늘 기록 → 오늘 absence → 출근 전. `toMinute(t)` — 분 단위로 자른 시각.

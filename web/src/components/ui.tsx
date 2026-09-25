@@ -107,3 +107,21 @@ export function StatusPill({ status }: { status: string }) {
   const s = STATUS[status] ?? { label: status, tone: "bg-line text-muted" };
   return <span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ${s.tone}`}>{s.label}</span>;
 }
+
+/** 진행 막대. 넘친 값은 가득 채우고 실제 값은 valueText 가 말한다. docs/design/member-today.md §5-4 */
+export function ProgressBar({ value, max, label, valueText }: { value: number; max: number; label: string; valueText: string }) {
+  const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
+  return (
+    <div
+      role="progressbar"
+      aria-label={label}
+      aria-valuemin={0}
+      aria-valuemax={max}
+      aria-valuenow={Math.min(value, max)}
+      aria-valuetext={valueText}
+      className="h-2 w-full overflow-hidden rounded-full bg-line"
+    >
+      <div className="h-full rounded-full bg-accent" style={{ width: `${pct}%` }} />
+    </div>
+  );
+}

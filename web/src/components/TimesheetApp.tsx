@@ -1,21 +1,22 @@
 "use client";
 // 멤버(알바생) 화면. 기록과 급여 조건은 서버에서 읽는다. docs/prd/01~04, 06, 08, 09
 import { useEffect, useMemo, useState } from "react";
-import { api, errorCode, type Absence, type Me, type MyMembership } from "@/api/client";
+import { api, errorCode, type Absence, type Me, type MyMembership, type MyRequests } from "@/api/client";
 import { useArea } from "@/auth/hooks";
 import { logout } from "@/auth/session";
 import { GEOFENCE_RADIUS_M } from "@/lib/geo";
-import { MINIMUM_WAGE, shiftMinutes, type PaySettings, type Shift } from "@/lib/pay";
+import { MINIMUM_WAGE, type PaySettings, type Shift } from "@/lib/pay";
 import { setDeviceSettings, useDeviceSettings } from "@/lib/storage";
-import { clockText } from "@/lib/format";
+import { todayState, toMinute } from "@/lib/today";
 import { useApi } from "@/lib/useApi";
 import { requestAlertPermissions, useGeofence } from "@/lib/useGeofence";
 import { CalendarDays, ClipboardList, Clock, UserRound, Wallet } from "lucide-react";
 import { RecordsPanel } from "./member/RecordsPanel";
 import { RequestsPanel } from "./member/RequestsPanel";
 import { PayView } from "./PayView";
+import { ClockCard, TodayDashboard, type ClockState } from "./TodayDashboard";
 import { AppHeader, Avatar, BottomNav, type NavItem } from "./shell";
-import { Card, date, ErrorText, hm, keyed, MonthPicker, monthRange, Spinner, time, toShift, useMonthCursor, useNow, won } from "./ui";
+import { Card, keyed, MonthPicker, monthRange, Spinner, time, toShift, useMonthCursor, useNow, won } from "./ui";
 
 type Tab = "clock" | "records" | "requests" | "pay" | "me";
 const TABS = [
@@ -59,6 +60,17 @@ function MemberHome({ me, membership }: { me: Me; membership: MyMembership }) {
     fivePlus: membership.store.fivePlus,
   };
 
+  const recordsFailed = !!error || !!absRes.error;
+  // 출퇴근 탭은 이번 달 기록으로 오늘을 판정한다 — 기록·급여 탭에서 다른 달로 넘겼으면 이번 달로 되돌린다 (명세 member-today §6)
+  const toThisMonth = () => {
+    const d = new Date();
+    if (cursor.year !== d.getFullYear() || cursor.month !== d.getMonth()) setCursor({ year: d.getFullYear(), month: d.getMonth() });
+  };
+  const selectTab = (t: Tab) => {
+    if (t === "clock") toThisMonth();
+    setTab(t);
+  };
+
   useEffect(() => {
     if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
   }, []);
@@ -74,7 +86,20 @@ function MemberHome({ me, membership }: { me: Me; membership: MyMembership }) {
         width="max-w-md"
       />
       <main className="flex-1 px-5 pb-28 pt-4">
-        {tab === "clock" && <ClockPanel shifts={shifts} membership={membership} onChange={reload} />}
+        {tab === "clock" && (
+          <ClockPanel
+            shifts={shifts}
+            absences={absences}
+            requests={reqRes.data}
+            settings={settings}
+            membership={membership}
+            status={recordsLoading ? "loading" : recordsFailed ? "error" : "ready"}
+            onChange={reload}
+            onRetry={() => (reload(), absRes.reload())}
+            onOpenPay={() => (toThisMonth(), setTab("pay"))}
+            onOpenRequests={() => setTab("requests")}
+          />
+        )}
         {tab === "records" && (
           <div className="space-y-4">
             <MonthPicker cursor={cursor} onChange={setCursor} />
@@ -85,7 +110,7 @@ function MemberHome({ me, membership }: { me: Me; membership: MyMembership }) {
               year={cursor.year}
               month={cursor.month}
               loading={recordsLoading}
-              failed={!!error || !!absRes.error}
+              failed={recordsFailed}
               onRetry={() => (reload(), absRes.reload())}
               onChange={reloadAll}
             />
@@ -100,7 +125,7 @@ function MemberHome({ me, membership }: { me: Me; membership: MyMembership }) {
         )}
         {tab === "me" && <MePanel me={me} membership={membership} />}
       </main>
-      <BottomNav width="max-w-md" active={tab} items={TABS.map((t): NavItem => ({ key: t.id, label: t.label, icon: t.icon, badge: t.id === "requests" ? incoming : undefined, onSelect: () => setTab(t.id) }))} />
+      <BottomNav width="max-w-md" active={tab} items={TABS.map((t): NavItem => ({ key: t.id, label: t.label, icon: t.icon, badge: t.id === "requests" ? incoming : undefined, onSelect: () => selectTab(t.id) }))} />
     </div>
   );
 }
@@ -110,8 +135,32 @@ function PayTab(props: { shifts: Shift[]; absences: Absence[]; settings: PaySett
   return <PayView {...props} now={now} />;
 }
 
-function ClockPanel({ shifts, membership, onChange }: { shifts: Shift[]; membership: MyMembership; onChange: () => void }) {
+function ClockPanel({
+  shifts,
+  absences,
+  requests,
+  settings,
+  membership,
+  status,
+  onChange,
+  onRetry,
+  onOpenPay,
+  onOpenRequests,
+}: {
+  shifts: Shift[];
+  absences: Absence[];
+  requests?: MyRequests | null;
+  settings: PaySettings;
+  membership: MyMembership;
+  status: "loading" | "error" | "ready";
+  onChange: () => void;
+  onRetry: () => void;
+  onOpenPay: () => void;
+  onOpenRequests: () => void;
+}) {
   const now = useNow(1_000);
+  // 경과·합계는 전부 같은 분 단위 시각으로 — 시계 카드와 대시보드가 1분 어긋나지 않게 (명세 §2-3)
+  const minuteNow = toMinute(now);
   const device = useDeviceSettings();
   const open = shifts.find((s) => s.end === null);
   const { lat, lng, name } = membership.store;
@@ -119,6 +168,7 @@ function ClockPanel({ shifts, membership, onChange }: { shifts: Shift[]; members
   const [permError, setPermError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const state: ClockState = status === "ready" ? todayState(shifts, absences, minuteNow) : { kind: status };
 
   const punch = async (kind: "in" | "out") => {
     setBusy(true);
@@ -157,28 +207,18 @@ function ClockPanel({ shifts, membership, onChange }: { shifts: Shift[]; members
         </div>
       )}
 
-      <Card className="text-center">
-        <p className="text-sm text-muted">{date(now)}</p>
-        {/* 한 줄 고정: HH:MM:SS + 줄바꿈 금지 (2026-09-25 모바일에서 초가 다음 줄로 넘어가던 것) */}
-        <p className="mt-1 whitespace-nowrap font-mono text-5xl font-semibold tabular-nums">{clockText(now)}</p>
-        {open ? (
-          <>
-            <p className="mt-4 text-sm text-muted">
-              {time(open.start)} 출근 · <span className="text-foreground">{hm(shiftMinutes(open, now))}</span> 근무 중
-            </p>
-            <button disabled={busy} onClick={() => punch("out")} className="mt-4 w-full rounded-xl bg-foreground py-4 text-lg font-bold text-background disabled:opacity-50">
-              퇴근
-            </button>
-          </>
-        ) : (
-          <button disabled={busy} onClick={() => punch("in")} className="mt-6 w-full rounded-xl bg-accent py-4 text-lg font-bold text-white disabled:opacity-50">
-            출근
-          </button>
-        )}
-        <div className="mt-3">
-          <ErrorText>{error}</ErrorText>
-        </div>
-      </Card>
+      <ClockCard now={now} minuteNow={minuteNow} state={state} busy={busy} error={error} onPunch={punch} onRetry={onRetry} />
+      <TodayDashboard
+        shifts={shifts}
+        absences={absences}
+        requests={requests}
+        settings={settings}
+        now={minuteNow}
+        status={status}
+        onRetry={onRetry}
+        onOpenPay={onOpenPay}
+        onOpenRequests={onOpenRequests}
+      />
 
       <Card>
         <div className="flex items-center justify-between gap-3">
