@@ -7,14 +7,17 @@ import { prisma } from "../db.js";
 import { env } from "../env.js";
 import { AppError } from "../errors.js";
 import { toMyMembershipDto, toUserDto } from "../lib/dto.js";
-import { CSRF_COOKIE, csrfCookieOptions, csrfGuard, issueCsrfToken } from "./csrf.js";
+import { CSRF_COOKIE, csrfCookieOptions, issueCsrfToken } from "./csrf.js";
 import { requireAuth } from "./guard.js";
 import { issueRefreshToken, revokeFamilyByToken, rotateRefreshToken, type Issued } from "./refresh.js";
 import { signAccessToken } from "./tokens.js";
 
-const REFRESH_COOKIE = "refresh_token";
 // 쿠키 Path 는 프록시 뒤 브라우저가 보는 경로 기준이다 (docs/prd/05-auth.md 토폴로지).
+// 액세스 토큰도 HttpOnly 쿠키다 — JS 는 토큰을 보지 않는다. 그래서 모든 변경 요청에 CSRF 검사가 걸린다 (app.ts).
+const REFRESH_COOKIE = "refresh_token";
 const refreshCookieBase: CookieOptions = { httpOnly: true, secure: env.COOKIE_SECURE, sameSite: "strict", path: "/api/auth" };
+export const ACCESS_COOKIE = "access_token";
+const accessCookieBase: CookieOptions = { httpOnly: true, secure: env.COOKIE_SECURE, sameSite: "strict", path: "/api" };
 const ARGON2 = { type: argon2.argon2id, memoryCost: 19456, timeCost: 2, parallelism: 1 } as const;
 
 // 없는 이메일에도 같은 시간을 쓰게 하는 더미 해시. 응답 시간으로 가입 여부가 드러나지 않게 한다.
@@ -22,20 +25,17 @@ const dummyHash = argon2.hash("timing-equalizer", ARGON2);
 
 const meta = (req: Request) => ({ userAgent: req.headers["user-agent"] ?? null, ip: req.ip ?? null });
 
-function clearRefreshCookie(res: Response) {
+function clearAuthCookies(res: Response) {
   res.clearCookie(REFRESH_COOKIE, refreshCookieBase);
+  res.clearCookie(ACCESS_COOKIE, accessCookieBase);
 }
 
 async function sendTokens(res: Response, issued: Issued) {
   const user = await prisma.user.findUniqueOrThrow({ where: { id: issued.userId } });
   res.cookie(REFRESH_COOKIE, issued.token, { ...refreshCookieBase, expires: issued.expiresAt });
+  res.cookie(ACCESS_COOKIE, await signAccessToken(issued.userId, issued.familyId), { ...accessCookieBase, maxAge: env.ACCESS_TOKEN_TTL_SEC * 1000 });
   res.set("Cache-Control", "no-store");
-  res.json({
-    accessToken: await signAccessToken(issued.userId, issued.familyId),
-    tokenType: "Bearer",
-    expiresIn: env.ACCESS_TOKEN_TTL_SEC,
-    user: toUserDto(user),
-  });
+  res.json({ expiresIn: env.ACCESS_TOKEN_TTL_SEC, user: toUserDto(user) });
 }
 
 const loginLimiter = rateLimit({
@@ -71,7 +71,7 @@ authRouter.post("/auth/signup", async (req, res) => {
   }
 });
 
-authRouter.post("/auth/login", loginLimiter, csrfGuard, async (req, res) => {
+authRouter.post("/auth/login", loginLimiter, async (req, res) => {
   const body = LoginBody.parse(req.body);
   const user = await prisma.user.findUnique({ where: { email: body.email.toLowerCase() } });
   const ok = await argon2.verify(user?.passwordHash ?? (await dummyHash), body.password);
@@ -79,22 +79,22 @@ authRouter.post("/auth/login", loginLimiter, csrfGuard, async (req, res) => {
   await sendTokens(res, await issueRefreshToken(user.id, meta(req)));
 });
 
-authRouter.post("/auth/refresh", csrfGuard, async (req, res) => {
+authRouter.post("/auth/refresh", async (req, res) => {
   const token: unknown = req.cookies?.[REFRESH_COOKIE];
   try {
     if (typeof token !== "string") throw new AppError(401, "REFRESH_TOKEN_INVALID");
     await sendTokens(res, await rotateRefreshToken(token, meta(req)));
   } catch (e) {
     // 401 이면 죽은 쿠키를 지운다. 409(grace 안의 동시 요청)는 앞 요청이 새 쿠키를 이미 내려보냈으니 건드리지 않는다.
-    if (e instanceof AppError && e.statusCode === 401) clearRefreshCookie(res);
+    if (e instanceof AppError && e.statusCode === 401) clearAuthCookies(res);
     throw e;
   }
 });
 
-authRouter.post("/auth/logout", csrfGuard, async (req, res) => {
+authRouter.post("/auth/logout", async (req, res) => {
   const token: unknown = req.cookies?.[REFRESH_COOKIE];
   if (typeof token === "string") await revokeFamilyByToken(token);
-  clearRefreshCookie(res);
+  clearAuthCookies(res);
   res.status(204).end();
 });
 

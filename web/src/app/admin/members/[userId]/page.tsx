@@ -8,7 +8,7 @@ import { useSession } from "@/auth/hooks";
 import { PayView } from "@/components/PayView";
 import { Avatar } from "@/components/shell";
 import { Card, date, ErrorText, Field, hm, MonthPicker, monthRange, Spinner, time, toLocalInput, toShift, useMonthCursor, useNow } from "@/components/ui";
-import { shiftMinutes, type PaySettings } from "@/lib/pay";
+import { parseDay, shiftMinutes, type PaySettings } from "@/lib/pay";
 import { useApi } from "@/lib/useApi";
 
 export default function MemberDetailPage() {
@@ -22,6 +22,8 @@ export default function MemberDetailPage() {
     () => api.GET("/api/stores/me/members/{userId}/shifts", { params: { path: { userId }, query: range } }),
     `${userId}|${range.from}|${range.to}`,
   );
+  const absRes = useApi(() => api.GET("/api/stores/me/absences", { params: { query: range } }), `${range.from}|${range.to}`);
+  const absences = useMemo(() => (absRes.data ?? []).filter((a) => a.userId === userId), [absRes.data, userId]);
   const now = useNow(60_000);
   const shifts = useMemo(() => (shiftsRes.data ?? []).map(toShift), [shiftsRes.data]);
 
@@ -63,11 +65,19 @@ export default function MemberDetailPage() {
         ))}
       </div>
       {tab === "pay" ? (
-        <PayView shifts={shifts} settings={settings} year={cursor.year} month={cursor.month} now={now} />
-      ) : inMonth.length === 0 ? (
+        <PayView shifts={shifts} absences={absences} settings={settings} year={cursor.year} month={cursor.month} now={now} />
+      ) : inMonth.length === 0 && absences.length === 0 ? (
         <Card><p className="text-center text-sm text-muted">이 달 기록이 없어요.</p></Card>
       ) : (
         <ul className="space-y-3">
+          {absences
+            .filter((a) => a.date.startsWith(`${cursor.year}-${String(cursor.month + 1).padStart(2, "0")}`))
+            .map((a) => (
+              <li key={`${a.sourceId}-${a.date}`} className="rounded-2xl border border-dashed border-line px-5 py-3 text-sm">
+                <p className="font-medium">{date(parseDay(a.date))}</p>
+                <p className="text-muted">{{ paid_leave: "유급 휴가", unpaid_leave: "무급 휴가", substitution: "대타로 쉼" }[a.kind]} · 요청 탭에서 관리</p>
+              </li>
+            ))}
           {inMonth.map((s) => (
             <ShiftRow key={s.id} shift={s} onChange={shiftsRes.reload} />
           ))}

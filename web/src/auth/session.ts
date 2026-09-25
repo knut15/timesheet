@@ -1,6 +1,6 @@
-// 인증 세션. web-auth 스킬 frontend.md 의 규칙을 따른다.
-// 액세스 토큰은 이 모듈의 변수(메모리)에만 있다. 리프레시 토큰은 HttpOnly 쿠키라 JS 가 다루지 않는다.
-import { authApi, errorCode, type ErrorResponse, type Me, type TokenResponse } from "@/api/client";
+// 인증 세션 — 쿠키판. 규칙은 .claude/skills/timesheet-auth/SKILL.md (web-auth 스킬의 cookie-session 변형).
+// 액세스·리프레시 토큰은 둘 다 HttpOnly 쿠키라 JS 는 토큰을 보지 않는다. 이 모듈이 아는 것은 "누가 로그인했나" 와 CSRF 토큰뿐이다.
+import { authApi, errorCode, type ErrorResponse, type Me } from "@/api/client";
 
 export type SessionState =
   | { status: "unknown" }
@@ -8,7 +8,6 @@ export type SessionState =
   | { status: "anonymous"; reason?: "logout" | "expired" | "reused" };
 
 let state: SessionState = { status: "unknown" };
-let accessToken: string | null = null;
 let csrfToken: string | null = null;
 let refreshing: Promise<boolean> | null = null;
 const listeners = new Set<() => void>();
@@ -20,7 +19,7 @@ function getChannel() {
     channel = new BroadcastChannel("auth");
     channel.onmessage = (event: MessageEvent<{ type: "login" | "logout" }>) => {
       if (event.data.type === "logout") dropSession("logout");
-      if (event.data.type === "login") void refreshSession();
+      if (event.data.type === "login") void bootSession();
     };
   }
   return channel;
@@ -41,29 +40,41 @@ function setState(next: SessionState) {
   listeners.forEach((fn) => fn());
 }
 
-async function fetchMe(): Promise<Me | null> {
-  if (!accessToken) return null;
-  const res = await fetch("/api/users/me", { headers: { Authorization: `Bearer ${accessToken}` }, credentials: "include" });
-  return res.ok ? ((await res.json()) as Me) : null;
+function dropSession(reason?: "logout" | "expired" | "reused") {
+  setState({ status: "anonymous", reason });
 }
 
-/** 토큰을 받은 뒤 소속까지 읽어야 화면이 역할에 맞게 갈린다. */
-async function acceptTokens(body: TokenResponse) {
-  accessToken = body.accessToken;
-  const me = await fetchMe();
+/** 쿠키로 /users/me 를 읽는다. 액세스 토큰이 만료됐으면 401. */
+async function fetchMe(): Promise<{ me: Me | null; status: number }> {
+  const res = await fetch("/api/users/me", { credentials: "include" });
+  return { me: res.ok ? ((await res.json()) as Me) : null, status: res.status };
+}
+
+async function loadMe(): Promise<boolean> {
+  const { me } = await fetchMe();
   if (me) setState({ status: "authenticated", me });
-  else dropSession();
+  return !!me;
+}
+
+/**
+ * 부팅 — 로그인 유지의 핵심. 액세스 쿠키가 살아 있으면 바로, 만료됐으면 refresh 한 번 뒤 다시 읽는다.
+ * refresh 쿠키가 30일 슬라이딩이라 앱을 계속 쓰는 한 다시 로그인할 일이 없다.
+ */
+export async function bootSession(): Promise<void> {
+  try {
+    const { me, status } = await fetchMe();
+    if (me) return setState({ status: "authenticated", me });
+    if (status === 401 && (await refreshSession())) return;
+    if (state.status === "unknown") dropSession();
+  } catch {
+    // API 에 닿지 못했다. "확인 중" 에 멈추지 않게 익명으로 둔다
+    if (state.status === "unknown") dropSession();
+  }
 }
 
 /** 매장을 만들거나 코드를 등록해 소속이 바뀐 뒤 부른다. */
 export async function reloadMe() {
-  const me = await fetchMe();
-  if (me) setState({ status: "authenticated", me });
-}
-
-function dropSession(reason?: "logout" | "expired" | "reused") {
-  accessToken = null;
-  setState({ status: "anonymous", reason });
+  await loadMe();
 }
 
 async function ensureCsrf(): Promise<string> {
@@ -73,17 +84,13 @@ async function ensureCsrf(): Promise<string> {
   return csrfToken;
 }
 
-/** single-flight + 탭 간 잠금. 성공하면 true. */
+/** single-flight + 탭 간 잠금. 성공하면 true. 탭끼리 쿠키를 공유하므로 잠금 없이는 재사용 탐지가 오탐한다. */
 export function refreshSession(): Promise<boolean> {
   refreshing ??= navigator.locks
     .request("auth-refresh", () => runRefresh(false))
     // lib.dom 타입은 콜백의 Promise 를 한 겹 더 감싼다. 실제 값은 boolean 이다 — then 으로 타입을 풀어 준다.
     .then((ok) => ok)
-    .catch(() => {
-      // API 에 닿지 못했다. 부팅 중이면 "확인 중" 에 멈추지 않게 익명으로 둔다
-      if (state.status === "unknown") dropSession();
-      return false;
-    })
+    .catch(() => false)
     .finally(() => (refreshing = null));
   return refreshing!;
 }
@@ -100,10 +107,7 @@ async function runRefresh(retried: boolean): Promise<boolean> {
   const { data, error, response } = await withCsrf((csrf) =>
     authApi.POST("/api/auth/refresh", { params: { header: { "x-csrf-token": csrf } } }),
   );
-  if (data) {
-    await acceptTokens(data);
-    return true;
-  }
+  if (data) return loadMe();
   if (!retried && response.status === 409) return runRefresh(true);
   // 부팅 때 쿠키가 없던 것(처음 방문)과 로그인 중에 만료된 것을 구분한다
   const wasIn = state.status === "authenticated";
@@ -112,7 +116,9 @@ async function runRefresh(retried: boolean): Promise<boolean> {
 }
 
 export async function signup(email: string, password: string, nickname: string): Promise<ErrorResponse | null> {
-  const { error } = await authApi.POST("/api/auth/signup", { body: { email, password, nickname } });
+  const { error } = await withCsrf((csrf) =>
+    authApi.POST("/api/auth/signup", { body: { email, password, nickname }, params: { header: { "x-csrf-token": csrf } } }),
+  );
   if (error) return error as ErrorResponse;
   return login(email, password);
 }
@@ -122,7 +128,7 @@ export async function login(email: string, password: string): Promise<ErrorRespo
     authApi.POST("/api/auth/login", { body: { email, password }, params: { header: { "x-csrf-token": csrf } } }),
   );
   if (!data) return error as ErrorResponse;
-  await acceptTokens(data);
+  await loadMe();
   getChannel()?.postMessage({ type: "login" });
   return null;
 }
@@ -133,16 +139,26 @@ export async function logout(): Promise<void> {
   getChannel()?.postMessage({ type: "logout" });
 }
 
-function withAuth(request: Request): Request {
-  if (accessToken) request.headers.set("Authorization", `Bearer ${accessToken}`);
-  return request;
-}
+const UNSAFE = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 
-/** openapi-fetch 의 fetch 자리에 끼운다. 401 이면 refresh 후 1회 재시도. */
+/**
+ * openapi-fetch 의 fetch 자리에 끼운다.
+ * - 변경 요청에는 X-CSRF-Token 을 붙인다 (쿠키 인증이라 서버가 모든 변경 요청을 검사한다)
+ * - 401 이면 refresh 후 1회, CSRF 불일치면 토큰을 새로 받아 1회 재시도
+ */
 export async function authFetch(request: Request): Promise<Response> {
+  const unsafe = UNSAFE.has(request.method);
   const retry = request.clone(); // 본문은 한 번만 읽힌다 — 보내기 전에 복제해 둔다
-  const response = await fetch(withAuth(request));
+  const send = async (r: Request) => {
+    if (unsafe) r.headers.set("X-CSRF-Token", await ensureCsrf());
+    return fetch(r, { credentials: "include" });
+  };
+  const response = await send(request);
+  if (response.status === 403 && unsafe && (await response.clone().json().catch(() => null))?.code === "CSRF_TOKEN_INVALID") {
+    csrfToken = null;
+    return send(retry);
+  }
   if (response.status !== 401) return response;
   if (!(await refreshSession())) return response;
-  return fetch(withAuth(retry));
+  return send(retry);
 }

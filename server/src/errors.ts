@@ -21,6 +21,10 @@ export const ERROR_CODES = [
   "INVITE_INVALID",
   "ALREADY_CLOCKED_IN",
   "NOT_CLOCKED_IN",
+  "REQUEST_PENDING",
+  "REQUEST_CLOSED",
+  "LEAVE_OVERLAP",
+  "SUBSTITUTE_NOT_ACCEPTED",
 ] as const;
 export type ErrorCode = (typeof ERROR_CODES)[number];
 

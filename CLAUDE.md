@@ -37,7 +37,19 @@
 - 인증은 전역 스킬 `web-auth` 의 설계를 따른다. 토큰·쿠키·CSRF 를 바꾸려면 [05-auth.md](docs/prd/05-auth.md) 부터 고친다.
 - 인증·권한을 건드리면 `server/test/e2e.test.ts` 를 돌리고 [docs/verify/auth.md](docs/verify/auth.md) 를 갱신한다.
 
-## 5. 명령
+## 5. 프로젝트 스킬 — 기능마다 맡은 스킬이 있다
+
+기능을 고치기 전에 그 기능의 스킬을 먼저 읽고, **규칙이 바뀌면 같은 커밋에서 스킬도 고친다.** 사용자가 따로 말하지 않아도 한다 (사용자 지시 2026-09-25).
+
+| 스킬 | 맡는 것 |
+|---|---|
+| [timesheet-auth](.claude/skills/timesheet-auth/SKILL.md) | 로그인·쿠키 세션·CSRF |
+| [timesheet-requests](.claude/skills/timesheet-requests/SKILL.md) | 기록 수정 요청·휴가·대타 |
+| [timesheet-ui](.claude/skills/timesheet-ui/SKILL.md) | 헤더·하단 내비·아바타 |
+
+작업 진행 기록과 반영(배포·README·푸시)은 전역 스킬 `work-history` 를 따른다.
+
+## 6. 명령
 
 ```bash
 pnpm --filter timesheet-web dev        # http://localhost:3200
@@ -53,3 +65,7 @@ pnpm typecheck
 
 - 패키지 매니저는 pnpm 고정.
 - `web/` 의 Next.js 는 16 이다. 코드를 쓰기 전에 `web/node_modules/next/dist/docs/` 를 확인한다 (`web/AGENTS.md`).
+
+## 6. 팀 작업
+
+팀으로 진행하거나 담당자를 지정하면 `.agents/skills/timesheet-team/SKILL.md`와 [팀 운영](docs/team/README.md)을 읽는다. 역할별 지침은 [역할 문서](docs/team/roles.md)에 있다. 기존 코드 변경을 먼저 확인하고 필요한 역할만 배정한다.

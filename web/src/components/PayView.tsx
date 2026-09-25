@@ -1,11 +1,11 @@
 "use client";
 // 월 급여 요약과 주별 내역. 멤버 화면과 마스터의 멤버 상세 화면이 같이 쓴다. 계산은 pay.ts 에만 있다.
 import { useMemo } from "react";
-import { computeMonth, computeWeeks, type PaySettings, type Shift, type WeekPay } from "@/lib/pay";
+import { computeMonth, computeWeeks, type Absence, type PaySettings, type Shift, type WeekPay } from "@/lib/pay";
 import { Card, date, hm, won } from "./ui";
 
-export function PayView({ shifts, settings, year, month, now }: { shifts: Shift[]; settings: PaySettings; year: number; month: number; now: number }) {
-  const weeks = useMemo(() => computeWeeks(shifts, settings, now), [shifts, settings, now]);
+export function PayView({ shifts, settings, year, month, now, absences = [] }: { shifts: Shift[]; settings: PaySettings; year: number; month: number; now: number; absences?: Absence[] }) {
+  const weeks = useMemo(() => computeWeeks(shifts, settings, now, absences), [shifts, settings, now, absences]);
   const m = computeMonth(weeks, year, month);
 
   return (
@@ -18,6 +18,12 @@ export function PayView({ shifts, settings, year, month, now }: { shifts: Shift[
           <dd className="text-right tabular-nums">{won(m.basePay)}</dd>
           <dt className="text-muted">주휴수당</dt>
           <dd className="text-right tabular-nums">{won(m.holidayPay)}</dd>
+          {m.leavePay > 0 && (
+            <>
+              <dt className="text-muted">휴가수당</dt>
+              <dd className="text-right tabular-nums">{won(m.leavePay)}</dd>
+            </>
+          )}
           <dt className="text-muted">연장 가산 ({hm(m.overtimeMinutes)})</dt>
           <dd className="text-right tabular-nums">{won(m.overtimePay)}</dd>
         </dl>
@@ -34,7 +40,8 @@ export function PayView({ shifts, settings, year, month, now }: { shifts: Shift[
 export function holidayStatus(week: WeekPay, settings: PaySettings, now: number) {
   if (settings.weeklyHours < 15) return "대상 아님 (주 15시간 미만)";
   if (week.holidayEligible) return "개근";
-  const days = `${week.workDays}/${settings.workDaysPerWeek}일`;
+  const days = `${week.workDays + week.excusedDays}/${settings.workDaysPerWeek}일`;
+  if (week.workDays === 0 && week.excusedDays > 0) return "대상 아님 (그 주 전부 휴가)";
   return now < week.weekEnd.getTime() ? `진행 중 (${days})` : `미충족 (${days})`;
 }
 
@@ -49,9 +56,17 @@ function WeekCard({ week, settings, now }: { week: WeekPay; settings: PaySetting
       </div>
       <dl className="mt-3 grid grid-cols-2 gap-y-1.5 text-sm">
         <dt className="text-muted">근무</dt>
-        <dd className="text-right tabular-nums">{hm(week.workedMinutes)} · {week.workDays}일</dd>
+        <dd className="text-right tabular-nums">
+          {hm(week.workedMinutes)} · {week.workDays}일{week.excusedDays > 0 && ` + 휴가·대타 ${week.excusedDays}일`}
+        </dd>
         <dt className="text-muted">기본급</dt>
         <dd className="text-right tabular-nums">{won(week.basePay)}</dd>
+        {week.leavePay > 0 && (
+          <>
+            <dt className="text-muted">휴가수당 ({week.paidLeaveDays}일)</dt>
+            <dd className="text-right tabular-nums">{won(week.leavePay)}</dd>
+          </>
+        )}
         <dt className="text-muted">주휴수당 · {holidayStatus(week, settings, now)}</dt>
         <dd className="text-right tabular-nums">{won(week.holidayPay)}</dd>
         <dt className="text-muted">연장 {hm(week.overtimeMinutes)}{settings.fivePlus ? "" : " (5인 미만)"}</dt>

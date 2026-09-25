@@ -25,6 +25,8 @@
 | 05 | 로그인 — 가입·로그인·세션 (JWT 직접 구현) | [05-auth.md](05-auth.md) |
 | 06 | 매장과 초대 코드 — 마스터가 멤버를 초대 | [06-store-invite.md](06-store-invite.md) |
 | 07 | 마스터 관리 화면과 대시보드 | [07-admin.md](07-admin.md) |
+| 08 | 기록 수정 요청과 승인 | [08-correction-requests.md](08-correction-requests.md) |
+| 09 | 휴가와 대타 근무 — 마스터가 승인·직접 관리 | [09-leave-substitution.md](09-leave-substitution.md) |
 
 ## 1차 MVP 범위 (01~04, 2026-09-25 배포)
 

@@ -17,7 +17,8 @@ export const env = z
     COOKIE_SECURE: bool.default(true),
     SWAGGER_ENABLED: bool.default(false),
     ACCESS_TOKEN_TTL_SEC: z.coerce.number().default(600),
-    REFRESH_TOKEN_TTL_SEC: z.coerce.number().default(14 * 86_400),
+    REFRESH_TOKEN_TTL_SEC: z.coerce.number().default(30 * 86_400),
+    // 슬라이딩 세션: 마지막 refresh 뒤 이 시간 동안 안 쓰면 끊긴다. 회전할 때마다 다시 잡는다 (docs/prd/05-auth.md)
     SESSION_MAX_AGE_SEC: z.coerce.number().default(30 * 86_400),
   })
   .parse(process.env);

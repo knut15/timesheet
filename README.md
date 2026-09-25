@@ -26,7 +26,7 @@
 
 | 폴더 | 패키지 | 역할 |
 |---|---|---|
-| `server/` | `timesheet-server` | Express API. Prisma 로 Postgres 에 붙는다. 로그인(JWT·argon2·CSRF)·매장·초대·근무 기록 |
+| `server/` | `timesheet-server` | Express API. Prisma 로 Postgres 에 붙는다. 로그인(쿠키 세션·argon2·CSRF)·매장·초대·근무 기록·수정 요청·휴가·대타 |
 | `web/` | `timesheet-web` | Next.js App Router. 멤버 화면 `/`, 마스터 관리 화면 `/admin`. `/api/*` 를 rewrites 로 서버에 넘긴다 |
 
 - 급여 계산은 `web/src/lib/pay.ts` 한 곳에만 있다. 서버는 기록과 조건만 내려준다
@@ -70,7 +70,8 @@ pnpm dev:web
 | 로그인 (JWT 직접 구현, 리프레시 회전·재사용 탐지) | 완료 — [검증 기록](docs/verify/auth.md) |
 | 마스터 관리 화면·대시보드 | 완료 |
 | 화면 셸 — 헤더·하단 내비(lucide)·멤버 아바타 | 완료 — 규칙은 [`.claude/skills/timesheet-ui`](.claude/skills/timesheet-ui/SKILL.md) |
-| 기록 수정 요청·승인, 휴가·대타 근무 | 진행 중 |
+| 기록 수정 요청·승인, 휴가·대타 근무 | 완료 — [PRD 08](docs/prd/08-correction-requests.md)·[09](docs/prd/09-leave-substitution.md), 스킬 [`timesheet-requests`](.claude/skills/timesheet-requests/SKILL.md) |
+| 로그인 유지 — 쿠키 세션(액세스·리프레시 모두 HttpOnly 쿠키), 30일 슬라이딩 | 완료 — 스킬 [`timesheet-auth`](.claude/skills/timesheet-auth/SKILL.md) |
 | 배포 | 웹 https://timesheet-brown-ten.vercel.app · API·Neon DB ([docs/deploy.md](docs/deploy.md)) |
 
 ## 문서

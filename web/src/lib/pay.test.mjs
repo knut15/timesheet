@@ -70,3 +70,51 @@ test("월 합계는 일요일이 그 달인 주만 더한다", () => {
   assert.equal(computeMonth(weeks, 2026, 8).weeks.length, 1);
   assert.equal(computeMonth(weeks, 2026, 9).weeks.length, 1);
 });
+
+// docs/prd/09-leave-substitution.md L-1~L-4, S-1
+const day = (offset) => {
+  const d = new Date(2026, 8, 21 + offset);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
+const four = [0, 1, 2, 3].map((d) => shift(d, 10, 4));
+
+test("L-1 4일 근무 + 유급 휴가 1일 → 주휴 41,280 + 휴가수당 41,280", () => {
+  const w = computeWeek(monday, four, base, undefined, [{ date: day(4), kind: "paid_leave" }]);
+  assert.equal(w.basePay, 165120);
+  assert.equal(w.holidayPay, 41280);
+  assert.equal(w.leavePay, 41280);
+  assert.equal(w.total, 247680);
+});
+
+test("L-2 무급 휴가 1일 → 주휴는 받고 휴가수당 0", () => {
+  const w = computeWeek(monday, four, base, undefined, [{ date: day(4), kind: "unpaid_leave" }]);
+  assert.equal(w.holidayPay, 41280);
+  assert.equal(w.leavePay, 0);
+  assert.equal(w.excusedDays, 1);
+});
+
+test("L-3 5일 전부 휴가 → 주휴 0, 휴가수당만", () => {
+  const all = [0, 1, 2, 3, 4].map((d) => ({ date: day(d), kind: "paid_leave" }));
+  const [w] = computeWeeks([], base, undefined, all);
+  assert.equal(w.holidayPay, 0);
+  assert.equal(w.leavePay, 5 * 41280);
+});
+
+test("L-4 휴가 날 근무 기록이 있으면 근무로 센다", () => {
+  const w = computeWeek(monday, [...four, shift(4, 10, 4)], base, undefined, [{ date: day(4), kind: "paid_leave" }]);
+  assert.equal(w.leavePay, 0);
+  assert.equal(w.excusedDays, 0);
+  assert.equal(w.total, 247680);
+});
+
+test("S-1 대타로 빠진 날은 결근 아님 (무급과 같은 급여)", () => {
+  const w = computeWeek(monday, four, base, undefined, [{ date: day(4), kind: "substitution" }]);
+  assert.equal(w.holidayPay, 41280);
+  assert.equal(w.leavePay, 0);
+});
+
+test("다른 주의 휴가는 이 주에 영향이 없다", () => {
+  const w = computeWeek(monday, four, base, undefined, [{ date: day(7), kind: "paid_leave" }]);
+  assert.equal(w.holidayPay, 0);
+  assert.equal(w.leavePay, 0);
+});

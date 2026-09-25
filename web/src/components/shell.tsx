@@ -63,7 +63,7 @@ export function AppHeader({ eyebrow, title, me, actions, width = "max-w-3xl" }: 
   );
 }
 
-export type NavItem = { key: string; label: string; icon: LucideIcon } & ({ href: string } | { onSelect: () => void });
+export type NavItem = { key: string; label: string; icon: LucideIcon; badge?: number } & ({ href: string } | { onSelect: () => void });
 
 /** 하단 내비게이션 (푸터). 아이콘 위, 이름 아래. 활성 항목은 accent 색과 윗선. */
 export function BottomNav({ items, active, width = "max-w-3xl" }: { items: NavItem[]; active: string; width?: string }) {
@@ -77,8 +77,16 @@ export function BottomNav({ items, active, width = "max-w-3xl" }: { items: NavIt
           const body = (
             <>
               {on && <span aria-hidden className="absolute inset-x-6 top-0 h-0.5 rounded-full bg-accent" />}
-              <Icon size={22} strokeWidth={on ? 2.4 : 1.8} aria-hidden />
+              <span className="relative">
+                <Icon size={22} strokeWidth={on ? 2.4 : 1.8} aria-hidden />
+                {!!item.badge && (
+                  <span className="absolute -right-2.5 -top-1.5 min-w-4 rounded-full bg-warn px-1 text-center text-[10px] font-bold leading-4 text-white">
+                    {item.badge > 9 ? "9+" : item.badge}
+                  </span>
+                )}
+              </span>
               {item.label}
+              {!!item.badge && <span className="sr-only"> (처리할 것 {item.badge}건)</span>}
             </>
           );
           return (

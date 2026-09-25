@@ -1,7 +1,7 @@
 "use client";
-// 멤버(알바생) 화면. 기록과 급여 조건은 서버에서 읽는다. docs/prd/01~04, 06
+// 멤버(알바생) 화면. 기록과 급여 조건은 서버에서 읽는다. docs/prd/01~04, 06, 08, 09
 import { useEffect, useMemo, useState } from "react";
-import { api, errorCode, type Me, type MyMembership } from "@/api/client";
+import { api, errorCode, type Absence, type Me, type MyMembership } from "@/api/client";
 import { useArea } from "@/auth/hooks";
 import { logout } from "@/auth/session";
 import { GEOFENCE_RADIUS_M } from "@/lib/geo";
@@ -9,15 +9,18 @@ import { MINIMUM_WAGE, shiftMinutes, type PaySettings, type Shift } from "@/lib/
 import { setDeviceSettings, useDeviceSettings } from "@/lib/storage";
 import { useApi } from "@/lib/useApi";
 import { requestAlertPermissions, useGeofence } from "@/lib/useGeofence";
-import { CalendarDays, Clock, UserRound, Wallet } from "lucide-react";
+import { CalendarDays, ClipboardList, Clock, UserRound, Wallet } from "lucide-react";
+import { RecordsPanel } from "./member/RecordsPanel";
+import { RequestsPanel } from "./member/RequestsPanel";
 import { PayView } from "./PayView";
 import { AppHeader, Avatar, BottomNav, type NavItem } from "./shell";
 import { Card, date, ErrorText, hm, MonthPicker, monthRange, Spinner, time, toShift, useMonthCursor, useNow, won } from "./ui";
 
-type Tab = "clock" | "records" | "pay" | "me";
+type Tab = "clock" | "records" | "requests" | "pay" | "me";
 const TABS = [
   { id: "clock", label: "출퇴근", icon: Clock },
   { id: "records", label: "기록", icon: CalendarDays },
+  { id: "requests", label: "요청", icon: ClipboardList },
   { id: "pay", label: "급여", icon: Wallet },
   { id: "me", label: "내 정보", icon: UserRound },
 ] as const;
@@ -34,6 +37,17 @@ function MemberHome({ me, membership }: { me: Me; membership: MyMembership }) {
   const range = monthRange(cursor.year, cursor.month);
   const { data, reload } = useApi(() => api.GET("/api/shifts/me", { params: { query: range } }), `${range.from}|${range.to}`);
   const shifts = useMemo(() => (data ?? []).map(toShift), [data]);
+  const absRes = useApi(() => api.GET("/api/absences/me", { params: { query: range } }), `${range.from}|${range.to}`);
+  const absences: Absence[] = useMemo(() => absRes.data ?? [], [absRes.data]);
+  const reqRes = useApi(() => api.GET("/api/requests/me"), "");
+  const colleagues = useApi(() => api.GET("/api/stores/me/colleagues"), "");
+  // 요청 상태가 바뀌면 기록·휴가도 바뀔 수 있다
+  const reloadAll = () => {
+    reload();
+    absRes.reload();
+    reqRes.reload();
+  };
+  const incoming = (reqRes.data?.substitutionsIn ?? []).filter((x) => x.status === "requested").length;
   const settings: PaySettings = {
     hourlyWage: membership.hourlyWage,
     weeklyHours: membership.weeklyHours,
@@ -53,23 +67,24 @@ function MemberHome({ me, membership }: { me: Me; membership: MyMembership }) {
         {tab === "records" && (
           <div className="space-y-4">
             <MonthPicker cursor={cursor} onChange={setCursor} />
-            <RecordsList shifts={shifts} year={cursor.year} month={cursor.month} />
+            <RecordsPanel shifts={shifts} absences={absences} corrections={reqRes.data?.corrections ?? []} year={cursor.year} month={cursor.month} onChange={reloadAll} />
           </div>
         )}
+        {tab === "requests" && <RequestsPanel requests={reqRes.data} colleagues={colleagues.data ?? []} onChange={reloadAll} />}
         {tab === "pay" && (
           <div className="space-y-4">
             <MonthPicker cursor={cursor} onChange={setCursor} />
-            <PayTab shifts={shifts} settings={settings} year={cursor.year} month={cursor.month} />
+            <PayTab shifts={shifts} absences={absences} settings={settings} year={cursor.year} month={cursor.month} />
           </div>
         )}
         {tab === "me" && <MePanel me={me} membership={membership} />}
       </main>
-      <BottomNav width="max-w-md" active={tab} items={TABS.map((t): NavItem => ({ key: t.id, label: t.label, icon: t.icon, onSelect: () => setTab(t.id) }))} />
+      <BottomNav width="max-w-md" active={tab} items={TABS.map((t): NavItem => ({ key: t.id, label: t.label, icon: t.icon, badge: t.id === "requests" ? incoming : undefined, onSelect: () => setTab(t.id) }))} />
     </div>
   );
 }
 
-function PayTab(props: { shifts: Shift[]; settings: PaySettings; year: number; month: number }) {
+function PayTab(props: { shifts: Shift[]; absences: Absence[]; settings: PaySettings; year: number; month: number }) {
   const now = useNow(60_000);
   return <PayView {...props} now={now} />;
 }
@@ -176,30 +191,6 @@ function ClockPanel({ shifts, membership, onChange }: { shifts: Shift[]; members
         {device.alertsOn && <p className="mt-3 text-xs text-muted">이 화면을 열어 둔 동안에만 위치를 확인해요.</p>}
       </Card>
     </div>
-  );
-}
-
-/** 멤버는 자기 기록을 보기만 한다. 고치는 것은 마스터다 (docs/prd/06). */
-function RecordsList({ shifts, year, month }: { shifts: Shift[]; year: number; month: number }) {
-  const inMonth = shifts
-    .filter((s) => {
-      const d = new Date(s.start);
-      return d.getFullYear() === year && d.getMonth() === month;
-    })
-    .sort((a, b) => b.start - a.start);
-  if (inMonth.length === 0) return <Card><p className="text-center text-muted">이 달 기록이 없어요.</p></Card>;
-  return (
-    <ul className="space-y-3">
-      {inMonth.map((s) => (
-        <li key={s.id} className="rounded-2xl border border-line bg-surface px-5 py-4">
-          <p className="font-medium">{date(s.start)}</p>
-          <p className="text-sm text-muted tabular-nums">
-            {time(s.start)} ~ {s.end ? time(s.end) : "근무 중"} · {hm(shiftMinutes(s))}
-          </p>
-        </li>
-      ))}
-      <p className="px-1 text-xs text-muted">잘못 찍은 기록은 사장님께 수정을 요청하세요.</p>
-    </ul>
   );
 }
 
