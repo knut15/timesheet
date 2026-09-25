@@ -31,6 +31,7 @@
 ## 검증
 
 - [로그인·매장·초대 검증 기록](verify/auth.md)
+- [성능 검사 — 데이터 로드부터 화면 표시까지](verify/performance.md)
 
 ## 운영
 

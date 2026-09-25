@@ -15,6 +15,7 @@
 | [docs/prd/README.md](docs/prd/README.md) | PRD 개요와 기능 문서 링크 |
 | [docs/deploy.md](docs/deploy.md) | 배포 방법과 주소 |
 | [docs/verify/auth.md](docs/verify/auth.md) | 로그인·매장·초대 검증 기록 |
+| [docs/verify/performance.md](docs/verify/performance.md) | 성능 검사표 — API 부팅 순서·화면별 데이터 도착·번들 |
 | [docs/api/openapi.json](docs/api/openapi.json) | API 계약 (생성물) |
 
 ## 2. 급여 규칙은 PRD 가 기준이다
