@@ -28,6 +28,14 @@ export function monthRange(year: number, month: number) {
   };
 }
 
+/**
+ * useApi 는 키가 바뀌어도 이전 data 를 지우지 않는다. 읽은 data 에 그 키를 같이 담아 두면
+ * 화면이 "다른 키(다른 달)로 읽은 data" 를 로딩으로 볼 수 있다. 쓰는 곳: data?.key === key 인지 본다.
+ */
+export function keyed<T>(key: string, p: Promise<{ data?: T; error?: unknown }>) {
+  return p.then((r) => ({ error: r.error, data: r.data === undefined ? undefined : { key, value: r.data } }));
+}
+
 export function useNow(intervalMs: number) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {

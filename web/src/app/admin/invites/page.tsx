@@ -1,6 +1,8 @@
 "use client";
 // 초대 코드 발급·복사·취소. docs/prd/06-store-invite.md
+import Link from "next/link";
 import { useState } from "react";
+import { ChevronLeft } from "lucide-react";
 import { api, type Invite } from "@/api/client";
 import { Avatar } from "@/components/shell";
 import { Card, dayLabel, Spinner } from "@/components/ui";
@@ -31,6 +33,10 @@ export default function InvitesPage() {
 
   return (
     <div className="space-y-4">
+      {/* 초대는 내비에서 빠져 멤버 화면 안으로 들어갔다 — 돌아갈 길 */}
+      <Link href="/admin/members" className="inline-flex items-center gap-1 text-sm text-muted hover:text-foreground">
+        <ChevronLeft size={16} aria-hidden /> 멤버
+      </Link>
       <Card>
         <h2 className="font-semibold">알바생 초대</h2>
         <p className="mt-1 text-sm text-muted">코드는 7일 동안, 한 명만 쓸 수 있어요. 알바생은 가입한 뒤 이 코드를 입력하면 매장에 들어와요.</p>

@@ -1,7 +1,7 @@
 "use client";
 // 마스터 관리 화면. 마스터가 아니면 useArea 가 맞는 화면으로 보낸다 (docs/prd/07-admin.md D-5).
 import { usePathname } from "next/navigation";
-import { Inbox, LayoutDashboard, LogOut, Store, TicketPlus, Users } from "lucide-react";
+import { CalendarDays, Inbox, LayoutDashboard, LogOut, Store, Users } from "lucide-react";
 import { api, type Me } from "@/api/client";
 import { useArea } from "@/auth/hooks";
 import { logout } from "@/auth/session";
@@ -11,9 +11,9 @@ import { useApi } from "@/lib/useApi";
 
 const NAV = [
   { key: "/admin", href: "/admin", label: "대시보드", icon: LayoutDashboard },
+  { key: "/admin/calendar", href: "/admin/calendar", label: "달력", icon: CalendarDays },
   { key: "/admin/requests", href: "/admin/requests", label: "요청", icon: Inbox },
   { key: "/admin/members", href: "/admin/members", label: "멤버", icon: Users },
-  { key: "/admin/invites", href: "/admin/invites", label: "초대", icon: TicketPlus },
   { key: "/admin/store", href: "/admin/store", label: "매장", icon: Store },
 ];
 
@@ -28,8 +28,9 @@ function AdminShell({ me, children }: { me: Me; children: React.ReactNode }) {
   // 화면을 옮길 때마다 대기 수를 다시 센다 — 요청 화면에서 처리하고 나오면 배지가 줄어든다
   const month = new Date().toISOString().slice(0, 7);
   const dash = useApi(() => api.GET("/api/stores/me/dashboard", { params: { query: { month } } }), `${pathname}|${month}`);
-  // 하위 경로(/admin/members/[userId])도 부모 메뉴를 활성으로 본다
-  const active = [...NAV].reverse().find((n) => (n.href === "/admin" ? pathname === "/admin" : pathname.startsWith(n.href)))?.key ?? "/admin";
+  // 하위 경로(/admin/members/[userId])도 부모 메뉴를 활성으로 본다. 초대는 멤버 화면 안의 화면이라 "멤버" 가 활성이다
+  const path = pathname.startsWith("/admin/invites") ? "/admin/members" : pathname;
+  const active = [...NAV].reverse().find((n) => (n.href === "/admin" ? path === "/admin" : path.startsWith(n.href)))?.key ?? "/admin";
   const title = NAV.find((n) => n.key === active)!.label;
 
   return (

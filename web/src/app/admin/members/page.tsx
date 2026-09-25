@@ -2,6 +2,7 @@
 // 멤버 목록 — 급여 조건을 고치고 내보낸다. docs/prd/07-admin.md
 import Link from "next/link";
 import { useState } from "react";
+import { ChevronRight, TicketPlus } from "lucide-react";
 import { api, type Member } from "@/api/client";
 import { Avatar } from "@/components/shell";
 import { Card, ErrorText, Field, Spinner, won } from "@/components/ui";
@@ -12,20 +13,35 @@ export default function MembersPage() {
   const { data, reload } = useApi(() => api.GET("/api/stores/me/members"), "");
   if (!data) return <Spinner />;
   const members = data.filter((m) => m.role === "member");
-  if (members.length === 0)
-    return (
-      <Card>
-        <p className="text-sm text-muted">
-          아직 멤버가 없어요. <Link href="/admin/invites" className="text-accent">초대 코드를 발급</Link>해 보세요.
-        </p>
-      </Card>
-    );
   return (
-    <ul className="space-y-3">
-      {members.map((m) => (
-        <MemberRow key={m.userId} member={m} onChange={reload} />
-      ))}
-    </ul>
+    <div className="space-y-3">
+      <InviteEntry />
+      {members.length === 0 ? (
+        <Card>
+          <p className="text-sm text-muted">
+            아직 멤버가 없어요. <Link href="/admin/invites" className="text-accent">초대 코드를 발급</Link>해 보세요.
+          </p>
+        </Card>
+      ) : (
+        <ul className="space-y-3">
+          {members.map((m) => (
+            <MemberRow key={m.userId} member={m} onChange={reload} />
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/** 초대 화면 진입 줄. 초대는 하단 내비에서 빠지고 멤버 화면 안으로 들어왔다 (docs/design/calendar.md §1) */
+function InviteEntry() {
+  return (
+    <Link href="/admin/invites" className="flex h-14 items-center gap-3 rounded-2xl border border-line bg-surface px-5 hover:bg-background">
+      <TicketPlus size={20} aria-hidden className="text-accent" />
+      <span className="flex-1 font-semibold">초대 코드</span>
+      <span className="text-sm text-muted">발급·관리</span>
+      <ChevronRight size={16} aria-hidden className="text-muted" />
+    </Link>
   );
 }
 
