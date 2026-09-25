@@ -193,7 +193,7 @@ storeRouter.get("/schedule-exceptions/me", requireAuth, requireMembership, async
 
 storeRouter.delete("/stores/me/members/:userId", ...master, async (req, res) => {
   const m = await findMember(req.membership!.storeId, String(req.params.userId));
-  if (m.role === "master") throw new AppError(403, "FORBIDDEN", "마스터는 내보낼 수 없다");
+  if (m.role === "master") throw new AppError(403, "FORBIDDEN", "마스터는 퇴사처리할 수 없다");
   // 열린 기록을 닫고 소속만 지운다. 근무 기록은 남는다.
   await prisma.$transaction([
     prisma.shift.updateMany({ where: { userId: m.userId, end: null }, data: { end: new Date() } }),

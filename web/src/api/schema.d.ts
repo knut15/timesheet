@@ -829,7 +829,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** 멤버 내보내기 (마스터) */
+        /** 멤버 퇴사처리 — 소속만 지우고 기록은 남긴다 (마스터) */
         delete: {
             parameters: {
                 query?: never;

@@ -50,6 +50,7 @@
 | 2026-09-25 | 좌우 화살표는 심플한 아이콘 — lucide Chevron | timesheet-ui §0·§2, [가이드 명세](design/component-guide.md) §2-5 |
 | 2026-09-25 | 스크롤은 전부 shadcn ScrollArea | timesheet-ui §0·§2, [가이드 명세](design/component-guide.md) §2-5 |
 | 2026-09-25 | 멤버 시계는 모바일에서도 한 줄 — HH:MM:SS | `web/src/lib/format.ts` clockText, [PRD 12](prd/12-member-today.md) |
-| 2026-09-25 | 멤버 카드의 글자 링크(근무 기록·조건 수정·내보내기)는 버튼 모양으로 | timesheet-ui §0 "카드 안 동작" |
+| 2026-09-25 | 멤버 카드의 글자 링크(근무 기록·조건 수정·퇴사처리)는 버튼 모양으로 | timesheet-ui §0 "카드 안 동작" |
 | 2026-09-25 | 멤버 카드 버튼은 작게(h-8), 조건 수정은 shadcn Dialog 모달, 저장·취소는 h-9 | timesheet-ui §0 "카드 안 동작", [가이드 명세](design/component-guide.md) §4-19 |
+| 2026-09-25 | 멤버를 매장에서 빼는 동작의 이름은 "퇴사처리" ("내보내기" 아님) | [PRD 06](prd/06-store-invite.md) |
 | 2026-09-25 | 글꼴은 Pretendard | timesheet-ui §0, [가이드 명세](design/component-guide.md) §2-2, 웹 `/guide/foundations` |

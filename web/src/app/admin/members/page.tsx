@@ -1,5 +1,5 @@
 "use client";
-// 멤버 목록 — 급여 조건·근무 시간표를 고치고 내보낸다. docs/prd/07-admin.md, docs/prd/13-work-schedule.md
+// 멤버 목록 — 급여 조건·근무 시간표를 고치고 퇴사처리한다. docs/prd/07-admin.md, docs/prd/13-work-schedule.md
 import Link from "next/link";
 import { useState } from "react";
 import { ChevronRight, Plus, TicketPlus } from "lucide-react";
@@ -86,7 +86,7 @@ function MemberRow({ member, onChange }: { member: Member; onChange: () => void 
     setEditing(true);
   };
   const remove = async () => {
-    if (!window.confirm(`${member.nickname}님을 매장에서 내보낼까요? 근무 기록은 남아요.`)) return;
+    if (!window.confirm(`${member.nickname}님을 퇴사처리할까요? 매장에서 빠지고 근무 기록은 남아요.`)) return;
     await api.DELETE("/api/stores/me/members/{userId}", { params: { path: { userId: member.userId } } });
     onChange();
   };
@@ -112,7 +112,7 @@ function MemberRow({ member, onChange }: { member: Member; onChange: () => void 
           </p>
           <div className="flex gap-2">
             <button onClick={open} className={BTN_ACCENT}>조건 수정</button>
-            <button onClick={remove} className={BTN_WARN}>내보내기</button>
+            <button onClick={remove} className={BTN_WARN}>퇴사처리</button>
           </div>
         </div>
         {/* 조건 수정은 모달로 (2026-09-25 사용자 요청) — shadcn Dialog */}

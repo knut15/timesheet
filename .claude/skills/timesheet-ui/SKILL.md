@@ -22,7 +22,7 @@ description: >
 | 스크롤 영역 | shadcn ScrollArea (2절) | 2026-09-25 요청 15 |
 | 달력 선택 | 테두리 없음 — 배경 + 굵은 날짜 (4절) | 2026-09-25 요청 11 |
 | 로고 | 로고가 있으면 매장 이름 글자 대신 (1절) | 2026-09-25 요청 12·14 |
-| 카드 안 동작 | 글자 링크 대신 **작은 버튼 모양** — 테두리 `h-8 rounded-lg border px-2.5 text-xs font-semibold`, 보통은 `border-accent text-accent`, 지우기·내보내기는 `border-warn text-warn` (멤버 카드 `web/src/app/admin/members/page.tsx` 의 `BTN_*`). 폼의 저장·취소는 `h-9 rounded-lg text-sm`(`ACT_*`). 조건 수정 같은 긴 폼은 카드 안에 펼치지 않고 shadcn Dialog 모달로 | 2026-09-25 "텍스트 전부 버튼 디자인으로", "버튼 작게, 조건 수정은 모달로, 저장·취소도 한 사이즈 작게" |
+| 카드 안 동작 | 글자 링크 대신 **작은 버튼 모양** — 테두리 `h-8 rounded-lg border px-2.5 text-xs font-semibold`, 보통은 `border-accent text-accent`, 지우기·퇴사처리는 `border-warn text-warn` (멤버 카드 `web/src/app/admin/members/page.tsx` 의 `BTN_*`). 폼의 저장·취소는 `h-9 rounded-lg text-sm`(`ACT_*`). 조건 수정 같은 긴 폼은 카드 안에 펼치지 않고 shadcn Dialog 모달로 | 2026-09-25 "텍스트 전부 버튼 디자인으로", "버튼 작게, 조건 수정은 모달로, 저장·취소도 한 사이즈 작게" |
 | 입력칸 | `.field` 하나로 input·date·select 모두 높이 44px, `min-w-0`, 날짜 칸 기본 모양 끔, select 는 lucide chevron-down 배경. 두 칸 격자는 `Field` 에 맡긴다(`min-w-0`) — 칸마다 높이·폭을 따로 주지 않는다 | 2026-09-25 모바일 겹침 수정 |
 
 ### shadcn 컴포넌트를 들일 때

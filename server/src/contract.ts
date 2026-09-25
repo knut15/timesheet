@@ -312,7 +312,7 @@ path("delete", "/api/stores/me/invites/{inviteId}", "초대 코드 취소 (마�
 path("post", "/api/invites/redeem", "초대 코드 등록 (멤버가 된다)", { auth: true, body: RedeemBody, ok: [200, MyMembershipDto], errors: { 400: "INVITE_INVALID", 409: "ALREADY_IN_STORE", 429: "TOO_MANY_REQUESTS" } });
 path("get", "/api/stores/me/members", "멤버 목록 (마스터)", { auth: true, ok: [200, z.array(MemberDto)], errors: { 403: "FORBIDDEN" } });
 path("patch", "/api/stores/me/members/{userId}", "멤버 급여 조건 (마스터)", { auth: true, params: id("userId"), body: UpdateMemberBody, ok: [200, MemberDto], errors: { 404: "NOT_FOUND" } });
-path("delete", "/api/stores/me/members/{userId}", "멤버 내보내기 (마스터)", { auth: true, params: id("userId"), ok: [204, null], errors: { 404: "NOT_FOUND" } });
+path("delete", "/api/stores/me/members/{userId}", "멤버 퇴사처리 — 소속만 지우고 기록은 남긴다 (마스터)", { auth: true, params: id("userId"), ok: [204, null], errors: { 404: "NOT_FOUND" } });
 path("get", "/api/stores/me/members/{userId}/schedule-exceptions", "멤버 날짜별 근무 변경 (마스터)", { auth: true, params: id("userId"), query: FromDayQuery, ok: [200, z.array(ScheduleExceptionDto)], errors: { 404: "NOT_FOUND" } });
 path("post", "/api/stores/me/members/{userId}/schedule-exceptions", "날짜별 근무 변경 등록 — 같은 날짜면 덮어쓴다 (마스터)", { auth: true, params: id("userId"), body: CreateScheduleExceptionBody, ok: [200, ScheduleExceptionDto], errors: { 400: "VALIDATION_FAILED", 404: "NOT_FOUND" } });
 path("delete", "/api/stores/me/schedule-exceptions/{id}", "날짜별 근무 변경 삭제 (마스터)", { auth: true, params: id("id"), ok: [204, null], errors: { 404: "NOT_FOUND" } });

@@ -1943,7 +1943,7 @@
         }
       },
       "delete": {
-        "summary": "멤버 내보내기 (마스터)",
+        "summary": "멤버 퇴사처리 — 소속만 지우고 기록은 남긴다 (마스터)",
         "security": [
           {
             "accessCookie": []
