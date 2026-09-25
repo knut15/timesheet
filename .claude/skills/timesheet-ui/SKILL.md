@@ -111,6 +111,20 @@ import { Clock } from "lucide-react";   // ✓ 이름으로 하나씩 가져온�
 | 점선 테두리 색 | `border-muted` — `border-line` 은 대비 1.3 이라 쓰지 않는다 |
 | 아바타 겹침 | 최대 3개, 4명 이상이면 2개 + `+N` |
 
+## 4-1. 멤버 출퇴근 탭 — 오늘 근무
+
+화면·상태 명세 전체는 [docs/design/member-today.md](../../../docs/design/member-today.md). 다른 화면에도 걸리는 규칙만 둔다.
+
+| 규칙 | 값 |
+|---|---|
+| 시계 | 24시간 `HH:MM:SS`(`lib/format.ts` `clockText`), `font-mono tabular-nums whitespace-nowrap` — **한 줄 고정, 줄바꿈 금지**. `15시 58분 12초` 처럼 글자를 섞지 않는다 (2026-09-25 사용자 요청 "초단위가 개행처리됨 → 한줄로") |
+| 배치 | 오늘 근무 대시보드는 시계 카드 **바로 아래 별도 카드** (2026-09-25 사용자 결정 "시간 하단에") |
+| 지금 상태 표시 | 색만으로 구별하지 않는다 — 아이콘 모양 + 상태 이름 + 버튼 글자가 모두 다르고, 휴가·대타는 달력처럼 점선 테두리. 상태 글자는 `text-foreground`, 색은 아이콘에만 (색 바탕 알약은 작은 글자 대비 4.5 미달) |
+| 분 단위 값 | 경과·오늘 합계·주·월 숫자는 같은 `minuteNow`(분으로 내린 시각)로 계산. 초 단위로 움직이는 것은 시계뿐 |
+| 진행 막대 | `ProgressBar`(`ui.tsx`) — `role="progressbar"` + `aria-valuetext`. 넘치면 가득 채우고 `aria-valuenow` 는 `max` 로 자른다 |
+| 퇴근 뒤 | 다시 출근 없음 — 오늘 퇴근했으면 내일 0시까지 출근 버튼 비활성(`bg-line text-muted`), 50m 배너·알림도 끈다 (PRD 12 T-7) |
+| 주휴 상태 글자 | `PayView.tsx` `holidayStatus` 그대로. 화면에서 새로 쓰지 않는다 |
+
 ## 5. 바꾸면 같이 고칠 것
 
 - 가이드 페이지·명세 (0절 "컴포넌트 가이드와 같이 움직인다")

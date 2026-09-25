@@ -16,6 +16,7 @@
   - [09. 휴가와 대타 근무](prd/09-leave-substitution.md)
   - [10. 근무 달력](prd/10-calendar.md)
   - [11. 매장 로고](prd/11-store-logo.md)
+  - [12. 멤버 오늘 근무 대시보드](prd/12-member-today.md)
 
 ## 디자인
 
@@ -48,3 +49,4 @@
 - [TS-001 기록 수정 요청 팀 인수](team/tasks/TS-001-corrections.md)
 - [TS-002 근무 달력](team/tasks/TS-002-calendar.md)
 - [TS-003 디자인 컴포넌트 가이드](team/tasks/TS-003-component-guide.md)
+- [TS-004 멤버 오늘 근무 대시보드](team/tasks/TS-004-member-today.md)

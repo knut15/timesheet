@@ -26,6 +26,7 @@ export const GUIDE_NAV: { title: string; items: GuidePage[] }[] = [
       { href: "/guide/components/status-pill", label: "Status Pill", description: "요청 상태 배지. 수정 요청·휴가·대타가 같이 쓴다." },
       { href: "/guide/components/card", label: "Card", description: "화면 본문을 묶는 흰 바탕 둥근 상자." },
       { href: "/guide/components/spinner", label: "Spinner", description: "불러오는 중 자리 표시 글자." },
+      { href: "/guide/components/progress-bar", label: "Progress Bar", description: "목표 대비 값을 보이는 가로 막대. 읽는 값은 글자로." },
     ],
   },
   {
@@ -46,7 +47,11 @@ export const GUIDE_NAV: { title: string; items: GuidePage[] }[] = [
   },
   {
     title: "화면 조각",
-    items: [{ href: "/guide/components/pay-view", label: "Pay View", description: "월 급여 요약과 주별 내역 카드." }],
+    items: [
+      { href: "/guide/components/clock-card", label: "Clock Card", description: "출퇴근 탭의 시계, 지금 상태, 출근·퇴근 버튼." },
+      { href: "/guide/components/today-dashboard", label: "Today Dashboard", description: "오늘 근무·처리할 것·이번 주·이번 달 요약 카드." },
+      { href: "/guide/components/pay-view", label: "Pay View", description: "월 급여 요약과 주별 내역 카드." },
+    ],
   },
 ];
 

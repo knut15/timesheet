@@ -19,7 +19,7 @@
 |---|---|
 | `/guide` | 첫 화면 — 소개, 기초 토큰 요약, 컴포넌트 목록 |
 | `/guide/foundations` | 기초 — 색·타이포·간격·모서리·아이콘 (§2) |
-| `/guide/components/<slug>` | 컴포넌트 페이지 15개 (§4) |
+| `/guide/components/<slug>` | 컴포넌트 페이지 18개 (§4) |
 
 ### 1-2. `/guide` 첫 화면
 
@@ -49,13 +49,16 @@
 | | `status-pill` | Status Pill |
 | | `card` | Card |
 | | `spinner` | Spinner |
+| | `progress-bar` | Progress Bar |
 | 입력 | `field` | Field |
 | | `error-text` | Error Text |
 | | `month-picker` | Month Picker |
 | 달력 | `month-grid` | Month Grid |
 | | `calendar-legend` | Calendar Legend |
 | | `view-toggle` | View Toggle |
-| 화면 조각 | `pay-view` | Pay View |
+| 화면 조각 | `clock-card` | Clock Card |
+| | `today-dashboard` | Today Dashboard |
+| | `pay-view` | Pay View |
 
 - 목차 이름은 영문 컴포넌트 이름(코드 식별자와 같은 뜻)으로 두고, 각 페이지 제목 아래 설명은 한글이다.
 - 페이지 맨 아래에 이전·다음 링크(이 표의 순서).
@@ -178,12 +181,15 @@ shadcn Avatar 페이지와 같은 순서다. "설치" 는 timesheet 에서 **파
 | `status-pill` | `StatusPill` | `ui.tsx` | 2 |
 | `card` | `Card` | `ui.tsx` | 2 |
 | `spinner` | `Spinner` | `ui.tsx` | 1 |
+| `progress-bar` | `ProgressBar` | `ui.tsx` | 3 |
 | `field` | `Field` + CSS 클래스 `.field` | `ui.tsx`, `globals.css` | 4 |
 | `error-text` | `ErrorText` | `ui.tsx` | 2 |
 | `month-picker` | `MonthPicker`, 훅 `useMonthCursor` | `ui.tsx` | 2 |
 | `month-grid` | `MonthGrid`, 타입 `Marks`, `OpenDot` | `calendar/MonthGrid.tsx` | 7 |
 | `calendar-legend` | `CalendarLegend` | `calendar/CalendarLegend.tsx` | 2 |
 | `view-toggle` | `ViewToggle` | `calendar/ViewToggle.tsx` | 2 |
+| `clock-card` | `ClockCard`, 타입 `ClockState` | `TodayDashboard.tsx` | 10 |
+| `today-dashboard` | `TodayDashboard` | `TodayDashboard.tsx` | 8 |
 | `pay-view` | `PayView`, 함수 `holidayStatus` | `PayView.tsx` | 5 |
 
 페이지를 두지 않는 export (`ui.tsx`): 표시 함수 `won` `hm` `time` `date` `dayLabel` `toLocalInput`, 변환 `toShift` `monthRange` `keyed`, 훅 `useNow`. 화면 요소가 아니므로 컴포넌트 목록에 싣지 않는다. 예시 코드에서 쓰면 import 만 보인다.
@@ -945,9 +951,176 @@ const settings = { hourlyWage: 10320, weeklyHours: 20, workDaysPerWeek: 5, fiveP
 
 ---
 
+### 4-16. `progress-bar` — Progress Bar
+
+**설명**: 값이 목표의 어디쯤인지 보이는 가로 막대. 오늘 근무 카드의 "이번 주 근무 시간" 이 쓴다. 숫자는 옆 글자가 말하고, 막대는 보조다.
+
+**import**: `import { ProgressBar } from "@/components/ui";`
+
+**사용법**: `<ProgressBar value={840} max={1200} label="이번 주 근무 시간" valueText="14시간 / 20시간" />`
+
+**구성**
+
+```
+ProgressBar  <div role="progressbar" h-2 w-full overflow-hidden rounded-full bg-line>
+│            aria-label={label} aria-valuemin={0} aria-valuemax={max}
+│            aria-valuenow={min(value, max)} aria-valuetext={valueText}
+└─ 채움  <div h-full rounded-full bg-accent style={{ width: pct% }}>
+   pct = max > 0 ? min(100, value / max × 100) : 0
+```
+
+**예시** (틀 폭 `max-w-md`)
+
+| 예시 (H2) | 설명 | 데이터 |
+|---|---|---|
+| Basic | 이번 주 근무 시간 | `value={840} max={1200}` `valueText="14시간 / 20시간"` |
+| 빈 값 | 0 | `value={0} max={1200}` `valueText="0시간 / 20시간"` |
+| 넘침 | 가득 차고 글자가 실제 값 | `value={1528} max={1200}` `valueText="25시간 28분 / 20시간"` |
+
+**접근성**: `role="progressbar"` + `aria-label` + `aria-valuemin/max/now` + `aria-valuetext`. `aria-valuenow` 는 `max` 를 넘지 않게 자르고, 넘친 실제 값은 `valueText` 가 말한다.
+
+**사용 규칙**: [오늘 근무 대시보드 명세 §5-4](member-today.md#5-4-progressbar-webscomponentsuitsx), [§8 색](member-today.md#8-다크-모드와-색--새-토큰-없음).
+
+**하지 말 것**
+- `<progress>` 로 바꾸지 않는다 — 브라우저마다 모양이 다르고 다크 모드 색을 토큰으로 맞추기 어렵다.
+- 움직임(transition)을 넣지 않는다.
+- `valueText` 를 비우거나 숫자만 넣지 않는다.
+
+**API 레퍼런스**
+
+| Prop | Type | Default | 설명 |
+|---|---|---|---|
+| `value` | `number` | — | **필수** 현재 값 |
+| `max` | `number` | — | **필수** 0 이하이면 빈 막대 |
+| `label` | `string` | — | **필수** `aria-label` |
+| `valueText` | `string` | — | **필수** `aria-valuetext` — 스크린리더는 숫자 대신 이 글자를 읽는다 |
+
+---
+
+### 4-17. `clock-card` — Clock Card
+
+**설명**: 멤버 출퇴근 탭의 시계 카드. 날짜, 한 줄 시계, 지금 상태, 출근·퇴근 버튼을 한 카드에 둔다. API 를 부르지 않는 표시 컴포넌트다.
+
+**import**: `import { ClockCard, type ClockState } from "@/components/TodayDashboard";`
+
+**사용법**
+
+```tsx
+<ClockCard now={now} minuteNow={minuteNow} state={state} busy={busy} error={error} onPunch={punch} onRetry={reload} />
+```
+
+**구성**: [오늘 근무 대시보드 명세 §2-1](member-today.md#2-1-구성-가운데-정렬-card-classnametext-center) 트리 그대로. 상태별 알약·설명·버튼은 [§2-3](member-today.md#2-3-네-상태-td-1--색만으로-구별하지-않는다)·[§2-4](member-today.md#2-4-로딩오류).
+
+**예시 공통 가짜 데이터** — `_examples/today-dashboard/demo-data.tsx` 하나를 Today Dashboard 예시와 같이 쓴다. 값은 [명세 §5-5](member-today.md#5-5-컴포넌트-가이드에-넣을-것-guide) 그대로: `now = new Date(2026, 8, 25, 14, 32, 7).getTime()`(금), `minuteNow = toMinute(now)`, `settings = { hourlyWage: 10320, weeklyHours: 20, workDaysPerWeek: 5, fivePlus: false }`, 기록 `DEMO_SHIFTS`(`s1`~`s4`), 기본 absence `{ date: "2026-09-24", kind: "substitution" }`. `onPunch`·`onRetry` 는 아무것도 안 하는 함수.
+
+| 예시 (H2) | 설명 | `state` |
+|---|---|---|
+| Basic (출근 전) | 채운 `출근` | `{ kind: "before" }` |
+| 근무 중 | 초록 점 + `퇴근` | `{ kind: "working", open: s4 }` → `오후 01:30 출근 · 지금까지 1시간 2분` |
+| 근무 중 — 어제 출근 | 날짜가 붙는 설명 | `open = { id: "x", start: 9/24 22:00, end: null }` → `9. 24. 오후 10:00 출근 · 지금까지 16시간 32분` |
+| 오늘 퇴근함 | 비활성 `출근` + 내일 안내 | `{ kind: "done", lastEnd: 9/25 18:05 }` |
+| 오늘 휴가 | 점선 알약, 유급 문구 | `{ kind: "off", absence: "paid_leave" }` |
+| 오늘 대타 | 점선 알약, 대타 문구 | `{ kind: "off", absence: "substitution" }` |
+| 불러오는 중 | 비활성 버튼 | `{ kind: "loading" }` |
+| 불러오기 실패 | `다시 불러오기` | `{ kind: "error" }` |
+| 저장 실패 | 버튼 아래 오류 글자 | `before` + `error="저장하지 못했어요. 다시 시도해 주세요."` |
+| 320px 한 줄 | 좁은 폭에서도 시계가 한 줄 | 래퍼 `w-[320px] px-5`(카드 280px, 안쪽 240px), `before` |
+
+**접근성**: 상태는 아이콘 모양 + 상태 이름 + 버튼 글자로 구별하고 휴가·대타는 점선 테두리까지 — 색은 보조. 상태 알약 `role="status"`, 시계에는 live 영역 없음. 아이콘은 전부 `aria-hidden`. ([명세 §7](member-today.md#7-접근성-요약))
+
+**사용 규칙**: [오늘 근무 대시보드 명세 §2](member-today.md#2-시계-카드--clockcard-t-1), [PRD 12](../prd/12-member-today.md).
+
+**하지 말 것**
+- 경과 시간을 `now`(1초)로 계산하지 않는다 — `minuteNow` 를 넘긴다.
+- 시계 글자에 `aria-live` 를 걸지 않는다.
+- 상태 알약에 색 바탕을 쓰지 않는다 ([명세 §8](member-today.md#8-다크-모드와-색--새-토큰-없음)).
+- 예시에서 `now` 를 `Date.now()` 로 두지 않는다 (§1-5).
+
+**API 레퍼런스**
+
+`ClockCard`
+
+| Prop | Type | Default | 설명 |
+|---|---|---|---|
+| `now` | `number` | — | **필수** 1초 단위 시각(시계용) |
+| `state` | `TodayState \| { kind: "loading" } \| { kind: "error" }` | — | **필수** 타입 이름 `ClockState` |
+| `minuteNow` | `number` | — | **필수** 경과 시간 계산용 |
+| `busy` | `boolean` | `false` | 저장 중 — 버튼 비활성(`disabled:opacity-50`) |
+| `error` | `string \| null` | `null` | 저장 실패 글자 → `ErrorText` |
+| `onPunch` | `(kind: "in" \| "out") => void` | — | **필수** working 이면 `"out"`, 그 밖은 `"in"` |
+| `onRetry` | `() => void` | — | **필수** error 상태의 `다시 불러오기` |
+
+`todayState(shifts, absences, now): TodayState`·`toMinute(t)` — `@/lib/today`. 판정 순서는 열린 기록 → 오늘 기록 → 오늘 absence → 출근 전.
+
+---
+
+### 4-18. `today-dashboard` — Today Dashboard
+
+**설명**: 멤버 출퇴근 탭의 오늘 근무 카드. 오늘 → 처리할 것 → 이번 주 → 이번 달 네 구역. 숫자는 전부 `lib/pay.ts` 가 계산하고 이 컴포넌트는 보여주기만 한다.
+
+**import**: `import { TodayDashboard } from "@/components/TodayDashboard";`
+
+**사용법**
+
+```tsx
+<TodayDashboard shifts={shifts} absences={absences} requests={requests} settings={settings} now={minuteNow} status="ready" onRetry={reload} onOpenPay={openPay} onOpenRequests={openRequests} />
+```
+
+**구성**
+
+```
+TodayDashboard  Card p-0 divide-y divide-line
+├─ ① 오늘  h2 + 합계, <ul> 오늘 출근한 기록 × 행 (없으면 안내 한 줄)
+├─ ② 처리할 것  (0건이면 구역째 없음) TodoRow (내부) <button min-h-11> × 2
+├─ ③ 이번 주  h2 + 기간, <dl> 근무 시간 · ProgressBar · 근무한 날 · 주휴수당
+└─ ④ 이번 달  <button min-h-11> "{월}월 예상 급여 (세전)" + 금액 + "급여 탭에서 자세히"
+status 가 loading·error 면 구역 없이 한 줄 / 오류 + 다시 불러오기
+```
+
+**예시 공통 가짜 데이터**: Clock Card 와 같은 `_examples/today-dashboard/demo-data.tsx`. `now` 에는 `minuteNow` 를 넘긴다. `requests` 빈 값은 `{ corrections: [], leaves: [], substitutionsOut: [], substitutionsIn: [] }`(`MyRequests`). 요청자·내 이름은 가짜 이름(`김하늘` `user-demo-01` 이 나, `이서준` `user-demo-05`, `박도윤` `user-demo-06`).
+
+| 예시 (H2) | 설명 | 데이터 |
+|---|---|---|
+| Basic — 두 번 나눠 근무 | 오늘 합계 4시간 30분 = 3시간 28분 + 1시간 2분 | `DEMO_SHIFTS`, 기본 absence, `requests` 전부 빈 배열 |
+| 처리할 것 | 받은 대타 2 · 내 대기 1 | Basic + `substitutionsIn` `requested` 2건(요청자 `이서준`·`박도윤`), `leaves` `pending` 1건 |
+| 가입 첫날 | 기록 0, 모든 값 0 | `shifts=[]` `absences=[]` |
+| 오늘 휴가 | 오늘 목록 대신 `오늘은 쉬는 날이에요.` | `s3`·`s4` 빼고 absence `{ date: "2026-09-25", kind: "paid_leave" }` 추가 |
+| 소정 초과 | 막대 가득, `25시간 28분 / 20시간`, 주휴 `개근` | `s4` 를 18:00 퇴근으로, `s5` 9/26(토) 09:00~17:00 추가, `now` 9/26 18:00 |
+| 주 15시간 미만 | 주휴 `대상 아님 (주 15시간 미만)` | Basic + `weeklyHours: 14` |
+| 불러오는 중 | 한 줄 `불러오는 중…` | `status="loading"` |
+| 불러오기 실패 | 오류 + `다시 불러오기` | `status="error"` |
+
+금액은 이 문서에 적지 않는다. 미리보기가 `pay.ts` 로 계산한 값이 곧 정답이다(명세 §5-5 의 대조값은 검증용).
+
+**접근성**: 구역 `h2` 셋(오늘·처리할 것·이번 주), ④ 이번 달은 구역 전체가 버튼이라 버튼 이름으로 읽힌다. 처리할 것 행은 `sr-only` ` — 요청 탭에서 보기`. 누르는 곳 44px 이상. 아이콘 전부 `aria-hidden`. 390px 가로 스크롤 없음. ([명세 §7](member-today.md#7-접근성-요약))
+
+**사용 규칙**: [오늘 근무 대시보드 명세 §3](member-today.md#3-오늘-근무-카드--todaydashboard-t-2t-5), 계산식은 [PRD 02](../prd/02-pay.md). 프로젝트 규칙 "화면 컴포넌트에서 금액을 계산하지 않는다"(`CLAUDE.md` §2).
+
+**하지 말 것**
+- `now` 에 1초 단위 시각을 넘기지 않는다 — `minuteNow`.
+- 주휴 글자를 새로 만들지 않는다 — `holidayStatus` 를 쓴다.
+- 예시에서 금액·시간을 손으로 적어 넣지 않는다.
+- 이 카드를 시계 카드 안에 넣지 않는다 (§4-7 카드 안에 카드 금지).
+
+**API 레퍼런스**
+
+| Prop | Type | Default | 설명 |
+|---|---|---|---|
+| `shifts` | `Shift[]` | — | **필수** 이번 달 조회 범위(`monthRange(이번 해, 이번 달)`)의 내 기록. 이번 주 전부를 포함한다 |
+| `absences` | `Absence[]` | — | **필수** 같은 범위의 내 휴가·대타 |
+| `requests` | `MyRequests \| null \| undefined` | — | 없으면 ② 처리할 것 숨김 |
+| `settings` | `PaySettings` | — | **필수** |
+| `now` | `number` | — | **필수** `minuteNow` 를 넘긴다 |
+| `status` | `"loading" \| "error" \| "ready"` | — | **필수** |
+| `onRetry` | `() => void` | — | **필수** |
+| `onOpenPay` | `() => void` | — | **필수** 급여 탭(이번 달)으로 |
+| `onOpenRequests` | `() => void` | — | **필수** 요청 탭으로 |
+
+---
+
 ## 5. 개발팀 전달 요점
 
-1. 페이지 15개 + `/guide` + `/guide/foundations`. slug·순서·묶음은 §1-3 표 그대로.
+1. 페이지 18개 + `/guide` + `/guide/foundations`. slug·순서·묶음은 §1-3 표 그대로.
 2. 페이지 틀은 §1-4 의 9절 순서. 예시 이름이 곧 H2.
 3. 미리보기는 실제 컴포넌트를 import 한다. 가이드용 복제 컴포넌트를 만들지 않는다.
 4. `BottomNav`·`AppHeader` 미리보기는 `transform` 틀 안에 넣는다 (§1-5).
