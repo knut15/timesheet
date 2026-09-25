@@ -122,6 +122,7 @@ import { Clock } from "lucide-react";   // ✓ 이름으로 하나씩 가져온�
 | 지금 상태 표시 | 색만으로 구별하지 않는다 — 아이콘 모양 + 상태 이름 + 버튼 글자가 모두 다르고, 휴가·대타는 달력처럼 점선 테두리. 상태 글자는 `text-foreground`, 색은 아이콘에만 (색 바탕 알약은 작은 글자 대비 4.5 미달) |
 | 분 단위 값 | 경과·오늘 합계·주·월 숫자는 같은 `minuteNow`(분으로 내린 시각)로 계산. 초 단위로 움직이는 것은 시계뿐 |
 | 진행 막대 | `ProgressBar`(`ui.tsx`) — `role="progressbar"` + `aria-valuetext`. 넘치면 가득 채우고 `aria-valuenow` 는 `max` 로 자른다 |
+| 퇴근 뒤 | 다시 출근 없음 — 오늘 퇴근했으면 내일 0시까지 출근 버튼 비활성(`bg-line text-muted`), 50m 배너·알림도 끈다 (PRD 12 T-7) |
 | 주휴 상태 글자 | `PayView.tsx` `holidayStatus` 그대로. 화면에서 새로 쓰지 않는다 |
 
 ## 5. 바꾸면 같이 고칠 것

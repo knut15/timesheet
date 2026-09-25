@@ -72,9 +72,11 @@ export function ClockCard({
         <>
           {pill(<CircleCheck aria-hidden size={14} className="text-accent" />, "오늘 퇴근함")}
           {desc(`${time(state.lastEnd)} 퇴근`)}
-          <button disabled={busy} onClick={() => onPunch("in")} className={`${BUTTON} ${SECONDARY}`}>
-            다시 출근
+          {/* 다시 출근은 없다 — 내일 0시(날짜가 바뀌면 before)까지 막는다 (2026-09-25 사용자 결정) */}
+          <button disabled className={`${BUTTON} bg-line text-muted`}>
+            출근
           </button>
+          <p className="mt-2 text-xs text-muted">오늘 근무를 마쳤어요. 내일부터 다시 출근할 수 있어요.</p>
         </>
       );
       break;

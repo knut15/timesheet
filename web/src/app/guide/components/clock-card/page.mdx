@@ -38,7 +38,7 @@ ClockCard  Card text-center
   head={["state", "알약", "설명", "버튼"]}
   rows={[
     ["`working`", "`OpenDot` · 근무 중", "`오후 01:30 출근 · 지금까지 1시간 2분`", "**퇴근** 채움 `bg-foreground`"],
-    ["`done`", "`CircleCheck` accent · 오늘 퇴근함", "`오후 06:05 퇴근`", "**다시 출근** 보조 모양"],
+    ["`done`", "`CircleCheck` accent · 오늘 퇴근함", "`오후 06:05 퇴근`", "비활성 **출근** + 내일 안내 (다시 출근 없음)"],
     ["`off`", "`CalendarOff` muted · 오늘 휴가 / 오늘 대타, 점선", "유급·무급·대타 문구", "**출근** 보조 모양 + 안내 한 줄"],
     ["`before`", "`CircleDashed` muted · 출근 전", "없음", "**출근** 채움 `bg-accent`"],
     ["`loading`", "아이콘 없이 `상태 확인 중…`", "없음", "비활성 **출근**"],
@@ -64,7 +64,7 @@ ClockCard  Card text-center
 
 ## 오늘 퇴근함
 
-오늘 기록 중 가장 늦은 퇴근 시각과 보조 모양 `다시 출근`.
+오늘 기록 중 가장 늦은 퇴근 시각. 다시 출근은 없다 — 내일 0시까지 버튼이 비활성이다.
 
 <ComponentPreview name="clock-card/done" width="max-w-md" />
 

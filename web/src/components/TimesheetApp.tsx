@@ -164,11 +164,13 @@ function ClockPanel({
   const device = useDeviceSettings();
   const open = shifts.find((s) => s.end === null);
   const { lat, lng, name } = membership.store;
-  const geo = useGeofence({ enabled: device.alertsOn, storeLat: lat, storeLng: lng, storeName: name, clockedIn: !!open });
+  const state: ClockState = status === "ready" ? todayState(shifts, absences, minuteNow) : { kind: status };
+  // 오늘 퇴근했으면 내일 0시까지 다시 출근하지 않는다 — 50m 알림·배너도 끈다 (PRD 12 T-7)
+  const doneToday = state.kind === "done";
+  const geo = useGeofence({ enabled: device.alertsOn, storeLat: lat, storeLng: lng, storeName: name, clockedIn: !!open || doneToday });
   const [permError, setPermError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const state: ClockState = status === "ready" ? todayState(shifts, absences, minuteNow) : { kind: status };
 
   const punch = async (kind: "in" | "out") => {
     setBusy(true);
@@ -190,6 +192,8 @@ function ClockPanel({
 
   const alertLabel = open
     ? "출근 완료 — 알림 없음"
+    : doneToday
+      ? "오늘 퇴근 — 내일 다시 알려요"
     : geo.alert.remindedAt
       ? `재알림 보냄 (${time(geo.alert.remindedAt)})`
       : geo.alert.firstSentAt
@@ -198,7 +202,7 @@ function ClockPanel({
 
   return (
     <div className="space-y-4">
-      {geo.inside && !open && (
+      {geo.inside && !open && !doneToday && (
         <div role="alert" className="rounded-2xl bg-accent p-5 text-white">
           <p className="font-semibold">매장 {GEOFENCE_RADIUS_M}m 안이에요. 출근 체크하세요.</p>
           <button disabled={busy} onClick={() => punch("in")} className="mt-3 w-full rounded-xl bg-white py-3 font-bold text-accent">

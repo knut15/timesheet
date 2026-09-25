@@ -80,7 +80,7 @@ Card text-center
 | 상태 `kind` | 조건 (위에서부터 먼저 맞는 것) | 상태 알약 (아이콘 · 글자) | 상태 설명 | 버튼 |
 |---|---|---|---|---|
 | `working` 근무 중 | 퇴근 안 한 기록(`end === null`)이 있다 | `OpenDot`(초록 채운 점) · **근무 중** | `오전 09:02 출근 · 지금까지 5시간 30분` | **퇴근** — `bg-foreground text-background` (지금 것) |
-| `done` 오늘 퇴근함 | 오늘(`dayKey(start)` = 오늘) 기록이 있고 모두 퇴근했다 | `CircleCheck` `text-accent` · **오늘 퇴근함** | `오후 06:05 퇴근` (오늘 기록 중 가장 늦은 퇴근) | **다시 출근** — 보조 모양 `border border-accent text-accent bg-transparent` |
+| `done` 오늘 퇴근함 | 오늘(`dayKey(start)` = 오늘) 기록이 있고 모두 퇴근했다 | `CircleCheck` `text-accent` · **오늘 퇴근함** | `오후 06:05 퇴근` (오늘 기록 중 가장 늦은 퇴근) | 비활성 **출근** `bg-line text-muted` + 아래 `text-xs text-muted` `오늘 근무를 마쳤어요. 내일부터 다시 출근할 수 있어요.` — 다시 출근은 없다(PRD 12 T-7). 날짜가 바뀌면 before 로 돌아가 켜진다. 50m 배너·알림도 이날은 끈다 |
 | `off` 오늘 휴가·대타 | 오늘 기록이 없고 오늘 날짜의 absence 가 있다 | `CalendarOff` `text-muted` · **오늘 휴가** / **오늘 대타** + 알약 테두리 `border-dashed border-muted` | 유급 `오늘은 유급 휴가예요` · 무급 `오늘은 무급 휴가예요` · 대타 `오늘은 동료가 대신 근무해요` | **출근** — 보조 모양(위와 같음) |
 | `before` 출근 전 | 그 밖 | `CircleDashed` `text-muted` · **출근 전** | 없음 | **출근** — `bg-accent text-white` (지금 것) |
 
@@ -262,9 +262,9 @@ Card text-center
 │       08:51:40         │      │       18:20:05         │
 │    ( ◌ 출근 전 )        │      │   ( ✓ 오늘 퇴근함 )     │
 │ ┌────────────────────┐ │      │    오후 06:05 퇴근      │
-│ │        출근         │ │      │ ┌┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┐ │
-│ └────────────────────┘ │      │ ┊      다시 출근      ┊ │ ← 테두리 accent, 속 비움
-└────────────────────────┘      │ └┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┘ │
+│ │        출근         │ │      │ ┌────────────────────┐ │
+│ └────────────────────┘ │      │ │   출근 (비활성)     │ │ ← bg-line text-muted
+└────────────────────────┘      │ └────────────────────┘ │
   bg-accent 채운 버튼            └────────────────────────┘
 
 오늘 휴가·대타
@@ -420,7 +420,7 @@ export function todayState(shifts: Shift[], absences: Absence[], now: number): T
 | 출근 전 | 채운 `출근` | `{ kind: "before" }` |
 | 근무 중 | 초록 점 + `퇴근` | `{ kind: "working", open: s4 }` → `오후 01:30 출근 · 지금까지 1시간 2분` |
 | 근무 중 — 어제 출근 | 날짜가 붙는 설명 | `open = { id: "x", start: 9/24 22:00, end: null }` → `9. 24. 오후 10:00 출근 · 지금까지 16시간 32분` |
-| 오늘 퇴근함 | `다시 출근` 보조 버튼 | `{ kind: "done", lastEnd: 9/25 18:05 }`, 이 예시만 `now` 9/25 18:20:05 (시계가 퇴근 뒤) |
+| 오늘 퇴근함 | 비활성 `출근` + 내일 안내 | `{ kind: "done", lastEnd: 9/25 18:05 }`, 이 예시만 `now` 9/25 18:20:05 (시계가 퇴근 뒤) |
 | 오늘 휴가 | 점선 알약, 유급 문구 | `{ kind: "off", absence: "paid_leave" }` |
 | 오늘 대타 | 점선 알약, 대타 문구 | `{ kind: "off", absence: "substitution" }` |
 | 불러오는 중 | 비활성 버튼 | `{ kind: "loading" }` |
@@ -476,7 +476,7 @@ export function todayState(shifts: Shift[], absences: Absence[], now: number): T
 |---|---|---|---|
 | 상태 알약 글자 | `text-foreground` on `surface` | 17.49 / 16.03 | 글자 4.5 이상 |
 | 점선 알약 테두리 (off) | `border-muted` on `surface` | 4.80 / 6.93 | 비글자 3 이상 (달력과 같은 이유로 `border-line` 1.3 은 쓰지 않는다) |
-| `CircleCheck`, `다시 출근` 글자·테두리 | `accent` on `surface` | 5.17 / 4.75 | 통과 |
+| `CircleCheck`, 보조 버튼 글자·테두리 | `accent` on `surface` | 5.17 / 4.75 | 통과 |
 | `CircleDashed`, `CalendarOff`, 보조 글자 | `muted` on `surface` | 4.80 / 6.93 | 통과 |
 | `Hourglass` | `amber-700` / `dark:amber-400` on `surface` | 5.02 / 10.48 | 통과 |
 | `TriangleAlert`, 오류 글자 | `warn` on `surface` | 4.83 / 6.32 | 통과 |

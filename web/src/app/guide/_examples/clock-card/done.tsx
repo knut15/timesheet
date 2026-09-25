@@ -6,7 +6,7 @@ import { at, noop } from "../today-dashboard/demo-data";
 const now = at(25, 18, 20, 5);
 const minuteNow = Math.floor(now / 60_000) * 60_000;
 
-// 오늘 퇴근함 — 가장 늦은 퇴근 시각과 보조 모양 "다시 출근"
+// 오늘 퇴근함 — 가장 늦은 퇴근 시각, 내일까지 비활성 출근 버튼
 export default function ClockCardDone() {
   return <ClockCard now={now} minuteNow={minuteNow} state={{ kind: "done", lastEnd: at(25, 18, 5) }} onPunch={noop} onRetry={noop} />;
 }

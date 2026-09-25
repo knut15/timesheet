@@ -60,3 +60,9 @@ test("TD-2 오늘 목록은 출근 순, 다른 날 제외", () => {
 test("분 단위 자르기", () => {
   assert.equal(toMinute(at(25, 14, 32) + 7_000), at(25, 14, 32));
 });
+
+test("TD-6 퇴근한 날은 done(버튼 비활성), 자정이 지나면 before(버튼 켜짐)", () => {
+  const shifts = [s("a", 25, 9, 0, 18, 0)];
+  assert.equal(todayState(shifts, [], at(25, 23, 59)).kind, "done");
+  assert.equal(todayState(shifts, [], at(26, 0, 0)).kind, "before");
+});

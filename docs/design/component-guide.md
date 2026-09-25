@@ -1018,7 +1018,7 @@ ProgressBar  <div role="progressbar" h-2 w-full overflow-hidden rounded-full bg-
 | Basic (출근 전) | 채운 `출근` | `{ kind: "before" }` |
 | 근무 중 | 초록 점 + `퇴근` | `{ kind: "working", open: s4 }` → `오후 01:30 출근 · 지금까지 1시간 2분` |
 | 근무 중 — 어제 출근 | 날짜가 붙는 설명 | `open = { id: "x", start: 9/24 22:00, end: null }` → `9. 24. 오후 10:00 출근 · 지금까지 16시간 32분` |
-| 오늘 퇴근함 | `다시 출근` 보조 버튼 | `{ kind: "done", lastEnd: 9/25 18:05 }` |
+| 오늘 퇴근함 | 비활성 `출근` + 내일 안내 | `{ kind: "done", lastEnd: 9/25 18:05 }` |
 | 오늘 휴가 | 점선 알약, 유급 문구 | `{ kind: "off", absence: "paid_leave" }` |
 | 오늘 대타 | 점선 알약, 대타 문구 | `{ kind: "off", absence: "substitution" }` |
 | 불러오는 중 | 비활성 버튼 | `{ kind: "loading" }` |
