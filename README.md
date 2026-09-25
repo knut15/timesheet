@@ -72,6 +72,7 @@ pnpm dev:web
 | 화면 셸 — 헤더·하단 내비(lucide)·멤버 아바타 | 완료 — 규칙은 [`.claude/skills/timesheet-ui`](.claude/skills/timesheet-ui/SKILL.md) |
 | 기록 수정 요청·승인, 휴가·대타 근무 | 완료 — [PRD 08](docs/prd/08-correction-requests.md)·[09](docs/prd/09-leave-substitution.md), 스킬 [`timesheet-requests`](.claude/skills/timesheet-requests/SKILL.md) |
 | 로그인 유지 — 쿠키 세션(액세스·리프레시 모두 HttpOnly 쿠키), 30일 슬라이딩 | 완료 — 스킬 [`timesheet-auth`](.claude/skills/timesheet-auth/SKILL.md) |
+| 근무 달력 — 마스터는 전체 멤버, 멤버는 본인 | 배포 — 실화면 확인 대기 ([PRD 10](docs/prd/10-calendar.md), [디자인](docs/design/calendar.md)) |
 | 배포 | 웹 https://timesheet-brown-ten.vercel.app · API·Neon DB ([docs/deploy.md](docs/deploy.md)) |
 
 ## 문서

@@ -27,6 +27,7 @@
 | 07 | 마스터 관리 화면과 대시보드 | [07-admin.md](07-admin.md) |
 | 08 | 기록 수정 요청과 승인 | [08-correction-requests.md](08-correction-requests.md) |
 | 09 | 휴가와 대타 근무 — 마스터가 승인·직접 관리 | [09-leave-substitution.md](09-leave-substitution.md) |
+| 10 | 근무 달력 — 마스터는 전체, 멤버는 본인 | [10-calendar.md](10-calendar.md) |
 
 ## 1차 MVP 범위 (01~04, 2026-09-25 배포)
 
