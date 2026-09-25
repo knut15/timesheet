@@ -23,7 +23,7 @@ description: >
 | 달력 선택 | 테두리 없음 — 배경 + 굵은 날짜 (4절) | 2026-09-25 요청 11 |
 | 로고 | 로고가 있으면 매장 이름 글자 대신 (1절) | 2026-09-25 요청 12·14 |
 | 버튼 | `web/src/components/buttons.ts` 만 쓴다(shadcn `buttonVariants` + 크기). **색 테두리(파랑·빨강) 없음** — 주 동작 검정(다크 흰색) `ACT_SAVE`·`BLOCK_PRIMARY`, 보통 회색 채움 `BTN_ACCENT`·`ACT_CANCEL`·`BLOCK_SECONDARY`, 지우기·퇴사처리는 회색 글자에 올리면 빨강 `BTN_WARN`. 카드 안 작은 버튼 h-8, 폼 저장·취소 h-9, 한 줄 버튼 h-12. 긴 폼은 shadcn Dialog 모달. 예외: 멤버 출퇴근 카드 출근·퇴근 큰 버튼과 50m 배너(상태 색) | 2026-09-25 "텍스트 전부 버튼 디자인으로", "버튼 작게·조건 수정 모달·저장 취소 한 사이즈 작게", "촌스럽다 파랑 빨강, 모던하게" |
-| 하위 화면 | 헤더 제목에 브레드크럼(`crumbs` — `멤버 › 근무 기록`), 헤더 아래 `SubHeader`(헤더 폭 띠 + 뒤로 가기). 본문에 "← 멤버" 글자 링크를 두지 않는다 | 2026-09-25 멤버 상세 요청 |
+| 하위 화면 | 헤더 제목에 브레드크럼(`crumbs` — `멤버 › 근무 기록`), 헤더 아래 `SubHeader`(헤더 폭 띠 + 작은 뒤로 가기 버튼 h-8 text-xs). 본문에 "← 멤버" 글자 링크를 두지 않는다 | 2026-09-25 멤버 상세 요청 |
 | 불러오는 중 | **스켈레톤, 불러온 뒤와 같은 크기** — 글자·`Spinner` 를 쓰지 않는다. 같은 틀(Card·padding·gap)에 줄 높이 칸 + `Bone`(shadcn Skeleton + `bg-line`), 영역은 `Loading`(aria-busy). 로그인 확인 전은 `HeaderSkeleton`·`BottomNavSkeleton`. 크기 표는 가이드 `/guide/components/skeleton` | 2026-09-25 "모든 디자인에 layout shift 없도록 원래 사이즈에서 스켈레톤" |
 | 입력칸 | `.field` 하나로 input·date·select 모두 높이 44px, `min-w-0`, 날짜 칸 기본 모양 끔, select 는 lucide chevron-down 배경. 두 칸 격자는 `Field` 에 맡긴다(`min-w-0`) — 칸마다 높이·폭을 따로 주지 않는다 | 2026-09-25 모바일 겹침 수정 |
 

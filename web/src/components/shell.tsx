@@ -181,9 +181,10 @@ export function BottomNavSkeleton({ count, width = "max-w-3xl" }: { count: numbe
 export function SubHeader({ backHref, backLabel, width = "max-w-3xl" }: { backHref: string; backLabel: string; width?: string }) {
   return (
     <div className="border-b border-line bg-surface">
-      <div className={`mx-auto flex ${width} items-center px-3`}>
-        <Link href={backHref} className="inline-flex h-11 items-center gap-1 rounded-lg px-2 text-sm font-medium text-muted hover:bg-line/60 hover:text-foreground">
-          <ChevronLeft size={18} aria-hidden />
+      {/* 작은 버튼 — 카드 안 버튼과 같은 h-8 (2026-09-25 "멤버목록 버튼 작은 사이즈로") */}
+      <div className={`mx-auto flex ${width} items-center px-3 py-1.5`}>
+        <Link href={backHref} className="inline-flex h-8 items-center gap-0.5 rounded-lg px-2 text-xs font-medium text-muted hover:bg-line/60 hover:text-foreground">
+          <ChevronLeft size={14} aria-hidden />
           {backLabel}
         </Link>
       </div>

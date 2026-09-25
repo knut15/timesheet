@@ -261,7 +261,7 @@ AppHeader  <header sticky top-0, border-b, bg-background/90 blur>
 
 ---
 
-**하위 화면 (2026-09-25)**: `crumbs` prop — 제목 앞에 상위 화면 링크(`멤버 › 근무 기록`). 헤더 아래 `SubHeader`(헤더와 같은 폭의 `bg-surface` 띠 + 아래 선, 뒤로 가기 h-11)로 본문과 나눈다. 사장 멤버 상세·초대 코드가 쓴다(`admin/layout.tsx` `subPage`). eyebrow 줄은 `h-5` 고정 — 로고 유무와 상관없이 헤더 높이가 같다. 예시 `app-header/breadcrumb`.
+**하위 화면 (2026-09-25)**: `crumbs` prop — 제목 앞에 상위 화면 링크(`멤버 › 근무 기록`). 헤더 아래 `SubHeader`(헤더와 같은 폭의 `bg-surface` 띠 + 아래 선, 뒤로 가기 작은 버튼 h-8 text-xs, 띠 py-1.5)로 본문과 나눈다. 사장 멤버 상세·초대 코드가 쓴다(`admin/layout.tsx` `subPage`). eyebrow 줄은 `h-5` 고정 — 로고 유무와 상관없이 헤더 높이가 같다. 예시 `app-header/breadcrumb`.
 
 ### 4-2. `bottom-nav` — Bottom Nav
 
