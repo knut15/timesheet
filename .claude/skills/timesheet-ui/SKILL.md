@@ -11,6 +11,31 @@ description: >
 컴포넌트별 props·예시는 [컴포넌트 가이드 명세](../../../docs/design/component-guide.md)(웹 `/guide`)에 있다. 규칙의 원본은 이 문서다.
 2026-09-25 에 정했다. 따를 시안이 없어 기존 색 토큰(`web/src/app/globals.css` 의 `--accent` 등) 위에서 정한 것이다.
 
+
+## 0. 디자인 기초 — 사용자가 정한 것
+
+| 무엇 | 규칙 | 정한 날·요청 |
+|---|---|---|
+| 글꼴 | 본문 **Pretendard**(가변, `next/font/local` — npm `pretendard` 파일을 앱이 직접 제공, CDN 없음). 코드는 Geist Mono. 새 글꼴을 CDN 으로 붙이지 않는다 | 2026-09-25 "폰트는 pretendard로 수정" |
+| 아이콘 | lucide-react 만 (2절) | 2026-09-25 요청 4 |
+| 좌우 화살표 | lucide `ChevronLeft`/`ChevronRight` + `IconButton` (2절 스크롤 항목) | 2026-09-25 요청 15 |
+| 스크롤 영역 | shadcn ScrollArea (2절) | 2026-09-25 요청 15 |
+| 달력 선택 | 테두리 없음 — 배경 + 굵은 날짜 (4절) | 2026-09-25 요청 11 |
+| 로고 | 로고가 있으면 매장 이름 글자 대신 (1절) | 2026-09-25 요청 12·14 |
+| 입력칸 | `.field` 하나로 input·date·select 모두 높이 44px, `min-w-0`, 날짜 칸 기본 모양 끔, select 는 lucide chevron-down 배경. 두 칸 격자는 `Field` 에 맡긴다(`min-w-0`) — 칸마다 높이·폭을 따로 주지 않는다 | 2026-09-25 모바일 겹침 수정 |
+
+### shadcn 컴포넌트를 들일 때
+
+- 사용자가 지목한 것만 들인다 (지금: ScrollArea). 전체 도입이 아니다 — 가이드는 "문서 형식만 따른다" 가 사용자 결정이었다
+- 레지스트리 원본(`https://ui.shadcn.com/r/styles/base-nova/<이름>.json`)을 `web/src/components/ui/<이름>.tsx` 에 **그대로** 둔다. 고칠 것이 있으면 바깥에서 className 으로
+- 원본이 쓰는 테마 이름(`bg-border`, `ring-ring` …)은 `globals.css` `@theme` 에서 우리 토큰으로 잇는다. 새 색을 만들지 않는다
+- `cn` 은 `web/src/lib/utils.ts` (clsx + tailwind-merge)
+- 필요한 패키지 설치는 사용자 승인 뒤 — 설치한 이름·버전을 히스토리와 완료 보고에 남긴다
+
+### 컴포넌트 가이드(`/guide`)와 같이 움직인다
+
+컴포넌트를 추가하거나 props·모양을 바꾼 커밋에는 **가이드 페이지(`web/src/app/guide/components/<slug>/page.mdx`, `_examples/<slug>/*`)와 명세(`docs/design/component-guide.md`)의 해당 절**이 같이 들어간다. 새 컴포넌트는 가이드 목차(`web/src/components/guide/nav.ts`)에도 한 줄. 사용자가 따로 말하지 않아도 한다.
+
 ## 1. 헤더 — `AppHeader`
 
 | 자리 | 무엇 |
@@ -48,6 +73,16 @@ import { Clock } from "lucide-react";   // ✓ 이름으로 하나씩 가져온�
 - 새 아이콘은 쓰기 전에 이름이 설치된 버전에 있는지 확인한다: `node -e "console.log(typeof require('lucide-react').Clock)"` → `object`
 - 아이콘만 있는 버튼은 `IconButton` 으로 — `aria-label` 과 `title` 이 같이 붙는다
 
+
+### 스크롤 영역은 shadcn ScrollArea
+
+화면 안에서 따로 스크롤되는 영역(코드 블록, 넓은 표, 긴 목차)은 `@/components/ui/scroll-area` 의 `ScrollArea`(+ 가로는 `<ScrollBar orientation="horizontal" />`)로 만든다. `overflow-auto`·`overflow-x-auto` 로 브라우저 기본 스크롤바를 쓰지 않는다 (2026-09-25 사용자 지시, [shadcn Base UI ScrollArea](https://ui.shadcn.com/docs/components/base/scroll-area)).
+
+- `scroll-area.tsx` 는 shadcn(base-nova) 원본 그대로 둔다. 최대 높이는 바깥에서 `[&>[data-slot=scroll-area-viewport]]:max-h-[28rem]` 처럼 viewport 에 준다 — Root 에만 주면 viewport 가 늘어나 스크롤이 생기지 않는다
+- 안에 `sr-only` 같은 절대 위치 요소가 있으면 Root 에 `overflow-hidden` — 문서 폭이 넓어지는 것을 막는다
+- 페이지 전체 스크롤(body)은 대상이 아니다
+- 월 이동 같은 좌우 화살표는 lucide `ChevronLeft`/`ChevronRight` 를 `IconButton` 으로 (글자 `◀` `▶` 쓰지 않는다)
+
 ## 3. 멤버 아바타 — `Avatar`
 
 사진 업로드가 없다. **이름 이니셜 + 사용자 id 로 고정된 색**이다.
@@ -77,6 +112,8 @@ import { Clock } from "lucide-react";   // ✓ 이름으로 하나씩 가져온�
 | 아바타 겹침 | 최대 3개, 4명 이상이면 2개 + `+N` |
 
 ## 5. 바꾸면 같이 고칠 것
+
+- 가이드 페이지·명세 (0절 "컴포넌트 가이드와 같이 움직인다")
 
 - 이 문서의 표 (메뉴·아이콘·크기)
 - 화면이 바뀌었으면 `work-history` 스킬 3절대로 배포·README·히스토리까지 반영한다

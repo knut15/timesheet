@@ -1,9 +1,10 @@
 // 일반 표. 칸 글자는 Inline 서식(`코드`, **굵게**)을 쓴다. 좁은 화면에서는 표만 가로로 스크롤된다.
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Inline } from "./Inline";
 
 export function SimpleTable({ head, rows }: { head: string[]; rows: string[][] }) {
   return (
-    <div className="relative my-6 overflow-x-auto rounded-2xl border border-line bg-surface">
+    <ScrollArea className="my-6 overflow-hidden rounded-2xl border border-line bg-surface">
       <table className="w-full text-left text-sm">
         <thead className="border-b border-line text-xs text-muted">
           <tr>
@@ -24,6 +25,7 @@ export function SimpleTable({ head, rows }: { head: string[]; rows: string[][] }
           ))}
         </tbody>
       </table>
-    </div>
+      <ScrollBar orientation="horizontal" />
+    </ScrollArea>
   );
 }

@@ -1,4 +1,6 @@
 "use client";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { IconButton } from "./shell";
 import { useEffect, useState } from "react";
 import type { ShiftDto } from "@/api/client";
 import type { Shift } from "@/lib/pay";
@@ -56,9 +58,9 @@ export function MonthPicker({ cursor, onChange }: { cursor: { year: number; mont
   };
   return (
     <div className="flex items-center justify-between">
-      <button onClick={() => move(-1)} className="px-3 py-2 text-muted" aria-label="이전 달">◀</button>
+      <IconButton icon={ChevronLeft} label="이전 달" onClick={() => move(-1)} />
       <p className="font-semibold">{cursor.year}년 {cursor.month + 1}월</p>
-      <button onClick={() => move(1)} className="px-3 py-2 text-muted" aria-label="다음 달">▶</button>
+      <IconButton icon={ChevronRight} label="다음 달" onClick={() => move(1)} />
     </div>
   );
 }
@@ -72,9 +74,10 @@ export function useMonthCursor() {
 
 export function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="block text-sm">
+    // min-w-0: 격자 칸 안에서 줄어들 수 있게. 안쪽은 span — label 안에는 글자 수준 요소만 둔다
+    <label className="block min-w-0 text-sm">
       <span className="text-muted">{label}</span>
-      <div className="mt-1">{children}</div>
+      <span className="mt-1 block">{children}</span>
     </label>
   );
 }

@@ -1,5 +1,6 @@
 // MDX 가 만드는 HTML 요소를 기존 색 토큰(globals.css)으로 그린다. App Router 에서 @next/mdx 를 쓰려면 이 파일이 있어야 한다.
 // 가이드 전용 블록(ComponentPreview·PropsTable·SimpleTable 등)도 여기 등록해 MDX 에서 import 없이 쓴다.
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import type { MDXComponents } from "mdx/types";
 import { ComponentPreview } from "@/components/guide/ComponentPreview";
 import { DocLink } from "@/components/guide/DocLink";
@@ -25,12 +26,18 @@ const components = {
   code: ({ children }) => (
     <code className="rounded bg-line/70 px-1 py-0.5 font-mono text-[0.9em] [pre_&]:bg-transparent [pre_&]:p-0 [pre_&]:text-[13px]">{children}</code>
   ),
-  pre: ({ children }) => <pre className="my-4 overflow-x-auto rounded-2xl border border-line bg-surface p-4 leading-6">{children}</pre>,
+  pre: ({ children }) => (
+    <ScrollArea className="my-4 overflow-hidden rounded-2xl border border-line bg-surface">
+      <pre className="p-4 leading-6">{children}</pre>
+      <ScrollBar orientation="horizontal" />
+    </ScrollArea>
+  ),
   // 마크다운 표 문법(GFM)은 플러그인이 없어 쓰지 않는다. JSX 로 쓴 표에만 걸린다
   table: ({ children }) => (
-    <div className="relative my-6 overflow-x-auto rounded-2xl border border-line bg-surface">
+    <ScrollArea className="my-6 overflow-hidden rounded-2xl border border-line bg-surface">
       <table className="w-full text-left text-sm">{children}</table>
-    </div>
+      <ScrollBar orientation="horizontal" />
+    </ScrollArea>
   ),
   th: ({ children }) => <th className="border-b border-line px-4 py-2.5 text-xs font-medium text-muted">{children}</th>,
   td: ({ children }) => <td className="border-b border-line px-4 py-3 align-top">{children}</td>,

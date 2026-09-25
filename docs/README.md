@@ -1,5 +1,7 @@
 # timesheet 문서
 
+- [사용자 결정 목록](decisions.md) — 사용자가 정한 규칙이 어느 문서에 있는지
+
 ## PRD
 
 - [PRD 개요](prd/README.md)

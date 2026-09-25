@@ -1,5 +1,6 @@
 "use client";
 // ComponentPreview 의 탭 부분. 미리보기(렌더된 예시)와 코드(예시 원본)를 번갈아 보인다.
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useId, useState } from "react";
 
 const TABS = [
@@ -42,9 +43,12 @@ export function PreviewTabs({ preview, code, frame }: { preview: React.ReactNode
         {preview}
       </div>
       <div role="tabpanel" id={`${id}-code`} aria-labelledby={`${id}-code-tab`} hidden={tab !== "code"} className="mt-4">
-        <pre className="max-h-[28rem] overflow-auto rounded-2xl border border-line bg-surface p-4 text-[13px] leading-6">
-          <code className="font-mono">{code}</code>
-        </pre>
+        <ScrollArea className="overflow-hidden rounded-2xl border border-line bg-surface [&>[data-slot=scroll-area-viewport]]:max-h-[28rem]">
+          <pre className="p-4 text-[13px] leading-6">
+            <code className="font-mono">{code}</code>
+          </pre>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
       </div>
     </div>
   );

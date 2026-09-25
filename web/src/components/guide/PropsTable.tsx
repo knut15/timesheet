@@ -1,12 +1,13 @@
 // 컴포넌트 props 표 `Prop · Type · Default · 설명`. 좁은 화면에서는 표만 가로로 스크롤된다.
 // required 면 설명 앞에 **필수**, default 가 없으면 "—". 설명 글자는 Inline 서식(`코드`, **굵게**).
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Inline } from "./Inline";
 
 export type PropRow = { prop: string; type: string; default?: string; required?: boolean; description?: string };
 
 export function PropsTable({ rows, first = "Prop" }: { rows: PropRow[]; first?: string }) {
   return (
-    <div className="relative my-6 overflow-x-auto rounded-2xl border border-line bg-surface">
+    <ScrollArea className="my-6 overflow-hidden rounded-2xl border border-line bg-surface">
       <table className="w-full min-w-[36rem] text-left text-sm">
         <thead className="border-b border-line text-xs text-muted">
           <tr>
@@ -30,6 +31,7 @@ export function PropsTable({ rows, first = "Prop" }: { rows: PropRow[]; first?: 
           ))}
         </tbody>
       </table>
-    </div>
+      <ScrollBar orientation="horizontal" />
+    </ScrollArea>
   );
 }

@@ -21,9 +21,9 @@ const [cursor, setCursor] = useMonthCursor(); // 오늘이 든 달로 시작
 
 ```
 MonthPicker  <div flex justify-between>
-├─ <button aria-label="이전 달">◀</button>
+├─ <IconButton icon={ChevronLeft} label="이전 달" />
 ├─ <p font-semibold>{year}년 {month + 1}월</p>
-└─ <button aria-label="다음 달">▶</button>
+└─ <IconButton icon={ChevronRight} label="다음 달" />
 ```
 
 ## 해 넘김
@@ -39,7 +39,6 @@ MonthPicker  <div flex justify-between>
 ## 하지 말 것
 
 - `month` 에 1~12 를 넣지 않는다.
-- `form` 안에 두지 않는다 — 두 버튼에 `type` 이 없어 form 안에서는 submit 으로 동작한다.
 
 ## API 레퍼런스
 
