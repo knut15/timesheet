@@ -493,7 +493,7 @@ export function todayState(shifts: Shift[], absences: Absence[], now: number): T
 
 - 50m 알림 배너와 알림 설정 카드의 내용·동작 (T-6)
 - 출근·퇴근 API 호출과 다른 기기 충돌 처리(`ALREADY_CLOCKED_IN`·`NOT_CLOCKED_IN` → 다시 읽기)
-- 범위 밖(PRD 12): 오늘 근무 **예정**, 동료 근무 여부. 대타로 **내가 대신 일하는 날** 표시도 PRD 12 T-1 에 없어서 넣지 않았다
+- 범위 밖(PRD 12): 오늘 근무 **예정**, 동료 근무 여부. 대타로 **멤버가 대신 일하는 날** 표시도 PRD 12 T-1 에 없어서 넣지 않았다
 
 ## 10. 구현 체크리스트 (시니어 → QA)
 
