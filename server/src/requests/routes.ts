@@ -47,7 +47,7 @@ const toLeaveDto = (l: Leave & { user: User }) => ({
   nickname: l.user.nickname,
   startDate: toDay(l.startDate),
   endDate: toDay(l.endDate),
-  paid: l.paid,
+  paid: l.status === "approved" ? l.paid : null,
   reason: l.reason,
   status: l.status,
   byMaster: l.createdBy !== l.userId,
@@ -158,7 +158,8 @@ requestsRouter.post("/leaves", async (req, res) => {
   const end = fromDay(body.endDate);
   await assertNoLeaveOverlap(userId, start, end);
   const l = await prisma.leave.create({
-    data: { storeId, userId, startDate: start, endDate: end, paid: body.paid, reason: body.reason, createdBy: userId },
+    // paid 는 승인 때 마스터가 정한다. 그 전 값은 쓰지 않는다 (DTO 에서 null)
+    data: { storeId, userId, startDate: start, endDate: end, paid: false, reason: body.reason, createdBy: userId },
     include: { user: true },
   });
   res.status(201).json(toLeaveDto(l));
@@ -338,7 +339,7 @@ requestsRouter.post("/stores/me/leaves/:id/approve", ...master, async (req, res)
   const { storeId } = req.membership!;
   const { count } = await prisma.leave.updateMany({
     where: { id: lid, storeId, status: "pending" },
-    data: { status: "approved", reviewNote: body.note ?? null, reviewedAt: new Date(), ...(body.paid === undefined ? {} : { paid: body.paid }) },
+    data: { status: "approved", paid: body.paid, reviewNote: body.note ?? null, reviewedAt: new Date() },
   });
   await transition(count, async () => !!(await prisma.leave.findFirst({ where: { id: lid, storeId } })));
   res.json(toLeaveDto(await prisma.leave.findUniqueOrThrow({ where: { id: lid }, include: { user: true } })));

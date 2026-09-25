@@ -12,7 +12,7 @@
 | 항목 | 규칙 |
 |---|---|
 | 기간 | 시작일~종료일 (하루면 같은 날), 최대 30일 |
-| 종류 | 유급 / 무급. 멤버가 고르고, 마스터가 승인할 때 바꿀 수 있다 |
+| 종류 | 유급 / 무급. **마스터가 승인할 때 정한다** — 멤버는 고르지 않는다 (2026-09-25 변경). 승인 전 응답의 `paid` 는 `null`(미정), 승인 API 는 `paid` 필수 |
 | 흐름 | 멤버 신청 → `pending` → 마스터 승인 `approved` / 거절 `rejected`, 대기 중 멤버 취소 `canceled` |
 | 직접 등록 | 마스터가 멤버를 골라 바로 `approved` 로 등록한다. 승인된 휴가를 마스터가 삭제할 수 있다 |
 | 겹침 | 같은 멤버의 대기·승인 휴가와 날짜가 겹치면 409 `LEAVE_OVERLAP` |
@@ -64,16 +64,16 @@ B 는 그날 평소처럼 출퇴근을 찍는다. 대타는 **기록을 옮기�
 
 | 누가 | 어디 | 무엇 |
 |---|---|---|
-| 멤버 | 요청 탭 | 휴가 신청(기간·유급 여부·사유), 대타 요청(날짜·동료·사유), 받은 대타 요청 수락·거절, 내 요청 취소 |
+| 멤버 | 요청 탭 | 휴가 신청(기간·사유), 대타 요청(날짜·동료·사유), 받은 대타 요청 수락·거절, 내 요청 취소 |
 | 멤버 | 급여 탭 | 주별 내역에 휴가수당, 결근 아닌 날 수 |
-| 마스터 | 요청 탭 | 대기 휴가 승인·거절(유급 여부 변경), 수락된 대타 승인·거절, **휴가·대타 직접 등록**, 예정된 휴가·대타 목록과 삭제 |
+| 마스터 | 요청 탭 | 대기 휴가 승인(유급 여부를 여기서 정함)·거절, 수락된 대타 승인·거절, **휴가·대타 직접 등록**, 예정된 휴가·대타 목록과 삭제 |
 | 마스터 | 멤버 상세 | 기록 목록에 휴가·대타 날짜 표시, 급여에 휴가수당 |
 
 ## 5. API
 
 | 메서드·경로 | 누가 | 설명 |
 |---|---|---|
-| `POST /api/leaves` | 소속 있음 | `{ startDate, endDate, paid, reason }` |
+| `POST /api/leaves` | 소속 있음 | `{ startDate, endDate, reason }` |
 | `POST /api/leaves/{id}/cancel` | 신청자 | 대기 중만 |
 | `POST /api/substitutions` | 소속 있음 | `{ date, substituteId, reason }` |
 | `POST /api/substitutions/{id}/accept` · `/decline` | 지정된 대타 | `requested` 일 때만 |
@@ -81,7 +81,7 @@ B 는 그날 평소처럼 출퇴근을 찍는다. 대타는 **기록을 옮기�
 | `GET /api/stores/me/colleagues` | 소속 있음 | 대타로 고를 동료 (이름·id) |
 | `GET /api/absences/me?from&to` | 소속 있음 | 내 결근 아닌 날 (급여 계산용) |
 | `POST /api/stores/me/leaves` | 마스터 | 직접 등록 `{ userId, startDate, endDate, paid, reason }` |
-| `POST /api/stores/me/leaves/{id}/approve` | 마스터 | `{ paid? }` |
+| `POST /api/stores/me/leaves/{id}/approve` | 마스터 | `{ paid, note? }` — `paid` 필수 |
 | `POST /api/stores/me/leaves/{id}/reject` | 마스터 | `{ note? }` |
 | `DELETE /api/stores/me/leaves/{id}` | 마스터 | 승인된 휴가 삭제 |
 | `POST /api/stores/me/substitutions` | 마스터 | 직접 등록 `{ requesterId, substituteId, date, reason }` |
@@ -103,3 +103,4 @@ B 는 그날 평소처럼 출퇴근을 찍는다. 대타는 **기록을 옮기�
 | S-3 | 자기 자신·다른 매장 멤버를 대타로 지정 → 400·404 |
 | M-1 | 마스터가 직접 등록한 휴가·대타는 바로 `approved`, 삭제하면 급여에서 빠진다 |
 | M-2 | 겹치는 휴가 → 409 `LEAVE_OVERLAP` |
+| M-3 | 멤버 신청 응답의 `paid` 는 `null`, `paid` 없이 승인 → 400 `VALIDATION_FAILED` |

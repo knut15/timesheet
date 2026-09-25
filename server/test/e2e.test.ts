@@ -469,11 +469,13 @@ if (process.env.S17) {
 
     test("L·S·M 휴가와 대타", async () => {
       const { master, a, b } = await setupStore();
-      // 휴가 신청 → 겹침 409 → 마스터가 무급으로 바꿔 승인
-      const lv = await a.c.req("POST", "/api/leaves", { body: { startDate: "2026-10-05", endDate: "2026-10-06", paid: true, reason: "가족 행사" } });
+      // 휴가 신청(유급 여부 없음) → 겹침 409 → 마스터가 유급 여부를 정해 승인
+      const lv = await a.c.req("POST", "/api/leaves", { body: { startDate: "2026-10-05", endDate: "2026-10-06", reason: "가족 행사" } });
       assert.equal(lv.status, 201);
       assert.equal(lv.body.status, "pending");
-      assert.equal((await a.c.req("POST", "/api/leaves", { body: { startDate: "2026-10-06", endDate: "2026-10-07", paid: false, reason: "x" } })).body.code, "LEAVE_OVERLAP");
+      assert.equal(lv.body.paid, null, "승인 전에는 미정");
+      assert.equal((await a.c.req("POST", "/api/leaves", { body: { startDate: "2026-10-06", endDate: "2026-10-07", reason: "x" } })).body.code, "LEAVE_OVERLAP");
+      assert.equal((await master.req("POST", `/api/stores/me/leaves/${lv.body.id}/approve`, { body: {} })).body.code, "VALIDATION_FAILED", "승인에 paid 필수");
       const ap = await master.req("POST", `/api/stores/me/leaves/${lv.body.id}/approve`, { body: { paid: false } });
       assert.equal(ap.body.status, "approved");
       assert.equal(ap.body.paid, false);
@@ -505,7 +507,7 @@ if (process.env.S17) {
       assert.equal(((await master.req("GET", `/api/stores/me/absences?${range}`)).body as { userId: string }[]).filter((x) => x.userId === b.id).length, 0);
 
       // 대기 수가 대시보드에 온다: 새 휴가 신청 1건
-      await b.c.req("POST", "/api/leaves", { body: { startDate: "2026-11-02", endDate: "2026-11-02", paid: false, reason: "x" } });
+      await b.c.req("POST", "/api/leaves", { body: { startDate: "2026-11-02", endDate: "2026-11-02", reason: "x" } });
       const dash = await master.req("GET", "/api/stores/me/dashboard?month=2026-10");
       assert.equal(dash.body.pendingRequests, 1);
       assert.equal(dash.body.absences.length, 3);

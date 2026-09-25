@@ -135,7 +135,8 @@ export const LeaveDto = z
     nickname: z.string(),
     startDate: z.string(),
     endDate: z.string(),
-    paid: z.boolean(),
+    // 유급 여부는 마스터가 승인할 때 정한다. 승인 전(대기·거절·취소)에는 null — "무급" 과 구별한다
+    paid: z.boolean().nullable(),
     reason: z.string(),
     status: RequestStatus,
     byMaster: z.boolean(),
@@ -147,7 +148,8 @@ const leaveRange = <T extends z.ZodObject<{ startDate: typeof Day; endDate: type
   o
     .refine((b) => b.endDate >= b.startDate, { message: "endDate >= startDate", path: ["endDate"] })
     .refine((b) => (Date.parse(b.endDate) - Date.parse(b.startDate)) / 86_400_000 < 30, { message: "최대 30일", path: ["endDate"] });
-export const CreateLeaveBody = leaveRange(z.object({ startDate: Day, endDate: Day, paid: z.boolean(), reason: Reason })).meta({ id: "CreateLeaveBody" });
+// 멤버는 유급 여부를 고르지 않는다 (2026-09-25 사용자 결정)
+export const CreateLeaveBody = leaveRange(z.object({ startDate: Day, endDate: Day, reason: Reason })).meta({ id: "CreateLeaveBody" });
 export const MasterCreateLeaveBody = leaveRange(
   z.object({ userId: z.string(), startDate: Day, endDate: Day, paid: z.boolean(), reason: Reason }),
 ).meta({ id: "MasterCreateLeaveBody" });
@@ -172,7 +174,8 @@ export const MasterCreateSubstitutionBody = z
   .meta({ id: "MasterCreateSubstitutionBody" });
 
 export const ReviewBody = z.object({ note: z.string().trim().max(200).optional() }).meta({ id: "ReviewBody" });
-export const ApproveLeaveBody = z.object({ paid: z.boolean().optional(), note: z.string().trim().max(200).optional() }).meta({ id: "ApproveLeaveBody" });
+// 승인하는 순간 유급 여부를 반드시 정한다 — 빠뜨리면 400
+export const ApproveLeaveBody = z.object({ paid: z.boolean(), note: z.string().trim().max(200).optional() }).meta({ id: "ApproveLeaveBody" });
 
 export const AbsenceDto = z
   .object({ userId: z.string(), date: z.string(), kind: z.enum(["paid_leave", "unpaid_leave", "substitution"]), sourceId: z.string() })

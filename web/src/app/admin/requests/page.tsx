@@ -158,14 +158,15 @@ function CorrectionCard({ c, onDone }: { c: Correction; onDone: () => void }) {
 }
 
 function LeaveCard({ l, onDone }: { l: LeaveReq; onDone: () => void }) {
-  const [paid, setPaid] = useState(l.paid);
+  // 멤버는 유급 여부를 고르지 않는다. 사장님이 여기서 정한다 (기본 무급 — 체크해야 유급)
+  const [paid, setPaid] = useState(false);
   return (
     <Card>
       <Who name={l.nickname} seed={l.userId} kind="휴가 신청" />
       <p className="mt-2 text-sm font-medium">{range(l.startDate, l.endDate)}</p>
       <p className="text-sm text-muted">{l.reason}</p>
       <label className="mt-3 flex items-center justify-between text-sm">
-        <span>유급으로 승인 (신청: {l.paid ? "유급" : "무급"})</span>
+        <span>유급 휴가로 승인 (체크 안 하면 무급)</span>
         <input type="checkbox" checked={paid} onChange={(e) => setPaid(e.target.checked)} className="h-5 w-5 accent-[var(--accent)]" />
       </label>
       <Review

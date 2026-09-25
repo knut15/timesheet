@@ -66,13 +66,12 @@ function IncomingSub({ sub, onChange }: { sub: MyRequests["substitutionsIn"][num
 function LeaveForm({ onDone }: { onDone: () => void }) {
   const [start, setStart] = useState(today());
   const [end, setEnd] = useState(today());
-  const [paid, setPaid] = useState(false);
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { error } = await api.POST("/api/leaves", { body: { startDate: start, endDate: end < start ? start : end, paid, reason } });
+    const { error } = await api.POST("/api/leaves", { body: { startDate: start, endDate: end < start ? start : end, reason } });
     if (error) return setError(msg(error));
     setError(null);
     setReason("");
@@ -82,15 +81,12 @@ function LeaveForm({ onDone }: { onDone: () => void }) {
   return (
     <Card>
       <h2 className="font-semibold">휴가 신청</h2>
+      <p className="mt-1 text-sm text-muted">유급·무급은 사장님이 승인하면서 정해요.</p>
       <form onSubmit={submit} className="mt-3 space-y-3">
         <div className="grid grid-cols-2 gap-2">
           <Field label="시작일"><input type="date" required value={start} onChange={(e) => setStart(e.target.value)} className="field" /></Field>
           <Field label="종료일"><input type="date" required min={start} value={end} onChange={(e) => setEnd(e.target.value)} className="field" /></Field>
         </div>
-        <label className="flex items-center justify-between text-sm">
-          <span>유급 휴가로 신청 (사장님이 바꿀 수 있어요)</span>
-          <input type="checkbox" checked={paid} onChange={(e) => setPaid(e.target.checked)} className="h-5 w-5 accent-[var(--accent)]" />
-        </label>
         <Field label="사유"><input required maxLength={200} value={reason} onChange={(e) => setReason(e.target.value)} className="field" /></Field>
         <ErrorText>{error}</ErrorText>
         {sent && !error && <p className="text-sm text-accent">신청했어요. 사장님 승인을 기다려요.</p>}
@@ -159,7 +155,8 @@ function MyList({ requests, onChange }: { requests: MyRequests | null; onChange:
     })),
     ...requests.leaves.map((l): Row => ({
       key: l.id,
-      kind: `휴가 (${l.paid ? "유급" : "무급"})${l.byMaster ? " · 사장님 등록" : ""}`,
+      // 유급 여부는 승인 뒤에만 정해진다 (승인 전 paid = null)
+      kind: `휴가${l.paid === null ? "" : l.paid ? " (유급)" : " (무급)"}${l.byMaster ? " · 사장님 등록" : ""}`,
       text: range(l.startDate, l.endDate),
       status: l.status,
       note: l.reviewNote,

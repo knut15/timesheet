@@ -2395,7 +2395,7 @@ export interface components {
             nickname: string;
             startDate: string;
             endDate: string;
-            paid: boolean;
+            paid: boolean | null;
             reason: string;
             status: components["schemas"]["RequestStatus"];
             byMaster: boolean;
@@ -2405,7 +2405,6 @@ export interface components {
         CreateLeaveBody: {
             startDate: string;
             endDate: string;
-            paid: boolean;
             reason: string;
         };
         SubstitutionDto: {
@@ -2452,7 +2451,7 @@ export interface components {
             reason: string;
         };
         ApproveLeaveBody: {
-            paid?: boolean;
+            paid: boolean;
             note?: string;
         };
         MasterCreateSubstitutionBody: {

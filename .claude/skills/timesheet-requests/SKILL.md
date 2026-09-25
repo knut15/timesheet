@@ -17,7 +17,7 @@ description: >
 | 수정 요청 | `pending → approved` | 마스터 | 한 트랜잭션에서 기록 반영. 기록이 없으면 404 로 롤백, 요청은 `pending` 유지 |
 | | `pending → rejected` | 마스터 | 메모 선택 |
 | | `pending → canceled` | 요청자 | |
-| 휴가 | `pending → approved` | 마스터 | `paid` 를 바꿀 수 있다 |
+| 휴가 | `pending → approved` | 마스터 | **`paid` 필수 — 유급 여부는 여기서 처음 정해진다.** 멤버 신청에는 `paid` 가 없고, 승인 전 DTO 의 `paid` 는 `null` |
 | | `pending → rejected` / `canceled` | 마스터 / 신청자 | |
 | | 직접 등록 → `approved` | 마스터 | `createdBy ≠ userId` 이면 `byMaster: true` |
 | 대타 | `requested → accepted` / `declined` | 지정된 대타 | |
