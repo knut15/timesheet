@@ -6,10 +6,10 @@
   },
   "components": {
     "securitySchemes": {
-      "bearer": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT"
+      "accessCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "access_token"
       }
     },
     "schemas": {
@@ -73,6 +73,10 @@
               "INVITE_INVALID",
               "ALREADY_CLOCKED_IN",
               "NOT_CLOCKED_IN",
+              "REQUEST_PENDING",
+              "REQUEST_CLOSED",
+              "LEAVE_OVERLAP",
+              "SUBSTITUTE_NOT_ACCEPTED",
               "INTERNAL"
             ]
           },
@@ -111,18 +115,9 @@
           "nickname"
         ]
       },
-      "TokenResponse": {
+      "SessionResponse": {
         "type": "object",
         "properties": {
-          "accessToken": {
-            "type": "string"
-          },
-          "tokenType": {
-            "type": "string",
-            "enum": [
-              "Bearer"
-            ]
-          },
           "expiresIn": {
             "type": "integer"
           },
@@ -131,8 +126,6 @@
           }
         },
         "required": [
-          "accessToken",
-          "tokenType",
           "expiresIn",
           "user"
         ]
@@ -478,12 +471,511 @@
             "items": {
               "$ref": "#/components/schemas/ShiftDto"
             }
+          },
+          "absences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AbsenceDto"
+            }
+          },
+          "pendingRequests": {
+            "type": "integer"
           }
         },
         "required": [
           "store",
           "members",
-          "shifts"
+          "shifts",
+          "absences",
+          "pendingRequests"
+        ]
+      },
+      "AbsenceDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "paid_leave",
+              "unpaid_leave",
+              "substitution"
+            ]
+          },
+          "sourceId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId",
+          "date",
+          "kind",
+          "sourceId"
+        ]
+      },
+      "CorrectionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "shiftId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "edit",
+              "add",
+              "delete"
+            ]
+          },
+          "start": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "end": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "current": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "start": {
+                    "type": "string"
+                  },
+                  "end": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "start",
+                  "end"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RequestStatus"
+          },
+          "reviewNote": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "reviewedAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "nickname",
+          "shiftId",
+          "action",
+          "start",
+          "end",
+          "current",
+          "reason",
+          "status",
+          "reviewNote",
+          "createdAt",
+          "reviewedAt"
+        ]
+      },
+      "RequestStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "approved",
+          "rejected",
+          "canceled"
+        ]
+      },
+      "CreateCorrectionBody": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "edit",
+              "add",
+              "delete"
+            ]
+          },
+          "shiftId": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "action",
+          "reason"
+        ]
+      },
+      "LeaveDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "paid": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/RequestStatus"
+          },
+          "byMaster": {
+            "type": "boolean"
+          },
+          "reviewNote": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "nickname",
+          "startDate",
+          "endDate",
+          "paid",
+          "reason",
+          "status",
+          "byMaster",
+          "reviewNote",
+          "createdAt"
+        ]
+      },
+      "CreateLeaveBody": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "endDate": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "paid": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "startDate",
+          "endDate",
+          "paid",
+          "reason"
+        ]
+      },
+      "SubstitutionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "requesterId": {
+            "type": "string"
+          },
+          "requesterNickname": {
+            "type": "string"
+          },
+          "substituteId": {
+            "type": "string"
+          },
+          "substituteNickname": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "requested",
+              "accepted",
+              "declined",
+              "approved",
+              "rejected",
+              "canceled"
+            ]
+          },
+          "reviewNote": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "requesterId",
+          "requesterNickname",
+          "substituteId",
+          "substituteNickname",
+          "date",
+          "reason",
+          "status",
+          "reviewNote",
+          "createdAt"
+        ]
+      },
+      "CreateSubstitutionBody": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "substituteId": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "date",
+          "substituteId",
+          "reason"
+        ]
+      },
+      "MyRequestsDto": {
+        "type": "object",
+        "properties": {
+          "corrections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CorrectionDto"
+            }
+          },
+          "leaves": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LeaveDto"
+            }
+          },
+          "substitutionsOut": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubstitutionDto"
+            }
+          },
+          "substitutionsIn": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubstitutionDto"
+            }
+          }
+        },
+        "required": [
+          "corrections",
+          "leaves",
+          "substitutionsOut",
+          "substitutionsIn"
+        ]
+      },
+      "ColleagueDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "nickname": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "userId",
+          "nickname"
+        ]
+      },
+      "StoreRequestsDto": {
+        "type": "object",
+        "properties": {
+          "corrections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CorrectionDto"
+            }
+          },
+          "leaves": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LeaveDto"
+            }
+          },
+          "substitutions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubstitutionDto"
+            }
+          }
+        },
+        "required": [
+          "corrections",
+          "leaves",
+          "substitutions"
+        ]
+      },
+      "ReviewBody": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string",
+            "maxLength": 200
+          }
+        }
+      },
+      "MasterCreateLeaveBody": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "endDate": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "paid": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "userId",
+          "startDate",
+          "endDate",
+          "paid",
+          "reason"
+        ]
+      },
+      "ApproveLeaveBody": {
+        "type": "object",
+        "properties": {
+          "paid": {
+            "type": "boolean"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 200
+          }
+        }
+      },
+      "MasterCreateSubstitutionBody": {
+        "type": "object",
+        "properties": {
+          "requesterId": {
+            "type": "string"
+          },
+          "substituteId": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "requesterId",
+          "substituteId",
+          "date",
+          "reason"
         ]
       }
     },
@@ -510,6 +1002,16 @@
     "/api/auth/signup": {
       "post": {
         "summary": "가입",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -561,7 +1063,7 @@
             "schema": {
               "type": "string"
             },
-            "required": true,
+            "required": false,
             "name": "x-csrf-token",
             "in": "header"
           }
@@ -581,7 +1083,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TokenResponse"
+                  "$ref": "#/components/schemas/SessionResponse"
                 }
               }
             }
@@ -627,7 +1129,7 @@
             "schema": {
               "type": "string"
             },
-            "required": true,
+            "required": false,
             "name": "x-csrf-token",
             "in": "header"
           }
@@ -638,7 +1140,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TokenResponse"
+                  "$ref": "#/components/schemas/SessionResponse"
                 }
               }
             }
@@ -684,7 +1186,7 @@
             "schema": {
               "type": "string"
             },
-            "required": true,
+            "required": false,
             "name": "x-csrf-token",
             "in": "header"
           }
@@ -711,7 +1213,7 @@
         "summary": "내 정보와 소속",
         "security": [
           {
-            "bearer": []
+            "accessCookie": []
           }
         ],
         "responses": {
@@ -743,7 +1245,17 @@
         "summary": "매장 만들기 (마스터가 된다)",
         "security": [
           {
-            "bearer": []
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
           }
         ],
         "requestBody": {
@@ -784,7 +1296,7 @@
         "summary": "내 매장",
         "security": [
           {
-            "bearer": []
+            "accessCookie": []
           }
         ],
         "responses": {
@@ -814,7 +1326,17 @@
         "summary": "매장 설정 (마스터)",
         "security": [
           {
-            "bearer": []
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
           }
         ],
         "requestBody": {
@@ -855,7 +1377,7 @@
         "summary": "초대 코드 목록 (마스터)",
         "security": [
           {
-            "bearer": []
+            "accessCookie": []
           }
         ],
         "responses": {
@@ -888,7 +1410,17 @@
         "summary": "초대 코드 발급 (마스터)",
         "security": [
           {
-            "bearer": []
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
           }
         ],
         "responses": {
@@ -920,7 +1452,7 @@
         "summary": "초대 코드 취소 (마스터)",
         "security": [
           {
-            "bearer": []
+            "accessCookie": []
           }
         ],
         "parameters": [
@@ -931,6 +1463,14 @@
             "required": true,
             "name": "inviteId",
             "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
           }
         ],
         "responses": {
@@ -955,7 +1495,17 @@
         "summary": "초대 코드 등록 (멤버가 된다)",
         "security": [
           {
-            "bearer": []
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
           }
         ],
         "requestBody": {
@@ -1016,7 +1566,7 @@
         "summary": "멤버 목록 (마스터)",
         "security": [
           {
-            "bearer": []
+            "accessCookie": []
           }
         ],
         "responses": {
@@ -1051,7 +1601,7 @@
         "summary": "멤버 급여 조건 (마스터)",
         "security": [
           {
-            "bearer": []
+            "accessCookie": []
           }
         ],
         "parameters": [
@@ -1062,6 +1612,14 @@
             "required": true,
             "name": "userId",
             "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
           }
         ],
         "requestBody": {
@@ -1100,7 +1658,7 @@
         "summary": "멤버 내보내기 (마스터)",
         "security": [
           {
-            "bearer": []
+            "accessCookie": []
           }
         ],
         "parameters": [
@@ -1111,6 +1669,14 @@
             "required": true,
             "name": "userId",
             "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
           }
         ],
         "responses": {
@@ -1135,7 +1701,7 @@
         "summary": "멤버 근무 기록 (마스터)",
         "security": [
           {
-            "bearer": []
+            "accessCookie": []
           }
         ],
         "parameters": [
@@ -1198,7 +1764,7 @@
         "summary": "근무 기록 수정 (마스터)",
         "security": [
           {
-            "bearer": []
+            "accessCookie": []
           }
         ],
         "parameters": [
@@ -1209,6 +1775,14 @@
             "required": true,
             "name": "shiftId",
             "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
           }
         ],
         "requestBody": {
@@ -1247,7 +1821,7 @@
         "summary": "근무 기록 삭제 (마스터)",
         "security": [
           {
-            "bearer": []
+            "accessCookie": []
           }
         ],
         "parameters": [
@@ -1258,6 +1832,14 @@
             "required": true,
             "name": "shiftId",
             "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
           }
         ],
         "responses": {
@@ -1282,7 +1864,7 @@
         "summary": "대시보드 (마스터)",
         "security": [
           {
-            "bearer": []
+            "accessCookie": []
           }
         ],
         "parameters": [
@@ -1325,7 +1907,7 @@
         "summary": "내 근무 기록",
         "security": [
           {
-            "bearer": []
+            "accessCookie": []
           }
         ],
         "parameters": [
@@ -1380,7 +1962,17 @@
         "summary": "출근",
         "security": [
           {
-            "bearer": []
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
           }
         ],
         "responses": {
@@ -1412,7 +2004,17 @@
         "summary": "퇴근",
         "security": [
           {
-            "bearer": []
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
           }
         ],
         "responses": {
@@ -1428,6 +2030,1160 @@
           },
           "409": {
             "description": "NOT_CLOCKED_IN",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/corrections": {
+      "post": {
+        "summary": "기록 수정 요청",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCorrectionBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CorrectionDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "REQUEST_PENDING",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/corrections/{id}/cancel": {
+      "post": {
+        "summary": "수정 요청 취소",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CorrectionDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "REQUEST_CLOSED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/leaves": {
+      "post": {
+        "summary": "휴가 신청",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLeaveBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaveDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "LEAVE_OVERLAP",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/leaves/{id}/cancel": {
+      "post": {
+        "summary": "휴가 신청 취소",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaveDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "REQUEST_CLOSED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/substitutions": {
+      "post": {
+        "summary": "대타 요청",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSubstitutionBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubstitutionDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/substitutions/{id}/accept": {
+      "post": {
+        "summary": "대타 수락 (지정된 대타)",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubstitutionDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "REQUEST_CLOSED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/substitutions/{id}/decline": {
+      "post": {
+        "summary": "대타 거절 (지정된 대타)",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubstitutionDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "REQUEST_CLOSED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/substitutions/{id}/cancel": {
+      "post": {
+        "summary": "대타 요청 취소",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubstitutionDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "REQUEST_CLOSED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/requests/me": {
+      "get": {
+        "summary": "내 요청 전부",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyRequestsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/absences/me": {
+      "get": {
+        "summary": "내 결근 아닌 날",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": true,
+            "name": "from",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": true,
+            "name": "to",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AbsenceDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stores/me/colleagues": {
+      "get": {
+        "summary": "같은 매장 동료",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ColleagueDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stores/me/requests": {
+      "get": {
+        "summary": "매장 요청 전부 (마스터)",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreRequestsDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stores/me/absences": {
+      "get": {
+        "summary": "매장 결근 아닌 날 (마스터)",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": true,
+            "name": "from",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": true,
+            "name": "to",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AbsenceDto"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stores/me/corrections/{id}/approve": {
+      "post": {
+        "summary": "수정 요청 승인 (마스터)",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CorrectionDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "REQUEST_CLOSED | ALREADY_CLOCKED_IN",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stores/me/corrections/{id}/reject": {
+      "post": {
+        "summary": "수정 요청 거절 (마스터)",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CorrectionDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "REQUEST_CLOSED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stores/me/leaves": {
+      "post": {
+        "summary": "휴가 직접 등록 (마스터)",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterCreateLeaveBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaveDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "LEAVE_OVERLAP",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stores/me/leaves/{id}/approve": {
+      "post": {
+        "summary": "휴가 승인 (마스터)",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApproveLeaveBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaveDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "REQUEST_CLOSED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stores/me/leaves/{id}/reject": {
+      "post": {
+        "summary": "휴가 거절 (마스터)",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaveDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "REQUEST_CLOSED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stores/me/leaves/{id}": {
+      "delete": {
+        "summary": "휴가 삭제 (마스터)",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stores/me/substitutions": {
+      "post": {
+        "summary": "대타 직접 등록 (마스터)",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterCreateSubstitutionBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubstitutionDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stores/me/substitutions/{id}/approve": {
+      "post": {
+        "summary": "대타 승인 (마스터)",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubstitutionDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "SUBSTITUTE_NOT_ACCEPTED | REQUEST_CLOSED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stores/me/substitutions/{id}/reject": {
+      "post": {
+        "summary": "대타 거절 (마스터)",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubstitutionDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "REQUEST_CLOSED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stores/me/substitutions/{id}": {
+      "delete": {
+        "summary": "대타 삭제 (마스터)",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "NOT_FOUND",
             "content": {
               "application/json": {
                 "schema": {

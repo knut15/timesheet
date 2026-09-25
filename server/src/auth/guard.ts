@@ -13,11 +13,12 @@ declare global {
   }
 }
 
+/** 액세스 토큰은 HttpOnly 쿠키 access_token 에서만 읽는다 (Authorization 헤더는 받지 않는다). */
 export const requireAuth: RequestHandler = async (req, _res, next) => {
-  const header = req.headers.authorization;
-  if (!header?.startsWith("Bearer ")) return next(new AppError(401, "ACCESS_TOKEN_INVALID"));
+  const token: unknown = req.cookies?.access_token;
+  if (typeof token !== "string" || !token) return next(new AppError(401, "ACCESS_TOKEN_INVALID"));
   try {
-    req.auth = await verifyAccessToken(header.slice(7));
+    req.auth = await verifyAccessToken(token);
     next();
   } catch (e) {
     next(e);

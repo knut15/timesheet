@@ -19,6 +19,10 @@ model User {
   refreshTokens RefreshToken[]
   shifts        Shift[]
   invitesUsed   Invite[]       @relation("InviteUsedBy")
+  corrections   ShiftCorrection[]
+  leaves        Leave[]
+  subsRequested Substitution[] @relation("SubRequester")
+  subsCovering  Substitution[] @relation("SubSubstitute")
 
   @@map("users")
 }
@@ -62,9 +66,12 @@ model Store {
   fivePlus  Boolean  @default(true) @map("five_plus")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
 
-  memberships Membership[]
-  invites     Invite[]
-  shifts      Shift[]
+  memberships   Membership[]
+  invites       Invite[]
+  shifts        Shift[]
+  corrections   ShiftCorrection[]
+  leaves        Leave[]
+  substitutions Substitution[]
 
   @@map("stores")
 }
@@ -117,10 +124,104 @@ model Shift {
   end       DateTime? @db.Timestamptz
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
-  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  store       Store             @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  corrections ShiftCorrection[]
 
   @@index([storeId, start])
   @@index([userId, start])
   @@map("shifts")
+}
+
+// docs/prd/08-correction-requests.md
+enum RequestStatus {
+  pending
+  approved
+  rejected
+  canceled
+}
+
+enum CorrectionAction {
+  edit
+  add
+  delete
+}
+
+// 대기 중인 요청은 기록당 하나 — 마이그레이션 SQL 의 부분 유니크 인덱스가 강제한다.
+model ShiftCorrection {
+  id         String           @id @default(uuid()) @db.Uuid
+  storeId    String           @map("store_id") @db.Uuid
+  userId     String           @map("user_id") @db.Uuid
+  shiftId    String?          @map("shift_id") @db.Uuid
+  action     CorrectionAction
+  start      DateTime?        @db.Timestamptz
+  end        DateTime?        @db.Timestamptz
+  reason     String
+  status     RequestStatus    @default(pending)
+  reviewNote String?          @map("review_note")
+  reviewedAt DateTime?        @map("reviewed_at") @db.Timestamptz
+  createdAt  DateTime         @default(now()) @map("created_at") @db.Timestamptz
+
+  store Store  @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // 기록이 지워져도 요청 이력은 남긴다
+  shift Shift? @relation(fields: [shiftId], references: [id], onDelete: SetNull)
+
+  @@index([storeId, status])
+  @@index([userId])
+  @@map("shift_corrections")
+}
+
+// docs/prd/09-leave-substitution.md
+model Leave {
+  id         String        @id @default(uuid()) @db.Uuid
+  storeId    String        @map("store_id") @db.Uuid
+  userId     String        @map("user_id") @db.Uuid
+  startDate  DateTime      @map("start_date") @db.Date
+  endDate    DateTime      @map("end_date") @db.Date
+  paid       Boolean
+  reason     String
+  status     RequestStatus @default(pending)
+  createdBy  String        @map("created_by") @db.Uuid
+  reviewNote String?       @map("review_note")
+  reviewedAt DateTime?     @map("reviewed_at") @db.Timestamptz
+  createdAt  DateTime      @default(now()) @map("created_at") @db.Timestamptz
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([storeId, status])
+  @@index([userId, startDate])
+  @@map("leaves")
+}
+
+enum SubstitutionStatus {
+  requested
+  accepted
+  declined
+  approved
+  rejected
+  canceled
+}
+
+model Substitution {
+  id           String             @id @default(uuid()) @db.Uuid
+  storeId      String             @map("store_id") @db.Uuid
+  requesterId  String             @map("requester_id") @db.Uuid
+  substituteId String             @map("substitute_id") @db.Uuid
+  date         DateTime           @db.Date
+  reason       String
+  status       SubstitutionStatus @default(requested)
+  reviewNote   String?            @map("review_note")
+  respondedAt  DateTime?          @map("responded_at") @db.Timestamptz
+  reviewedAt   DateTime?          @map("reviewed_at") @db.Timestamptz
+  createdAt    DateTime           @default(now()) @map("created_at") @db.Timestamptz
+
+  store      Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  requester  User  @relation("SubRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  substitute User  @relation("SubSubstitute", fields: [substituteId], references: [id], onDelete: Cascade)
+
+  @@index([storeId, status])
+  @@index([requesterId, date])
+  @@map("substitutions")
 }

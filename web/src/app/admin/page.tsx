@@ -23,7 +23,8 @@ export default function DashboardPage() {
     return data.members.filter((m) => m.role === "member").map((m) => {
       const settings: PaySettings = { hourlyWage: m.hourlyWage, weeklyHours: m.weeklyHours, workDaysPerWeek: m.workDaysPerWeek, fivePlus: data.store.fivePlus };
       const shifts = data.shifts.filter((s) => s.userId === m.userId).map(toShift);
-      const weeks = computeWeeks(shifts, settings, now);
+      const absences = data.absences.filter((a) => a.userId === m.userId);
+      const weeks = computeWeeks(shifts, settings, now, absences);
       const thisWeek = weeks.find((w) => w.weekStart.getTime() === startOfWeek(now).getTime());
       return { member: m, settings, shifts, weeks, month: computeMonth(weeks, cursor.year, cursor.month), thisWeek };
     });
@@ -35,10 +36,12 @@ export default function DashboardPage() {
   const today = dayKey(now);
   const cameToday = rows.filter((r) => r.shifts.some((s) => dayKey(s.start) === today)).length;
   const total = rows.reduce(
-    (a, r) => ({ total: a.total + r.month.total, base: a.base + r.month.basePay, holiday: a.holiday + r.month.holidayPay, ot: a.ot + r.month.overtimePay }),
-    { total: 0, base: 0, holiday: 0, ot: 0 },
+    (a, r) => ({ total: a.total + r.month.total, base: a.base + r.month.basePay, holiday: a.holiday + r.month.holidayPay, leave: a.leave + r.month.leavePay, ot: a.ot + r.month.overtimePay }),
+    { total: 0, base: 0, holiday: 0, leave: 0, ot: 0 },
   );
-  const alerts: { member: Member; text: string }[] = [];
+  const alerts: { member: Member | null; text: string; href?: string }[] = [];
+  if (data.pendingRequests > 0) alerts.push({ member: null, text: `처리 대기 요청 ${data.pendingRequests}건 (수정·휴가·대타)`, href: "/admin/requests" });
+  const onLeaveToday = rows.filter((r) => data.absences.some((a) => a.userId === r.member.userId && a.date === today));
   for (const r of rows) {
     if (r.member.hourlyWage < MINIMUM_WAGE) alerts.push({ member: r.member, text: `시급 ${won(r.member.hourlyWage)} — 최저임금보다 낮아요` });
     for (const s of r.shifts) if (s.end === null && shiftMinutes(s, now) > LONG_OPEN_MIN) alerts.push({ member: r.member, text: `${dayLabel(s.start)} 출근 뒤 12시간 넘게 퇴근 기록이 없어요` });
@@ -51,7 +54,7 @@ export default function DashboardPage() {
         <Card>
           <div className="flex items-baseline justify-between">
             <h2 className="font-semibold">지금 근무 중</h2>
-            <p className="text-sm text-muted">오늘 {cameToday}/{rows.length}명 출근</p>
+            <p className="text-sm text-muted">오늘 {cameToday}/{rows.length}명 출근{onLeaveToday.length > 0 && ` · 휴가·대타 ${onLeaveToday.length}명`}</p>
           </div>
           {working.length === 0 ? (
             <p className="mt-3 text-sm text-muted">근무 중인 사람이 없어요</p>
@@ -76,7 +79,7 @@ export default function DashboardPage() {
           <MonthPicker cursor={cursor} onChange={setCursor} />
           <p className="mt-2 text-sm text-muted">인건비 (예상, 세전)</p>
           <p className="mt-1 text-3xl font-bold tabular-nums">{won(total.total)}</p>
-          <p className="mt-2 text-xs text-muted tabular-nums">기본급 {won(total.base)} · 주휴 {won(total.holiday)} · 연장 가산 {won(total.ot)}</p>
+          <p className="mt-2 text-xs text-muted tabular-nums">기본급 {won(total.base)} · 주휴 {won(total.holiday)} · 휴가 {won(total.leave)} · 연장 가산 {won(total.ot)}</p>
         </Card>
       </div>
 
@@ -86,7 +89,11 @@ export default function DashboardPage() {
           <ul className="mt-3 space-y-2 text-sm">
             {alerts.map((a, i) => (
               <li key={i}>
-                <Link href={`/admin/members/${a.member.userId}`} className="font-medium underline-offset-2 hover:underline">{a.member.nickname}</Link> · {a.text}
+                {a.member ? (
+                  <><Link href={`/admin/members/${a.member.userId}`} className="font-medium underline-offset-2 hover:underline">{a.member.nickname}</Link> · {a.text}</>
+                ) : (
+                  <Link href={a.href!} className="font-medium underline-offset-2 hover:underline">{a.text}</Link>
+                )}
               </li>
             ))}
           </ul>

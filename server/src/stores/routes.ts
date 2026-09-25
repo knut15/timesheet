@@ -15,6 +15,7 @@ import { prisma } from "../db.js";
 import { AppError } from "../errors.js";
 import { requireAuth, requireMaster, requireMembership, requireNoMembership } from "../auth/guard.js";
 import { toInviteDto, toMemberDto, toMyMembershipDto, toShiftDto, toStoreDto } from "../lib/dto.js";
+import { absencesFor, pendingRequestCount } from "../requests/routes.js";
 
 const INVITE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 0·O·1·I 제외
 const INVITE_TTL_MS = 7 * 86_400_000;
@@ -192,15 +193,23 @@ storeRouter.get("/stores/me/dashboard", ...master, async (req, res) => {
   const from = new Date(Date.UTC(y, mo - 1, 1) - 8 * DAY_MS);
   const to = new Date(Date.UTC(y, mo, 1) + 8 * DAY_MS);
   const storeId = req.membership!.storeId;
-  const [store, members, shifts] = await Promise.all([
+  const [store, members, shifts, absences, pendingRequests] = await Promise.all([
     prisma.store.findUniqueOrThrow({ where: { id: storeId } }),
     prisma.membership.findMany({ where: { storeId }, include: { user: true }, orderBy: { joinedAt: "asc" } }),
     prisma.shift.findMany({
       where: { storeId, OR: [{ start: { gte: from, lt: to } }, { end: null }] },
       orderBy: { start: "asc" },
     }),
+    absencesFor(storeId, from.toISOString(), to.toISOString()),
+    pendingRequestCount(storeId),
   ]);
   // 내보낸 멤버의 기록은 대시보드에서 뺀다.
   const ids = new Set(members.map((m) => m.userId));
-  res.json({ store: toStoreDto(store), members: members.map(toMemberDto), shifts: shifts.filter((s) => ids.has(s.userId)).map(toShiftDto) });
+  res.json({
+    store: toStoreDto(store),
+    members: members.map(toMemberDto),
+    shifts: shifts.filter((s) => ids.has(s.userId)).map(toShiftDto),
+    absences: absences.filter((a) => ids.has(a.userId)),
+    pendingRequests,
+  });
 });

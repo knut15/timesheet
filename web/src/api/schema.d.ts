@@ -53,7 +53,9 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -111,8 +113,8 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header: {
-                    "x-csrf-token": string;
+                header?: {
+                    "x-csrf-token"?: string;
                 };
                 path?: never;
                 cookie?: never;
@@ -129,7 +131,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["TokenResponse"];
+                        "application/json": components["schemas"]["SessionResponse"];
                     };
                 };
                 /** @description INVALID_CREDENTIALS */
@@ -180,8 +182,8 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header: {
-                    "x-csrf-token": string;
+                header?: {
+                    "x-csrf-token"?: string;
                 };
                 path?: never;
                 cookie?: never;
@@ -194,7 +196,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["TokenResponse"];
+                        "application/json": components["schemas"]["SessionResponse"];
                     };
                 };
                 /** @description REFRESH_TOKEN_INVALID | REFRESH_TOKEN_REUSED */
@@ -245,8 +247,8 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header: {
-                    "x-csrf-token": string;
+                header?: {
+                    "x-csrf-token"?: string;
                 };
                 path?: never;
                 cookie?: never;
@@ -335,7 +337,9 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -417,7 +421,9 @@ export interface paths {
         patch: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -491,7 +497,9 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -537,7 +545,9 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
                 path: {
                     inviteId: string;
                 };
@@ -581,7 +591,9 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -694,7 +706,9 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
                 path: {
                     userId: string;
                 };
@@ -726,7 +740,9 @@ export interface paths {
         patch: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
                 path: {
                     userId: string;
                 };
@@ -824,7 +840,9 @@ export interface paths {
         delete: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
                 path: {
                     shiftId: string;
                 };
@@ -856,7 +874,9 @@ export interface paths {
         patch: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
                 path: {
                     shiftId: string;
                 };
@@ -998,7 +1018,9 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1043,7 +1065,9 @@ export interface paths {
         post: {
             parameters: {
                 query?: never;
-                header?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
                 path?: never;
                 cookie?: never;
             };
@@ -1075,6 +1099,1149 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/corrections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 기록 수정 요청 */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CreateCorrectionBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CorrectionDto"];
+                    };
+                };
+                /** @description NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description REQUEST_PENDING */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/corrections/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 수정 요청 취소 */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CorrectionDto"];
+                    };
+                };
+                /** @description REQUEST_CLOSED */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/leaves": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 휴가 신청 */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CreateLeaveBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LeaveDto"];
+                    };
+                };
+                /** @description LEAVE_OVERLAP */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/leaves/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 휴가 신청 취소 */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LeaveDto"];
+                    };
+                };
+                /** @description REQUEST_CLOSED */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/substitutions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 대타 요청 */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CreateSubstitutionBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubstitutionDto"];
+                    };
+                };
+                /** @description NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/substitutions/{id}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 대타 수락 (지정된 대타) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubstitutionDto"];
+                    };
+                };
+                /** @description REQUEST_CLOSED */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/substitutions/{id}/decline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 대타 거절 (지정된 대타) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubstitutionDto"];
+                    };
+                };
+                /** @description REQUEST_CLOSED */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/substitutions/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 대타 요청 취소 */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubstitutionDto"];
+                    };
+                };
+                /** @description REQUEST_CLOSED */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/requests/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 내 요청 전부 */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["MyRequestsDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/absences/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 내 결근 아닌 날 */
+        get: {
+            parameters: {
+                query: {
+                    from: string;
+                    to: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AbsenceDto"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stores/me/colleagues": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 같은 매장 동료 */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ColleagueDto"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stores/me/requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 매장 요청 전부 (마스터) */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["StoreRequestsDto"];
+                    };
+                };
+                /** @description FORBIDDEN */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stores/me/absences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 매장 결근 아닌 날 (마스터) */
+        get: {
+            parameters: {
+                query: {
+                    from: string;
+                    to: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AbsenceDto"][];
+                    };
+                };
+                /** @description FORBIDDEN */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stores/me/corrections/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 수정 요청 승인 (마스터) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ReviewBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CorrectionDto"];
+                    };
+                };
+                /** @description NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description REQUEST_CLOSED | ALREADY_CLOCKED_IN */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stores/me/corrections/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 수정 요청 거절 (마스터) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ReviewBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["CorrectionDto"];
+                    };
+                };
+                /** @description REQUEST_CLOSED */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stores/me/leaves": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 휴가 직접 등록 (마스터) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["MasterCreateLeaveBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LeaveDto"];
+                    };
+                };
+                /** @description NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description LEAVE_OVERLAP */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stores/me/leaves/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 휴가 승인 (마스터) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ApproveLeaveBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LeaveDto"];
+                    };
+                };
+                /** @description REQUEST_CLOSED */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stores/me/leaves/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 휴가 거절 (마스터) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ReviewBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LeaveDto"];
+                    };
+                };
+                /** @description REQUEST_CLOSED */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stores/me/leaves/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** 휴가 삭제 (마스터) */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stores/me/substitutions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 대타 직접 등록 (마스터) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["MasterCreateSubstitutionBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubstitutionDto"];
+                    };
+                };
+                /** @description NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stores/me/substitutions/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 대타 승인 (마스터) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ReviewBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubstitutionDto"];
+                    };
+                };
+                /** @description SUBSTITUTE_NOT_ACCEPTED | REQUEST_CLOSED */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stores/me/substitutions/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 대타 거절 (마스터) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["ReviewBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubstitutionDto"];
+                    };
+                };
+                /** @description REQUEST_CLOSED */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stores/me/substitutions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** 대타 삭제 (마스터) */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1091,7 +2258,7 @@ export interface components {
         ErrorResponse: {
             statusCode: number;
             /** @enum {string} */
-            code: "VALIDATION_FAILED" | "INVALID_CREDENTIALS" | "ACCESS_TOKEN_INVALID" | "REFRESH_TOKEN_INVALID" | "REFRESH_TOKEN_REUSED" | "REFRESH_TOKEN_ROTATED" | "CSRF_ORIGIN_REJECTED" | "CSRF_TOKEN_INVALID" | "EMAIL_TAKEN" | "TOO_MANY_REQUESTS" | "FORBIDDEN" | "NOT_FOUND" | "NO_STORE" | "ALREADY_IN_STORE" | "INVITE_INVALID" | "ALREADY_CLOCKED_IN" | "NOT_CLOCKED_IN" | "INTERNAL";
+            code: "VALIDATION_FAILED" | "INVALID_CREDENTIALS" | "ACCESS_TOKEN_INVALID" | "REFRESH_TOKEN_INVALID" | "REFRESH_TOKEN_REUSED" | "REFRESH_TOKEN_ROTATED" | "CSRF_ORIGIN_REJECTED" | "CSRF_TOKEN_INVALID" | "EMAIL_TAKEN" | "TOO_MANY_REQUESTS" | "FORBIDDEN" | "NOT_FOUND" | "NO_STORE" | "ALREADY_IN_STORE" | "INVITE_INVALID" | "ALREADY_CLOCKED_IN" | "NOT_CLOCKED_IN" | "REQUEST_PENDING" | "REQUEST_CLOSED" | "LEAVE_OVERLAP" | "SUBSTITUTE_NOT_ACCEPTED" | "INTERNAL";
             message: string;
         };
         SignupBody: {
@@ -1100,10 +2267,7 @@ export interface components {
             password: string;
             nickname: string;
         };
-        TokenResponse: {
-            accessToken: string;
-            /** @enum {string} */
-            tokenType: "Bearer";
+        SessionResponse: {
             expiresIn: number;
             user: components["schemas"]["UserDto"];
         };
@@ -1184,6 +2348,118 @@ export interface components {
             store: components["schemas"]["StoreDto"];
             members: components["schemas"]["MemberDto"][];
             shifts: components["schemas"]["ShiftDto"][];
+            absences: components["schemas"]["AbsenceDto"][];
+            pendingRequests: number;
+        };
+        AbsenceDto: {
+            userId: string;
+            date: string;
+            /** @enum {string} */
+            kind: "paid_leave" | "unpaid_leave" | "substitution";
+            sourceId: string;
+        };
+        CorrectionDto: {
+            id: string;
+            userId: string;
+            nickname: string;
+            shiftId: string | null;
+            /** @enum {string} */
+            action: "edit" | "add" | "delete";
+            start: string | null;
+            end: string | null;
+            current: {
+                start: string;
+                end: string | null;
+            } | null;
+            reason: string;
+            status: components["schemas"]["RequestStatus"];
+            reviewNote: string | null;
+            createdAt: string;
+            reviewedAt: string | null;
+        };
+        /** @enum {string} */
+        RequestStatus: "pending" | "approved" | "rejected" | "canceled";
+        CreateCorrectionBody: {
+            /** @enum {string} */
+            action: "edit" | "add" | "delete";
+            shiftId?: string;
+            /** Format: date-time */
+            start?: string;
+            /** Format: date-time */
+            end?: string;
+            reason: string;
+        };
+        LeaveDto: {
+            id: string;
+            userId: string;
+            nickname: string;
+            startDate: string;
+            endDate: string;
+            paid: boolean;
+            reason: string;
+            status: components["schemas"]["RequestStatus"];
+            byMaster: boolean;
+            reviewNote: string | null;
+            createdAt: string;
+        };
+        CreateLeaveBody: {
+            startDate: string;
+            endDate: string;
+            paid: boolean;
+            reason: string;
+        };
+        SubstitutionDto: {
+            id: string;
+            requesterId: string;
+            requesterNickname: string;
+            substituteId: string;
+            substituteNickname: string;
+            date: string;
+            reason: string;
+            /** @enum {string} */
+            status: "requested" | "accepted" | "declined" | "approved" | "rejected" | "canceled";
+            reviewNote: string | null;
+            createdAt: string;
+        };
+        CreateSubstitutionBody: {
+            date: string;
+            substituteId: string;
+            reason: string;
+        };
+        MyRequestsDto: {
+            corrections: components["schemas"]["CorrectionDto"][];
+            leaves: components["schemas"]["LeaveDto"][];
+            substitutionsOut: components["schemas"]["SubstitutionDto"][];
+            substitutionsIn: components["schemas"]["SubstitutionDto"][];
+        };
+        ColleagueDto: {
+            userId: string;
+            nickname: string;
+        };
+        StoreRequestsDto: {
+            corrections: components["schemas"]["CorrectionDto"][];
+            leaves: components["schemas"]["LeaveDto"][];
+            substitutions: components["schemas"]["SubstitutionDto"][];
+        };
+        ReviewBody: {
+            note?: string;
+        };
+        MasterCreateLeaveBody: {
+            userId: string;
+            startDate: string;
+            endDate: string;
+            paid: boolean;
+            reason: string;
+        };
+        ApproveLeaveBody: {
+            paid?: boolean;
+            note?: string;
+        };
+        MasterCreateSubstitutionBody: {
+            requesterId: string;
+            substituteId: string;
+            date: string;
+            reason: string;
         };
     };
     responses: never;

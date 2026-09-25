@@ -2,16 +2,16 @@
 import { useEffect, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import type { Me } from "@/api/client";
-import { getServerSession, getSession, refreshSession, subscribe, type SessionState } from "./session";
+import { bootSession, getServerSession, getSession, subscribe, type SessionState } from "./session";
 
 export function useSession(): SessionState {
   return useSyncExternalStore(subscribe, getSession, getServerSession);
 }
 
-/** 앱 최상단에서 한 번. 새로고침 뒤 로그인 상태를 되살리는 조용한 갱신. */
+/** 앱 최상단에서 한 번. 쿠키로 로그인 상태를 되살린다 (만료됐으면 조용히 refresh). */
 export function useBootSession() {
   useEffect(() => {
-    void refreshSession(); // StrictMode 의 두 번째 호출은 같은 promise 를 받는다
+    void bootSession(); // refresh 는 single-flight 라 StrictMode 이중 호출에도 한 번만 돈다
   }, []);
 }
 

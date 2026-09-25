@@ -78,14 +78,16 @@ export async function rotateRefreshToken(token: string, meta: Meta): Promise<Iss
     if (row.expired) return { kind: "invalid" };
 
     const next = randomToken();
-    const expiresAt = new Date(Math.min(Date.now() + env.REFRESH_TOKEN_TTL_SEC * 1000, row.session_expires_at.getTime()));
+    // 슬라이딩: 쓸 때마다 세션 한도를 지금부터 다시 잡는다. 안 쓰면 마지막 회전 뒤 SESSION_MAX_AGE_SEC 에 끊긴다.
+    const sessionExpiresAt = new Date(Date.now() + env.SESSION_MAX_AGE_SEC * 1000);
+    const expiresAt = new Date(Math.min(Date.now() + env.REFRESH_TOKEN_TTL_SEC * 1000, sessionExpiresAt.getTime()));
     const created = await tx.refreshToken.create({
       data: {
         userId: row.user_id,
         familyId: row.family_id,
         tokenHash: sha256(next),
         expiresAt,
-        sessionExpiresAt: row.session_expires_at,
+        sessionExpiresAt,
         ...meta,
       },
     });
