@@ -1,20 +1,10 @@
-import { existsSync } from "node:fs";
-import express from "express";
-import pino from "pino";
+import { app } from "./app.js";
+import { env } from "./env.js";
+import { logger } from "./logger.js";
 
-// 배포 환경에는 .env 파일이 없다. 플랫폼이 환경변수를 직접 넣어 준다.
-if (existsSync(".env")) process.loadEnvFile(".env");
-
-const logger = pino();
-const port = Number(process.env.PORT ?? 4200);
-
-const app = express();
-app.use(express.json());
-
-app.get("/health", (_req, res) => {
-  res.json({ ok: true });
-});
-
-app.listen(port, () => {
-  logger.info({ port }, "listening");
-});
+// 로컬 실행용. Vercel 은 이 파일이 아니라 src/app.ts 의 기본 내보내기를 쓴다.
+if (!process.env.VERCEL) {
+  app.listen(env.PORT, () => {
+    logger.info({ port: env.PORT }, "listening");
+  });
+}

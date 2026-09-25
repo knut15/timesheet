@@ -11,5 +11,9 @@ allowBuilds:
   # Prisma 의 쿼리 엔진 바이너리를 받는다. 막으면 migrate·generate 가 엔진을 못 찾는다.
   "@prisma/engines": true
   prisma: true
+  # argon2 는 네이티브 애드온이다. 미리 빌드된 바이너리를 받는 install 스크립트가 필요하다.
+  argon2: true
+  # swagger-ui-dist 의 사용량 수집 스크립트. 기능과 무관하므로 막는다.
+  "@scarf/scarf": false
   # eslint-config-next 가 쓰는 resolver. 미리 빌드된 바이너리를 받으므로 postinstall 이 필요 없다.
   unrs-resolver: false

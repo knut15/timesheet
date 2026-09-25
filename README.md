@@ -22,6 +22,8 @@
 | `server/` | `timesheet-server` | Express API. Prisma 로 Postgres 에 붙는다 |
 | `web/` | `timesheet-web` | Next.js App Router 클라이언트 |
 
+문서는 [docs/](docs/README.md) 에 있다.
+
 ## 돌려 보기
 
 Docker 와 pnpm 이 필요하다.
@@ -47,6 +49,8 @@ pnpm dev:web
 | 항목 | 상태 |
 |---|---|
 | 워크스페이스·DB·서버·웹 뼈대 | 완료 |
-| 도메인 모델 (근무자·출퇴근·급여) | 미착수 |
-| 로그인 | 미착수 |
-| 배포 | 미착수 |
+| 웹 MVP (출퇴근·급여·50m 출근 알림, localStorage) | 완료 — [docs/prd](docs/prd/README.md) |
+| 서버 연동 — 매장·초대 코드·근무 기록 | 완료 |
+| 로그인 (JWT 직접 구현, 리프레시 회전·재사용 탐지) | 완료 — [검증 기록](docs/verify/auth.md) |
+| 마스터 관리 화면·대시보드 | 완료 |
+| 배포 | 웹 https://timesheet-brown-ten.vercel.app · API·Neon DB ([docs/deploy.md](docs/deploy.md)) |
