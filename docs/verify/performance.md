@@ -84,7 +84,7 @@
 ## 6. 다시 재는 법
 
 ```bash
-# API (운영 DB 에 @test.dev 멤버·기록을 만들고 잰다 — 끝나면 지운다)
+# API (운영 DB 에 @test.dev 멤버·기록을 만들고 잰다 — 스크립트는 지우지 않으니 측정 뒤 @test.dev 사용자와 그들만 속한 매장을 따로 지운다)
 cd server && DATABASE_URL=<운영> N=10 pnpm exec tsx scripts/perf-boot.mts
 ```
 

@@ -1,5 +1,6 @@
 // 운영 성능 측정 — 멤버 앱 부팅 순서 그대로: /users/me → [shifts, absences, requests, colleagues] 병렬. docs/verify/performance.md
-// 실행: DATABASE_URL=<운영> N=10 pnpm exec tsx scripts/perf-boot.mts  (끝나면 @test.dev 계정·매장을 지운다)
+// 실행: DATABASE_URL=<운영> N=10 pnpm exec tsx scripts/perf-boot.mts
+// 이 스크립트는 만든 @test.dev 계정·매장·기록을 지우지 않는다 — 측정 뒤 따로 지운다(docs/verify/performance.md §6)
 import { randomUUID } from "node:crypto";
 import { prisma } from "../src/db.ts";
 
