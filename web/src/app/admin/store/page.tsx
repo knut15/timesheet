@@ -1,14 +1,17 @@
 "use client";
 // 매장 설정 — 로고·이름·위치·5인 이상. docs/prd/07-admin.md, docs/prd/11-store-logo.md
+import { BLOCK_PRIMARY, BLOCK_SECONDARY } from "@/components/buttons";
+import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { api, type Store } from "@/api/client";
 import { authFetch, reloadMe } from "@/auth/session";
-import { Card, ErrorText, Field, Spinner } from "@/components/ui";
+import { Card, ErrorText, Field } from "@/components/ui";
 import { useApi } from "@/lib/useApi";
+import { StoreSkeleton } from "../_skeletons";
 
 export default function StorePage() {
   const { data, reload } = useApi(() => api.GET("/api/stores/me"), "");
-  if (!data) return <Spinner />;
+  if (!data) return <StoreSkeleton />;
   return (
     <div className="space-y-4">
       <LogoCard store={data} onSaved={reload} />
@@ -70,7 +73,7 @@ function LogoCard({ store, onSaved }: { store: Store; onSaved: () => void }) {
       </div>
       <ErrorText>{error}</ErrorText>
       <div className="flex gap-2">
-        <label className={`flex-1 cursor-pointer rounded-xl bg-accent py-3 text-center font-semibold text-white ${busy ? "pointer-events-none opacity-50" : ""}`}>
+        <label className={cn(BLOCK_PRIMARY, "flex-1 cursor-pointer", busy && "pointer-events-none opacity-50")}>
           {store.logoUrl ? "로고 바꾸기" : "로고 올리기"}
           <input
             type="file"
@@ -84,7 +87,7 @@ function LogoCard({ store, onSaved }: { store: Store; onSaved: () => void }) {
           />
         </label>
         {store.logoUrl && (
-          <button onClick={remove} disabled={busy} className="rounded-xl border border-line px-4 py-3 text-sm disabled:opacity-50">지우기</button>
+          <button onClick={remove} disabled={busy} className={cn(BLOCK_SECONDARY, "w-auto px-4 text-sm disabled:opacity-50")}>지우기</button>
         )}
       </div>
     </Card>
@@ -132,7 +135,7 @@ function StoreForm({ store, onSaved }: { store: Store; onSaved: () => void }) {
           <h2 className="font-semibold">매장 위치</h2>
           <p className="mt-1 text-sm text-muted">알바생이 이 위치 50m 안에 들어오면 출근 알림을 받아요.</p>
         </div>
-        <button onClick={pickCurrentLocation} className="w-full rounded-xl border border-accent py-3 font-semibold text-accent">현재 위치를 매장으로</button>
+        <button onClick={pickCurrentLocation} className={BLOCK_SECONDARY}>현재 위치를 매장으로</button>
         <div className="grid grid-cols-2 gap-3">
           <Field label="위도"><input type="number" step={0.000001} value={form.lat ?? ""} onChange={coord("lat")} className="field" /></Field>
           <Field label="경도"><input type="number" step={0.000001} value={form.lng ?? ""} onChange={coord("lng")} className="field" /></Field>
@@ -140,7 +143,7 @@ function StoreForm({ store, onSaved }: { store: Store; onSaved: () => void }) {
       </Card>
       <ErrorText>{error}</ErrorText>
       {msg && !error && <p className="text-sm text-accent">{msg}</p>}
-      <button onClick={() => save(form)} className="w-full rounded-xl bg-accent py-3 font-semibold text-white">저장</button>
+      <button onClick={() => save(form)} className={BLOCK_PRIMARY}>저장</button>
     </div>
   );
 }

@@ -1,0 +1,56 @@
+export const metadata = { title: "Skeleton" };
+
+# Skeleton
+
+불러오는 동안 **불러온 뒤와 같은 크기**로 자리를 잡아 두는 막대. 데이터가 들어와도 화면이 움직이지 않는다(layout shift 없음). [shadcn Skeleton](https://ui.shadcn.com/docs/components/base/skeleton)(base-nova) 원본을 그대로 두고, 앱은 바탕만 덮은 `Bone` 을 쓴다.
+
+<ComponentPreview name="skeleton/basic" width="max-w-md" />
+
+<FileLocation path="web/src/components/ui.tsx" importLine={`import { Bone, Loading } from "@/components/ui";`} />
+
+## 사용법
+
+```tsx
+<Loading>
+  <Card>
+    <div className="flex h-5 items-center"><Bone className="h-3.5 w-20" /></div>
+    <div className="mt-1 flex h-8 items-center"><Bone className="h-6 w-28" /></div>
+  </Card>
+</Loading>
+```
+
+## 크기 규칙
+
+불러온 화면과 **같은 틀**(같은 Card·padding·gap)을 쓰고, 글자 한 줄은 그 글자의 줄 높이 칸 안에 막대를 둔다.
+
+<SimpleTable
+  head={["글자", "줄 높이 칸", "막대"]}
+  rows={[
+    ["`text-xs`·`text-[11px]`", "`h-4`", "`h-3`"],
+    ["`text-sm`", "`h-5`", "`h-3.5`"],
+    ["`text-base`", "`h-6`", "`h-4`"],
+    ["`text-lg`·`text-xl`", "`h-7`", "`h-5`"],
+    ["`text-2xl`", "`h-8`", "`h-6`"],
+    ["버튼·입력칸", "—", "같은 높이·모서리 (`.field` → `h-11 rounded-xl`)"],
+  ]}
+/>
+
+- 개수가 바뀌는 목록은 흔한 개수(2~3행)로 둔다. 실제 행 수와 다르면 그만큼은 움직인다.
+- 불러오는 중 글자(`불러오는 중…`)는 화면에 두지 않는다 — `Spinner` 대신 이것을 쓴다.
+
+## 우리 쪽 맞춤 — 원본은 고치지 않는다
+
+- `Bone` = `Skeleton` + `bg-line`. 원본의 `bg-muted` 는 우리 토큰에서 글자색(회색)이라 너무 진하다.
+- `Loading` 은 감싼 영역에 `aria-busy` 와 스크린리더용 "불러오는 중" 한 줄을 붙인다. 막대는 전부 `aria-hidden`.
+- 앱 셸: 로그인 확인 전에는 `HeaderSkeleton`·`BottomNavSkeleton`(`shell.tsx`)이 헤더·하단 내비와 같은 높이로 자리를 잡는다.
+
+## API 레퍼런스
+
+<PropsTable
+  rows={[
+    { prop: "Bone className", type: "string", description: "크기·모서리. 바탕은 bg-line 고정" },
+    { prop: "Loading children", type: "React.ReactNode", required: true },
+    { prop: "Loading className", type: "string", description: "감싼 div 의 틀(불러온 화면의 바깥 틀과 같게)" },
+    { prop: "Loading label", type: "string", default: '"불러오는 중"', description: "스크린리더가 읽는 글자" },
+  ]}
+/>

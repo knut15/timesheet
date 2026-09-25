@@ -1,9 +1,10 @@
 "use client";
 import { useState } from "react";
+import { CalendarLegend } from "@/components/calendar/CalendarLegend";
 import { MonthGrid } from "@/components/calendar/MonthGrid";
 import { memberCell, TODAY } from "./demo-data";
 
-// busy 면 칸 내용·표시를 숨기고 aria-busy 를 켠다
+// busy 면 칸 내용·표시 대신 막대, aria-busy. 범례는 데이터와 무관해 그대로 둔다
 export default function MonthGridBusy() {
   const [selected, setSelected] = useState<string | null>(TODAY);
   return (
@@ -16,7 +17,7 @@ export default function MonthGridBusy() {
       busy
       cellHeight={56}
       cell={memberCell}
-      footer={<p className="text-[11px] text-muted">불러오는 중…</p>}
+      footer={<CalendarLegend role="member" />}
     />
   );
 }

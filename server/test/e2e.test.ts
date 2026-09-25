@@ -603,4 +603,78 @@ if (process.env.S17) {
       assert.equal((await master.req("GET", "/api/stores/me/logo")).status, 404);
     });
   });
+
+  describe("근무 시간표 (docs/prd/13)", () => {
+    test("WS-1~WS-6 시간표 저장·계산, 검증, 날짜별 변경 덮어쓰기·권한", async () => {
+      const master = new Client();
+      await master.signupLogin("사장");
+      await master.req("POST", "/api/stores", { body: { name: "시간표 매장" } });
+      const alba = new Client();
+      const { user: albaUser } = await alba.signupLogin("알바");
+      const inv = await master.req("POST", "/api/stores/me/invites");
+      await alba.req("POST", "/api/invites/redeem", { body: { code: inv.body.code } });
+      const url = `/api/stores/me/members/${albaUser.id}`;
+
+      // 시간표 전에는 null, 옛 값 그대로
+      const before = (await alba.req("GET", "/api/users/me")).body.membership;
+      assert.equal(before.schedule, null);
+      assert.equal(before.weeklyHours, 20);
+
+      // WS-1 월·수·금 10:00~15:00 → 주 15시간·3일
+      const upd = await master.req("PATCH", url, { body: { hourlyWage: 12000, schedule: { days: [5, 1, 3], start: "10:00", end: "15:00" } } });
+      assert.equal(upd.status, 200);
+      assert.deepEqual(upd.body.schedule, { days: [1, 3, 5], start: "10:00", end: "15:00" });
+      assert.equal(upd.body.weeklyHours, 15);
+      assert.equal(upd.body.workDaysPerWeek, 3);
+      assert.equal(upd.body.hourlyWage, 12000);
+      const mine = (await alba.req("GET", "/api/users/me")).body.membership;
+      assert.deepEqual(mine.schedule, { days: [1, 3, 5], start: "10:00", end: "15:00" });
+
+      // WS-2 퇴근 ≤ 출근, 요일 0개, 52시간 초과, 30분 단위 아님 → 400
+      for (const schedule of [
+        { days: [1], start: "15:00", end: "10:00" },
+        { days: [], start: "10:00", end: "15:00" },
+        { days: [0, 1, 2, 3, 4, 5, 6], start: "08:00", end: "18:00" },
+        { days: [1], start: "10:15", end: "15:00" },
+      ]) {
+        const r = await master.req("PATCH", url, { body: { schedule } });
+        assert.equal(r.body.code, "VALIDATION_FAILED", JSON.stringify(schedule));
+      }
+      // 주 시간·일수 직접 입력은 받지 않는다 — 무시되고 값은 그대로
+      await master.req("PATCH", url, { body: { weeklyHours: 40 } });
+      assert.equal((await alba.req("GET", "/api/users/me")).body.membership.weeklyHours, 15);
+
+      // WS-3 날짜별 변경 — 같은 날짜는 덮어쓴다
+      const exUrl = `${url}/schedule-exceptions`;
+      const off = await master.req("POST", exUrl, { body: { date: "2099-09-30", kind: "off" } });
+      assert.equal(off.status, 200);
+      const work = await master.req("POST", exUrl, { body: { date: "2099-09-30", kind: "work", start: "12:00", end: "17:00" } });
+      assert.equal(work.body.id, off.body.id);
+      assert.equal(work.body.kind, "work");
+      await master.req("POST", exUrl, { body: { date: "2099-10-02", kind: "off" } });
+      assert.equal((await master.req("POST", exUrl, { body: { date: "2099-10-03", kind: "work" } })).body.code, "VALIDATION_FAILED");
+      assert.equal((await master.req("POST", exUrl, { body: { date: "2099-10-03", kind: "off", start: "10:00", end: "12:00" } })).body.code, "VALIDATION_FAILED");
+      const list = await master.req("GET", `${exUrl}?from=2099-09-01`);
+      assert.deepEqual(list.body.map((e: { date: string; kind: string }) => `${e.date} ${e.kind}`), ["2099-09-30 work", "2099-10-02 off"]);
+      assert.equal((await master.req("GET", `${exUrl}?from=2099-10-01`)).body.length, 1);
+
+      // WS-5 멤버는 내 것만 본다
+      const me = await alba.req("GET", "/api/schedule-exceptions/me?from=2099-09-01");
+      assert.equal(me.body.length, 2);
+
+      // WS-4 멤버가 마스터 API → 403, 다른 매장 → 404
+      assert.equal((await alba.req("POST", exUrl, { body: { date: "2099-10-04", kind: "off" } })).status, 403);
+      assert.equal((await alba.req("DELETE", `/api/stores/me/schedule-exceptions/${work.body.id}`)).status, 403);
+      const rival = new Client();
+      await rival.signupLogin("옆가게");
+      await rival.req("POST", "/api/stores", { body: { name: "옆 매장" } });
+      assert.equal((await rival.req("GET", `${exUrl}?from=2099-09-01`)).status, 404);
+      assert.equal((await rival.req("POST", exUrl, { body: { date: "2099-10-04", kind: "off" } })).status, 404);
+      assert.equal((await rival.req("DELETE", `/api/stores/me/schedule-exceptions/${work.body.id}`)).status, 404);
+
+      // 삭제
+      assert.equal((await master.req("DELETE", `/api/stores/me/schedule-exceptions/${work.body.id}`)).status, 204);
+      assert.equal((await alba.req("GET", "/api/schedule-exceptions/me?from=2099-09-01")).body.length, 1);
+    });
+  });
 }

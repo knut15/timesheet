@@ -1,6 +1,8 @@
 "use client";
 // 멤버의 기록 탭 — 자기 기록을 달력(기본)이나 목록으로 보고, 고칠 것은 수정·삭제·추가를 요청한다. 반영은 사장님 승인 뒤.
 // docs/prd/08, docs/prd/10-calendar.md, 화면 명세 docs/design/calendar.md §2·§4
+import { ACT_CANCEL, ACT_SAVE, BLOCK_SECONDARY } from "@/components/buttons";
+import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { PencilLine, Plus, Trash2 } from "lucide-react";
 import { api, errorCode, type Absence, type Correction } from "@/api/client";
@@ -10,7 +12,7 @@ import { CalendarLegend } from "../calendar/CalendarLegend";
 import { MonthGrid } from "../calendar/MonthGrid";
 import { useSelectedDay } from "../calendar/useSelectedDay";
 import { ViewToggle } from "../calendar/ViewToggle";
-import { Card, date, ErrorText, Field, hm, StatusPill, time, toLocalInput, useNow } from "../ui";
+import { Bone, Card, date, ErrorText, Field, hm, Loading, StatusPill, time, toLocalInput, useNow } from "../ui";
 
 const MESSAGES: Record<string, string> = {
   REQUEST_PENDING: "이 기록에는 이미 대기 중인 요청이 있어요.",
@@ -46,7 +48,7 @@ export function RecordsPanel(props: Props) {
       {props.failed ? (
         <Card className="space-y-3">
           <ErrorText>기록을 불러오지 못했어요.</ErrorText>
-          <button type="button" onClick={props.onRetry} className="w-full rounded-xl border border-line py-2.5 text-sm">다시 시도</button>
+          <button type="button" onClick={props.onRetry} className={cn(BLOCK_SECONDARY, "h-10 text-sm")}>다시 시도</button>
         </Card>
       ) : view === "calendar" ? (
         <CalendarView {...props} fs={fs} pendingByShift={pendingByShift} />
@@ -100,14 +102,11 @@ function CalendarView({ shifts, absences, corrections, year, month, loading, fs,
         cellHeight={56}
         cell={cell}
         footer={
-          loading ? (
-            <p className="text-[11px] text-muted">불러오는 중…</p>
-          ) : (
-            <>
-              {empty && <p className="mb-2 text-center text-sm text-muted">이 달 기록이 없어요.</p>}
-              <CalendarLegend role="member" />
-            </>
-          )
+          // 범례는 데이터와 무관하다 — 읽는 동안에도 그대로 둬 격자 아래가 움직이지 않게 한다
+          <>
+            {!loading && empty && <p className="mb-2 text-center text-sm text-muted">이 달 기록이 없어요.</p>}
+            <CalendarLegend role="member" />
+          </>
         }
       />
       <section className="space-y-3">
@@ -117,7 +116,11 @@ function CalendarView({ shifts, absences, corrections, year, month, loading, fs,
         {!selected ? (
           <p className="px-1 text-sm text-muted">날짜를 누르면 그날 기록이 나와요.</p>
         ) : loading ? (
-          <p className="px-1 text-sm text-muted">불러오는 중…</p>
+          <Loading>
+            <ul className="space-y-3">
+              <RowSkeleton showDate={false} />
+            </ul>
+          </Loading>
         ) : (
           <>
             {nothing ? (
@@ -160,7 +163,13 @@ function ListView({ shifts, absences, corrections, year, month, loading, fs, pen
         </ul>
       )}
       {loading ? (
-        <Card><p className="text-center text-muted">불러오는 중…</p></Card>
+        <Loading>
+          <ul className="space-y-3">
+            <RowSkeleton showDate />
+            <RowSkeleton showDate />
+            <RowSkeleton showDate />
+          </ul>
+        </Loading>
       ) : (
         <>
           {rows.length === 0 && <Card><p className="text-center text-muted">이 달 기록이 없어요.</p></Card>}
@@ -205,6 +214,28 @@ function RecordRow({ shift, pending, fs, showDate }: { shift: Shift; pending: bo
         )}
       </div>
       {form?.shift?.id === shift.id && <div className="mt-3"><CorrectionForm form={form} onDone={() => (setForm(null), onChange())} onCancel={() => setForm(null)} /></div>}
+    </li>
+  );
+}
+
+/** 읽는 동안의 기록 한 줄 — RecordRow 와 같은 li 틀. 오른쪽은 수정·삭제 버튼 자리(p-2 + 아이콘 18 = 34px) */
+function RowSkeleton({ showDate }: { showDate: boolean }) {
+  return (
+    <li className="rounded-2xl border border-line bg-surface px-5 py-4">
+      <div className="flex items-start justify-between gap-3">
+        {showDate ? (
+          <div>
+            <div className="flex h-6 items-center"><Bone className="h-4 w-24" /></div>
+            <div className="flex h-5 items-center"><Bone className="h-4 w-40" /></div>
+          </div>
+        ) : (
+          <div className="flex h-[34px] items-center"><Bone className="h-5 w-44" /></div>
+        )}
+        <div className="flex gap-1">
+          <Bone className="h-[34px] w-[34px] rounded-lg" />
+          <Bone className="h-[34px] w-[34px] rounded-lg" />
+        </div>
+      </div>
     </li>
   );
 }
@@ -281,8 +312,8 @@ function CorrectionForm({ form, onDone, onCancel }: { form: Form; onDone: () => 
       <Field label="사유"><input required maxLength={200} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="예: 퇴근을 깜빡했어요" className="field" /></Field>
       <ErrorText>{error}</ErrorText>
       <div className="flex gap-2">
-        <button className="flex-1 rounded-xl bg-accent py-2.5 text-sm font-semibold text-white">요청 보내기</button>
-        <button type="button" onClick={onCancel} className="flex-1 rounded-xl border border-line py-2.5 text-sm">취소</button>
+        <button className={cn(ACT_SAVE, "h-10")}>요청 보내기</button>
+        <button type="button" onClick={onCancel} className={cn(ACT_CANCEL, "h-10")}>취소</button>
       </div>
     </form>
   );

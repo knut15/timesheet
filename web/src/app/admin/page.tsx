@@ -5,9 +5,10 @@ import { useMemo } from "react";
 import { api, type Member } from "@/api/client";
 import { holidayStatus } from "@/components/PayView";
 import { Avatar } from "@/components/shell";
-import { Card, dayLabel, hm, MonthPicker, Spinner, time, toShift, useMonthCursor, useNow, won } from "@/components/ui";
+import { Card, dayLabel, hm, MonthPicker, time, toShift, useMonthCursor, useNow, won } from "@/components/ui";
 import { computeMonth, computeWeeks, dayKey, MINIMUM_WAGE, shiftMinutes, startOfWeek, type PaySettings } from "@/lib/pay";
 import { useApi } from "@/lib/useApi";
+import { DashboardSkeleton } from "./_skeletons";
 
 const LONG_OPEN_MIN = 12 * 60;
 
@@ -30,7 +31,7 @@ export default function DashboardPage() {
     });
   }, [data, now, cursor.year, cursor.month]);
 
-  if (!data) return <Spinner />;
+  if (!data) return <DashboardSkeleton />;
 
   const working = rows.flatMap((r) => r.shifts.filter((s) => s.end === null).map((s) => ({ member: r.member, shift: s })));
   const today = dayKey(now);

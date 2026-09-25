@@ -1,11 +1,13 @@
 "use client";
 // 멤버의 요청 탭 — 휴가 신청, 대타 요청, 받은 대타 수락·거절, 내 요청 목록. docs/prd/08·09
 // 흐름 규칙은 .claude/skills/timesheet-requests/SKILL.md
+import { ACT_CANCEL, ACT_SAVE, BLOCK_PRIMARY, BLOCK_SECONDARY } from "@/components/buttons";
+import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { parseDay } from "@/lib/pay";
 import { api, errorCode, type Colleague, type MyRequests } from "@/api/client";
 import { Avatar } from "../shell";
-import { Card, date, ErrorText, Field, StatusPill, time } from "../ui";
+import { Bone, Card, date, ErrorText, Field, Loading, StatusPill, time } from "../ui";
 
 const MESSAGES: Record<string, string> = {
   LEAVE_OVERLAP: "이미 신청한 휴가와 날짜가 겹쳐요.",
@@ -16,7 +18,7 @@ const MESSAGES: Record<string, string> = {
 const msg = (e: unknown) => MESSAGES[errorCode(e) ?? ""] ?? "잠시 뒤 다시 시도해 주세요.";
 const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
 
-export function RequestsPanel({ requests, colleagues, onChange }: { requests: MyRequests | null; colleagues: Colleague[]; onChange: () => void }) {
+export function RequestsPanel({ requests, failed = false, colleagues, onChange }: { requests: MyRequests | null; failed?: boolean; colleagues: Colleague[]; onChange: () => void }) {
   const incoming = (requests?.substitutionsIn ?? []).filter((s) => s.status === "requested");
   return (
     <div className="space-y-4">
@@ -32,7 +34,8 @@ export function RequestsPanel({ requests, colleagues, onChange }: { requests: My
       )}
       <LeaveForm onDone={onChange} />
       <SubstitutionForm colleagues={colleagues} onDone={onChange} />
-      <MyList requests={requests} onChange={onChange} />
+      {/* 읽기 전(null)이면 목록 자리. 읽기에 실패하면 예전처럼 목록을 숨긴다 */}
+      {requests || failed ? <MyList requests={requests} onChange={onChange} /> : <MyListSkeleton />}
     </div>
   );
 }
@@ -55,8 +58,8 @@ function IncomingSub({ sub, onChange }: { sub: MyRequests["substitutionsIn"][num
       <p className="mt-1 text-sm text-muted">{sub.reason}</p>
       <ErrorText>{error}</ErrorText>
       <div className="mt-3 flex gap-2">
-        <button onClick={() => act("accept")} className="flex-1 rounded-xl bg-accent py-2.5 text-sm font-semibold text-white">수락</button>
-        <button onClick={() => act("decline")} className="flex-1 rounded-xl border border-line py-2.5 text-sm">거절</button>
+        <button onClick={() => act("accept")} className={cn(ACT_SAVE, "h-10")}>수락</button>
+        <button onClick={() => act("decline")} className={cn(ACT_CANCEL, "h-10")}>거절</button>
       </div>
       <p className="mt-2 text-xs text-muted">수락하면 사장님이 승인해야 확정돼요.</p>
     </li>
@@ -90,7 +93,7 @@ function LeaveForm({ onDone }: { onDone: () => void }) {
         <Field label="사유"><input required maxLength={200} value={reason} onChange={(e) => setReason(e.target.value)} className="field" /></Field>
         <ErrorText>{error}</ErrorText>
         {sent && !error && <p className="text-sm text-accent">신청했어요. 사장님 승인을 기다려요.</p>}
-        <button className="w-full rounded-xl bg-accent py-3 font-semibold text-white">신청</button>
+        <button className={BLOCK_PRIMARY}>신청</button>
       </form>
     </Card>
   );
@@ -131,9 +134,31 @@ function SubstitutionForm({ colleagues, onDone }: { colleagues: Colleague[]; onD
         <Field label="사유"><input required maxLength={200} value={reason} onChange={(e) => setReason(e.target.value)} className="field" /></Field>
         <ErrorText>{error}</ErrorText>
         {sent && !error && <p className="text-sm text-accent">요청했어요. 동료의 수락을 기다려요.</p>}
-        <button className="w-full rounded-xl border border-accent py-3 font-semibold text-accent">요청</button>
+        <button className={BLOCK_SECONDARY}>요청</button>
       </form>
     </Card>
+  );
+}
+
+/** 내 요청 목록을 읽는 동안 — 같은 Card·행 틀에 3행. 행마다 종류(text-xs)·내용(text-sm)·상태 알약 */
+function MyListSkeleton() {
+  return (
+    <Loading>
+      <Card className="p-0">
+        <h2 className="px-5 pt-5 font-semibold">내 요청</h2>
+        <ul className="mt-2 divide-y divide-line">
+          {[0, 1, 2].map((i) => (
+            <li key={i} className="flex items-start justify-between gap-3 px-5 py-3">
+              <div>
+                <div className="flex h-4 items-center"><Bone className="h-3 w-14" /></div>
+                <div className="flex h-5 items-center"><Bone className="h-4 w-40" /></div>
+              </div>
+              <Bone className="h-5 w-16 rounded-full" />
+            </li>
+          ))}
+        </ul>
+      </Card>
+    </Loading>
   );
 }
 

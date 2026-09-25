@@ -11,7 +11,7 @@
 
 | 역할 | 누구 | 할 수 있는 것 |
 |---|---|---|
-| 마스터 | 매장을 만든 사람 | 매장 설정, 초대 코드 발급·취소, 멤버 급여 조건 설정·내보내기, 멤버 근무 기록 수정·삭제, 대시보드 |
+| 마스터 | 매장을 만든 사람 | 매장 설정, 초대 코드 발급·취소, 멤버 급여 조건 설정·퇴사처리, 멤버 근무 기록 수정·삭제, 대시보드 |
 | 멤버 | 초대 코드를 등록한 사람 | 자기 출퇴근, 자기 기록·급여 보기 |
 
 - 한 사용자는 **매장 하나에만** 속한다 (마스터든 멤버든). 여러 매장은 다음 단계.
@@ -33,7 +33,7 @@
 | 사용 횟수 | 1회. 쓰이면 `used` 가 되고 누가 썼는지 남긴다 |
 | 취소 | 마스터가 쓰이기 전 코드를 취소할 수 있다 |
 | 입력 | 대소문자·공백 무시 |
-| 실패 | 없는 코드·만료·사용됨·취소됨은 모두 `INVITE_INVALID` 하나로 답한다 (코드 추측 단서를 주지 않는다) |
+| 실패 | 없는 코드·만료·사용됨·취소됨은 모두 `INVITE_INVALID` 하나로 돌려준다 (코드 추측 단서를 주지 않는다) |
 | 제한 | 코드 등록 실패는 사용자당 1분 5회 → 429 |
 
 ## 초대 코드 보내기 (2026-09-25 추가)
@@ -68,7 +68,7 @@ MVP 의 localStorage 저장([01](01-attendance.md))을 서버 DB 로 바꾼다. 
 
 | 메서드·경로 | 누가 | 설명 |
 |---|---|---|
-| `POST /api/stores` | 소속 없음 | 매장 만들기 → 나는 마스터 |
+| `POST /api/stores` | 소속 없음 | 매장 만들기 → 만든 사람이 마스터 |
 | `GET /api/stores/me` | 소속 있음 | 내 매장 설정 |
 | `PATCH /api/stores/me` | 마스터 | 이름·위치·5인 이상 |
 | `POST /api/stores/me/invites` | 마스터 | 코드 발급 |
@@ -78,7 +78,7 @@ MVP 의 localStorage 저장([01](01-attendance.md))을 서버 DB 로 바꾼다. 
 | `GET /api/shifts/me` · `POST /api/shifts/clock-in` · `POST /api/shifts/clock-out` | 멤버 | 자기 기록·출퇴근 |
 | `GET /api/stores/me/members` | 마스터 | 멤버 목록과 급여 조건 |
 | `PATCH /api/stores/me/members/:userId` | 마스터 | 시급·소정근로시간·소정근로일수 |
-| `DELETE /api/stores/me/members/:userId` | 마스터 | 내보내기. 기록은 남는다 |
+| `DELETE /api/stores/me/members/:userId` | 마스터 | 퇴사처리(화면 이름, 2026-09-25 "내보내기 말고 퇴사처리"). 소속만 지우고 기록은 남는다 |
 | `GET /api/stores/me/members/:userId/shifts` | 마스터 | 멤버 기록 |
 | `PATCH` · `DELETE /api/stores/me/shifts/:id` | 마스터 | 기록 수정·삭제 |
 

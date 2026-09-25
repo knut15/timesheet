@@ -7,9 +7,11 @@ import { api, errorCode, type ShiftDto } from "@/api/client";
 import { useSession } from "@/auth/hooks";
 import { PayView } from "@/components/PayView";
 import { Avatar } from "@/components/shell";
-import { Card, date, ErrorText, Field, hm, MonthPicker, monthRange, Spinner, time, toLocalInput, toShift, useMonthCursor, useNow } from "@/components/ui";
+import { Card, date, ErrorText, Field, hm, MonthPicker, monthRange, time, toLocalInput, toShift, useMonthCursor, useNow } from "@/components/ui";
 import { parseDay, shiftMinutes, type PaySettings } from "@/lib/pay";
 import { useApi } from "@/lib/useApi";
+import { ACT_CANCEL, ACT_SAVE, BTN_ACCENT, BTN_WARN } from "../../_buttons";
+import { MemberDetailSkeleton } from "../../_skeletons";
 
 export default function MemberDetailPage() {
   const { userId } = useParams<{ userId: string }>();
@@ -29,7 +31,8 @@ export default function MemberDetailPage() {
 
   const member = members.data?.find((m) => m.userId === userId);
   if (members.data && !member) return <Card><p className="text-sm text-muted">이 매장의 멤버가 아니에요. <Link href="/admin/members" className="text-accent">멤버 목록</Link></p></Card>;
-  if (!member || !shiftsRes.data || session.status !== "authenticated") return <Spinner />;
+  // 휴가 목록(absRes)도 기다린다 — 기록 목록 위에 뒤늦게 끼어들어 행이 밀리지 않게
+  if (!member || !shiftsRes.data || !absRes.data || session.status !== "authenticated") return <MemberDetailSkeleton />;
 
   const settings: PaySettings = {
     hourlyWage: member.hourlyWage,
@@ -47,8 +50,7 @@ export default function MemberDetailPage() {
   return (
     <div className="space-y-4">
       <div>
-        <Link href="/admin/members" className="text-sm text-muted">← 멤버</Link>
-        <div className="mt-2 flex items-center gap-3">
+        <div className="flex items-center gap-3">
           <Avatar name={member.nickname} seed={member.userId} size="lg" />
           <div className="min-w-0">
             <h2 className="truncate text-xl font-bold">{member.nickname}</h2>
@@ -120,22 +122,23 @@ function ShiftRow({ shift, onChange }: { shift: ShiftDto; onChange: () => void }
         {invalid && <p className="text-sm text-warn">퇴근은 출근보다 늦어야 해요.</p>}
         <ErrorText>{error}</ErrorText>
         <div className="flex gap-2">
-          <button onClick={save} disabled={invalid} className="flex-1 rounded-xl bg-accent py-2.5 text-sm font-semibold text-white disabled:opacity-40">저장</button>
-          <button onClick={() => setEditing(false)} className="flex-1 rounded-xl border border-line py-2.5 text-sm">취소</button>
+          <button onClick={save} disabled={invalid} className={`${ACT_SAVE} disabled:opacity-40`}>저장</button>
+          <button onClick={() => setEditing(false)} className={ACT_CANCEL}>취소</button>
         </div>
       </li>
     );
   return (
-    <li className="flex items-center justify-between rounded-2xl border border-line bg-surface px-5 py-4">
+    <li className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface px-5 py-4">
       <div>
         <p className="font-medium">{date(s.start)}</p>
         <p className="text-sm text-muted tabular-nums">
           {time(s.start)} ~ {s.end ? time(s.end) : "근무 중"} · {hm(shiftMinutes(s))}
         </p>
       </div>
-      <div className="flex gap-3 text-sm">
-        <button onClick={() => setEditing(true)} className="text-accent">수정</button>
-        <button onClick={remove} className="text-warn">삭제</button>
+      {/* 글자 대신 버튼 모양 — 멤버 목록 카드와 같은 BTN_* (2026-09-25 사용자 요청 "수정, 삭제 버튼디자인") */}
+      <div className="flex gap-2">
+        <button onClick={() => setEditing(true)} className={BTN_ACCENT}>수정</button>
+        <button onClick={remove} className={BTN_WARN}>삭제</button>
       </div>
     </li>
   );

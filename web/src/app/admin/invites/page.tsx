@@ -1,14 +1,16 @@
 "use client";
 // 초대 코드 발급·보내기(문자·공유)·복사·취소. docs/prd/06-store-invite.md
-import Link from "next/link";
+import { ACT_CANCEL, ACT_SAVE, BLOCK_PRIMARY, BTN_ACCENT, BTN_WARN } from "@/components/buttons";
+import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { ChevronLeft, MessageSquareText, Share2 } from "lucide-react";
+import { MessageSquareText, Share2 } from "lucide-react";
 import { api, type Invite } from "@/api/client";
 import { Avatar } from "@/components/shell";
 import { useSession } from "@/auth/hooks";
-import { Card, dayLabel, Field, Spinner } from "@/components/ui";
+import { Card, dayLabel, Field } from "@/components/ui";
 import { inviteMessage, joinUrl, smsHref } from "@/lib/inviteLink";
 import { useApi } from "@/lib/useApi";
+import { InvitesSkeleton } from "../_skeletons";
 
 const STATUS: Record<Invite["status"], string> = { active: "사용 가능", used: "사용됨", expired: "만료", revoked: "취소됨" };
 
@@ -19,7 +21,7 @@ export default function InvitesPage() {
   const [sending, setSending] = useState<string | null>(null);
   const session = useSession();
   const storeName = session.status === "authenticated" ? (session.me.membership?.store.name ?? "") : "";
-  if (!data) return <Spinner />;
+  if (!data) return <InvitesSkeleton />;
 
   const issue = async () => {
     setBusy(true);
@@ -38,14 +40,10 @@ export default function InvitesPage() {
 
   return (
     <div className="space-y-4">
-      {/* 초대는 내비에서 빠져 멤버 화면 안으로 들어갔다 — 돌아갈 길 */}
-      <Link href="/admin/members" className="inline-flex items-center gap-1 text-sm text-muted hover:text-foreground">
-        <ChevronLeft size={16} aria-hidden /> 멤버
-      </Link>
       <Card>
         <h2 className="font-semibold">알바생 초대</h2>
         <p className="mt-1 text-sm text-muted">코드는 7일 동안, 한 명만 쓸 수 있어요. 알바생은 가입한 뒤 이 코드를 입력하면 매장에 들어와요.</p>
-        <button onClick={issue} disabled={busy} className="mt-4 w-full rounded-xl bg-accent py-3 font-semibold text-white disabled:opacity-50">
+        <button onClick={issue} disabled={busy} className={cn(BLOCK_PRIMARY, "mt-4")}>
           초대 코드 발급
         </button>
       </Card>
@@ -67,12 +65,12 @@ export default function InvitesPage() {
                   <p className="mt-1 text-xs text-muted">{dayLabel(Date.parse(i.expiresAt))}까지</p>
                 )}
                 {i.status === "active" && (
-                  <div className="mt-3 flex gap-4 text-sm">
-                    <button onClick={() => setSending(sending === i.id ? null : i.id)} className="flex items-center gap-1 font-semibold text-accent">
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <button onClick={() => setSending(sending === i.id ? null : i.id)} className={cn(BTN_ACCENT, "gap-1")}>
                       <MessageSquareText size={16} aria-hidden /> 문자로 보내기
                     </button>
-                    <button onClick={() => copy(i.code)} className="text-accent">{copied === i.code ? "복사됨" : "복사"}</button>
-                    <button onClick={() => revoke(i.id)} className="text-warn">취소</button>
+                    <button onClick={() => copy(i.code)} className={BTN_ACCENT}>{copied === i.code ? "복사됨" : "복사"}</button>
+                    <button onClick={() => revoke(i.id)} className={BTN_WARN}>취소</button>
                   </div>
                 )}
                 {i.status === "active" && sending === i.id && <SendInvite code={i.code} storeName={storeName} />}
@@ -101,14 +99,14 @@ function SendInvite({ code, storeName }: { code: string; storeName: string }) {
       </Field>
       <pre className="whitespace-pre-wrap break-all rounded-lg bg-surface p-3 text-xs text-muted">{body}</pre>
       <div className="flex gap-2">
-        <a href={smsHref(phone, body)} className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-accent py-2.5 text-sm font-semibold text-white">
+        <a href={smsHref(phone, body)} className={cn(ACT_SAVE, "h-10 gap-1.5")}>
           <MessageSquareText size={16} aria-hidden /> 문자 앱 열기
         </a>
         {canShare && (
           <button
             type="button"
             onClick={() => navigator.share({ title: "타임시트 초대", text: body }).catch(() => {})}
-            className="flex items-center gap-1.5 rounded-xl border border-line px-4 py-2.5 text-sm"
+            className={cn(ACT_CANCEL, "h-10 flex-none gap-1.5 px-4")}
           >
             <Share2 size={16} aria-hidden /> 공유
           </button>

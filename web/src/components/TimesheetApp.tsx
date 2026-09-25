@@ -1,20 +1,23 @@
 "use client";
 // 멤버(알바생) 화면. 기록과 급여 조건은 서버에서 읽는다. docs/prd/01~04, 06, 08, 09
 import { useEffect, useMemo, useState } from "react";
-import { api, errorCode, type Absence, type Me, type MyMembership } from "@/api/client";
+import { api, errorCode, type Absence, type Me, type MyMembership, type MyRequests } from "@/api/client";
 import { useArea } from "@/auth/hooks";
 import { logout } from "@/auth/session";
 import { GEOFENCE_RADIUS_M } from "@/lib/geo";
-import { MINIMUM_WAGE, shiftMinutes, type PaySettings, type Shift } from "@/lib/pay";
+import { dayKey, MINIMUM_WAGE, parseDay, type PaySettings, type Shift } from "@/lib/pay";
+import { scheduleText } from "@/lib/schedule";
 import { setDeviceSettings, useDeviceSettings } from "@/lib/storage";
+import { todayState, toMinute } from "@/lib/today";
 import { useApi } from "@/lib/useApi";
 import { requestAlertPermissions, useGeofence } from "@/lib/useGeofence";
 import { CalendarDays, ClipboardList, Clock, UserRound, Wallet } from "lucide-react";
 import { RecordsPanel } from "./member/RecordsPanel";
 import { RequestsPanel } from "./member/RequestsPanel";
-import { PayView } from "./PayView";
-import { AppHeader, Avatar, BottomNav, type NavItem } from "./shell";
-import { Card, date, ErrorText, hm, keyed, MonthPicker, monthRange, Spinner, time, toShift, useMonthCursor, useNow, won } from "./ui";
+import { PayView, PayViewSkeleton } from "./PayView";
+import { ClockCard, ClockCardSkeleton, TodayDashboard, TodayDashboardSkeleton, type ClockState } from "./TodayDashboard";
+import { AppHeader, Avatar, BottomNav, BottomNavSkeleton, HeaderSkeleton, type NavItem } from "./shell";
+import { Bone, Card, date, keyed, Loading, MonthPicker, monthRange, time, toShift, useMonthCursor, useNow, won } from "./ui";
 
 type Tab = "clock" | "records" | "requests" | "pay" | "me";
 const TABS = [
@@ -27,8 +30,43 @@ const TABS = [
 
 export default function TimesheetApp() {
   const { me } = useArea("member");
-  if (!me?.membership) return <Spinner />;
+  if (!me?.membership) return <MemberSkeleton />;
   return <MemberHome me={me} membership={me.membership} />;
+}
+
+/** 로그인 확인 전 — 멤버 셸과 출퇴근 탭(첫 화면) 모양 그대로 */
+function MemberSkeleton() {
+  return (
+    <div className="mx-auto flex w-full max-w-md flex-1 flex-col">
+      <HeaderSkeleton width="max-w-md" />
+      <main className="flex-1 px-5 pb-28 pt-4">
+        <div className="space-y-4">
+          <ClockCardSkeleton />
+          <TodayDashboardSkeleton />
+          <Loading>
+            <AlertCardFrame toggle={<Bone className="h-7 w-12 shrink-0 rounded-full" />} />
+          </Loading>
+        </div>
+      </main>
+      <BottomNavSkeleton count={TABS.length} width="max-w-md" />
+    </div>
+  );
+}
+
+/** 매장 근처 출근 알림 카드의 윗부분 — 제목·설명은 고정 글자, 오른쪽은 스위치 */
+function AlertCardFrame({ toggle, children }: { toggle: React.ReactNode; children?: React.ReactNode }) {
+  return (
+    <Card>
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h2 className="font-semibold">매장 근처 출근 알림</h2>
+          <p className="text-sm text-muted">{GEOFENCE_RADIUS_M}m 안에 들어오면 알리고, 1분 뒤 한 번 더 알려요</p>
+        </div>
+        {toggle}
+      </div>
+      {children}
+    </Card>
+  );
 }
 
 function MemberHome({ me, membership }: { me: Me; membership: MyMembership }) {
@@ -58,6 +96,17 @@ function MemberHome({ me, membership }: { me: Me; membership: MyMembership }) {
     fivePlus: membership.store.fivePlus,
   };
 
+  const recordsFailed = !!error || !!absRes.error;
+  // 출퇴근 탭은 이번 달 기록으로 오늘을 판정한다 — 기록·급여 탭에서 다른 달로 넘겼으면 이번 달로 되돌린다 (명세 member-today §6)
+  const toThisMonth = () => {
+    const d = new Date();
+    if (cursor.year !== d.getFullYear() || cursor.month !== d.getMonth()) setCursor({ year: d.getFullYear(), month: d.getMonth() });
+  };
+  const selectTab = (t: Tab) => {
+    if (t === "clock") toThisMonth();
+    setTab(t);
+  };
+
   useEffect(() => {
     if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
   }, []);
@@ -73,7 +122,20 @@ function MemberHome({ me, membership }: { me: Me; membership: MyMembership }) {
         width="max-w-md"
       />
       <main className="flex-1 px-5 pb-28 pt-4">
-        {tab === "clock" && <ClockPanel shifts={shifts} membership={membership} onChange={reload} />}
+        {tab === "clock" && (
+          <ClockPanel
+            shifts={shifts}
+            absences={absences}
+            requests={reqRes.data}
+            settings={settings}
+            membership={membership}
+            status={recordsFailed ? "error" : recordsLoading ? "loading" : "ready"}
+            onChange={reload}
+            onRetry={() => (reload(), absRes.reload())}
+            onOpenPay={() => (toThisMonth(), setTab("pay"))}
+            onOpenRequests={() => setTab("requests")}
+          />
+        )}
         {tab === "records" && (
           <div className="space-y-4">
             <MonthPicker cursor={cursor} onChange={setCursor} />
@@ -84,37 +146,66 @@ function MemberHome({ me, membership }: { me: Me; membership: MyMembership }) {
               year={cursor.year}
               month={cursor.month}
               loading={recordsLoading}
-              failed={!!error || !!absRes.error}
+              failed={recordsFailed}
               onRetry={() => (reload(), absRes.reload())}
               onChange={reloadAll}
             />
           </div>
         )}
-        {tab === "requests" && <RequestsPanel requests={reqRes.data} colleagues={colleagues.data ?? []} onChange={reloadAll} />}
+        {tab === "requests" && <RequestsPanel requests={reqRes.data} failed={!!reqRes.error} colleagues={colleagues.data ?? []} onChange={reloadAll} />}
         {tab === "pay" && (
           <div className="space-y-4">
             <MonthPicker cursor={cursor} onChange={setCursor} />
-            <PayTab shifts={shifts} absences={absences} settings={settings} year={cursor.year} month={cursor.month} />
+            {/* 읽기에 실패하면 예전처럼 PayView 를 그린다 — 실패한 동안 막대가 멈춰 있지 않게 */}
+            <PayTab shifts={shifts} absences={absences} settings={settings} year={cursor.year} month={cursor.month} loading={recordsLoading && !recordsFailed} />
           </div>
         )}
         {tab === "me" && <MePanel me={me} membership={membership} />}
       </main>
-      <BottomNav width="max-w-md" active={tab} items={TABS.map((t): NavItem => ({ key: t.id, label: t.label, icon: t.icon, badge: t.id === "requests" ? incoming : undefined, onSelect: () => setTab(t.id) }))} />
+      <BottomNav width="max-w-md" active={tab} items={TABS.map((t): NavItem => ({ key: t.id, label: t.label, icon: t.icon, badge: t.id === "requests" ? incoming : undefined, onSelect: () => selectTab(t.id) }))} />
     </div>
   );
 }
 
-function PayTab(props: { shifts: Shift[]; absences: Absence[]; settings: PaySettings; year: number; month: number }) {
+function PayTab({ loading, ...props }: { shifts: Shift[]; absences: Absence[]; settings: PaySettings; year: number; month: number; loading: boolean }) {
   const now = useNow(60_000);
+  if (loading) return <PayViewSkeleton year={props.year} month={props.month} now={now} />;
   return <PayView {...props} now={now} />;
 }
 
-function ClockPanel({ shifts, membership, onChange }: { shifts: Shift[]; membership: MyMembership; onChange: () => void }) {
+function ClockPanel({
+  shifts,
+  absences,
+  requests,
+  settings,
+  membership,
+  status,
+  onChange,
+  onRetry,
+  onOpenPay,
+  onOpenRequests,
+}: {
+  shifts: Shift[];
+  absences: Absence[];
+  requests?: MyRequests | null;
+  settings: PaySettings;
+  membership: MyMembership;
+  status: "loading" | "error" | "ready";
+  onChange: () => void;
+  onRetry: () => void;
+  onOpenPay: () => void;
+  onOpenRequests: () => void;
+}) {
   const now = useNow(1_000);
+  // 경과·합계는 전부 같은 분 단위 시각으로 — 시계 카드와 대시보드가 1분 어긋나지 않게 (명세 §2-3)
+  const minuteNow = toMinute(now);
   const device = useDeviceSettings();
   const open = shifts.find((s) => s.end === null);
   const { lat, lng, name } = membership.store;
-  const geo = useGeofence({ enabled: device.alertsOn, storeLat: lat, storeLng: lng, storeName: name, clockedIn: !!open });
+  const state: ClockState = status === "ready" ? todayState(shifts, absences, minuteNow) : { kind: status };
+  // 오늘 퇴근했으면 내일 0시까지 다시 출근하지 않는다 — 50m 알림·배너도 끈다 (PRD 12 T-7)
+  const doneToday = state.kind === "done";
+  const geo = useGeofence({ enabled: device.alertsOn, storeLat: lat, storeLng: lng, storeName: name, clockedIn: !!open || doneToday });
   const [permError, setPermError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -139,6 +230,8 @@ function ClockPanel({ shifts, membership, onChange }: { shifts: Shift[]; members
 
   const alertLabel = open
     ? "출근 완료 — 알림 없음"
+    : doneToday
+      ? "오늘 퇴근 — 내일 다시 알려요"
     : geo.alert.remindedAt
       ? `재알림 보냄 (${time(geo.alert.remindedAt)})`
       : geo.alert.firstSentAt
@@ -147,7 +240,7 @@ function ClockPanel({ shifts, membership, onChange }: { shifts: Shift[]; members
 
   return (
     <div className="space-y-4">
-      {geo.inside && !open && (
+      {geo.inside && !open && !doneToday && (
         <div role="alert" className="rounded-2xl bg-accent p-5 text-white">
           <p className="font-semibold">매장 {GEOFENCE_RADIUS_M}m 안이에요. 출근 체크하세요.</p>
           <button disabled={busy} onClick={() => punch("in")} className="mt-3 w-full rounded-xl bg-white py-3 font-bold text-accent">
@@ -156,34 +249,21 @@ function ClockPanel({ shifts, membership, onChange }: { shifts: Shift[]; members
         </div>
       )}
 
-      <Card className="text-center">
-        <p className="text-sm text-muted">{date(now)}</p>
-        <p className="mt-1 font-mono text-5xl font-semibold tabular-nums">{new Date(now).toLocaleTimeString("ko-KR", { hour12: false })}</p>
-        {open ? (
-          <>
-            <p className="mt-4 text-sm text-muted">
-              {time(open.start)} 출근 · <span className="text-foreground">{hm(shiftMinutes(open, now))}</span> 근무 중
-            </p>
-            <button disabled={busy} onClick={() => punch("out")} className="mt-4 w-full rounded-xl bg-foreground py-4 text-lg font-bold text-background disabled:opacity-50">
-              퇴근
-            </button>
-          </>
-        ) : (
-          <button disabled={busy} onClick={() => punch("in")} className="mt-6 w-full rounded-xl bg-accent py-4 text-lg font-bold text-white disabled:opacity-50">
-            출근
-          </button>
-        )}
-        <div className="mt-3">
-          <ErrorText>{error}</ErrorText>
-        </div>
-      </Card>
+      <ClockCard now={now} minuteNow={minuteNow} state={state} busy={busy} error={error} onPunch={punch} onRetry={onRetry} />
+      <TodayDashboard
+        shifts={shifts}
+        absences={absences}
+        requests={requests}
+        settings={settings}
+        now={minuteNow}
+        status={status}
+        onRetry={onRetry}
+        onOpenPay={onOpenPay}
+        onOpenRequests={onOpenRequests}
+      />
 
-      <Card>
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h2 className="font-semibold">매장 근처 출근 알림</h2>
-            <p className="text-sm text-muted">{GEOFENCE_RADIUS_M}m 안에 들어오면 알리고, 1분 뒤 한 번 더 알려요</p>
-          </div>
+      <AlertCardFrame
+        toggle={
           <button
             role="switch"
             aria-checked={device.alertsOn}
@@ -194,7 +274,8 @@ function ClockPanel({ shifts, membership, onChange }: { shifts: Shift[]; members
           >
             <span className={`absolute top-1 h-5 w-5 rounded-full bg-white transition-all ${device.alertsOn ? "left-6" : "left-1"}`} />
           </button>
-        </div>
+        }
+      >
         {lat === null && <p className="mt-3 text-sm text-warn">사장님이 매장 위치를 아직 정하지 않았어요.</p>}
         {permError && <p className="mt-3 text-sm text-warn">{permError}</p>}
         {device.alertsOn && (
@@ -209,8 +290,45 @@ function ClockPanel({ shifts, membership, onChange }: { shifts: Shift[]; members
         )}
         {geo.error && <p className="mt-3 text-sm text-warn">{geo.error}</p>}
         {device.alertsOn && <p className="mt-3 text-xs text-muted">이 화면을 열어 둔 동안에만 위치를 확인해요.</p>}
-      </Card>
+      </AlertCardFrame>
     </div>
+  );
+}
+
+/** 오늘 이후 날짜별 근무 변경 — 보기만 한다. 없으면 카드째 숨긴다. docs/prd/13 */
+function MyScheduleExceptions() {
+  const today = dayKey(useNow(60_000));
+  const { data, error } = useApi(() => api.GET("/api/schedule-exceptions/me", { params: { query: { from: today } } }), today);
+  // 읽는 동안은 2행 자리를 둔다. 읽고 나서 없거나 실패하면 예전처럼 카드째 숨긴다
+  if (data === null && !error)
+    return (
+      <Loading>
+        <Card>
+          <h2 className="font-semibold">날짜별 근무 변경</h2>
+          <ul className="mt-3 space-y-2 text-sm">
+            {[0, 1].map((i) => (
+              <li key={i} className="flex h-5 items-center justify-between gap-2">
+                <Bone className="h-4 w-24" />
+                <Bone className="h-4 w-28" />
+              </li>
+            ))}
+          </ul>
+        </Card>
+      </Loading>
+    );
+  if (!data?.length) return null;
+  return (
+    <Card>
+      <h2 className="font-semibold">날짜별 근무 변경</h2>
+      <ul className="mt-3 space-y-2 text-sm">
+        {data.map((e) => (
+          <li key={e.id} className="flex justify-between gap-2 tabular-nums">
+            <span>{date(parseDay(e.date))}</span>
+            <span>{e.kind === "off" ? "쉼" : `${e.start}~${e.end} 근무`}</span>
+          </li>
+        ))}
+      </ul>
+    </Card>
   );
 }
 
@@ -232,6 +350,8 @@ function MePanel({ me, membership }: { me: Me; membership: MyMembership }) {
           <dd className="text-right">{membership.store.name}</dd>
           <dt className="text-muted">시급</dt>
           <dd className="text-right tabular-nums">{won(membership.hourlyWage)}</dd>
+          <dt className="text-muted">근무 시간표</dt>
+          <dd className="text-right tabular-nums">{membership.schedule ? scheduleText(membership.schedule) : "정해지지 않음"}</dd>
           <dt className="text-muted">1주 소정근로시간</dt>
           <dd className="text-right tabular-nums">{membership.weeklyHours}시간</dd>
           <dt className="text-muted">1주 소정근로일수</dt>
@@ -240,6 +360,7 @@ function MePanel({ me, membership }: { me: Me; membership: MyMembership }) {
         {membership.hourlyWage < MINIMUM_WAGE && <p className="mt-3 text-sm text-warn">2026년 최저임금({won(MINIMUM_WAGE)})보다 낮아요.</p>}
         <p className="mt-3 text-xs text-muted">조건은 사장님이 정해요.</p>
       </Card>
+      <MyScheduleExceptions />
       <button onClick={() => logout()} className="w-full rounded-xl border border-line py-3 text-sm">
         로그아웃
       </button>

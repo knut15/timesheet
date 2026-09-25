@@ -1,0 +1,48 @@
+export const metadata = { title: "Dialog" };
+
+# Dialog
+
+화면 위에 뜨는 모달. 멤버 카드의 "조건 수정" 이 쓴다. [shadcn Dialog](https://ui.shadcn.com/docs/components/base/dialog)(base-nova) 원본을 그대로 두고 바깥 `className` 으로 맞춘다.
+
+<ComponentPreview name="dialog/basic" width="max-w-md" />
+
+<FileLocation path="web/src/components/ui/dialog.tsx" importLine={`import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";`} />
+
+## 사용법
+
+```tsx
+const [open, setOpen] = useState(false);
+
+<Dialog open={open} onOpenChange={setOpen}>
+  <DialogContent className="bg-surface p-5 sm:max-w-md">
+    <DialogHeader>
+      <DialogTitle className="text-lg font-semibold">이서준 조건 수정</DialogTitle>
+    </DialogHeader>
+    {/* 입력칸 */}
+    <DialogFooter className="-mx-5 -mb-5 flex-row border-line bg-transparent px-5 py-4">
+      <button className={ACT_CANCEL}>취소</button>
+      <button className={ACT_SAVE}>저장</button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+```
+
+## 우리 쪽 맞춤 — 원본은 고치지 않는다
+
+<SimpleTable
+  head={["무엇", "어떻게", "이유"]}
+  rows={[
+    ["색 이름", "`globals.css` `@theme` 에서 popover→surface, primary→accent, destructive→warn 등으로 잇는다", "새 색을 만들지 않는다"],
+    ["`bg-muted`", "잇지 않는다. 푸터는 `bg-transparent border-line` 으로 덮는다", "우리 `muted` 는 글자색이다"],
+    ["패딩", "`p-5` + 푸터 `-mx-5 -mb-5 px-5`", "원본 p-4 대신 카드와 같은 여백"],
+    ["긴 내용", "`max-h-[calc(100dvh-2rem)] overflow-y-auto`", "좁은 휴대폰 화면에서 저장 버튼까지 스크롤"],
+    ["움직임", "`tw-animate-css` (흐림·확대)", "원본 animate-in 클래스가 이 패키지 것이다"],
+  ]}
+/>
+
+닫기(X) 버튼은 원본이 `ui/button.tsx`(shadcn Button, class-variance-authority)로 그린다. 앱 코드에서는 Button 을 직접 쓰지 않는다.
+
+## 접근성
+
+- 제목은 `DialogTitle` — 모달 이름으로 읽힌다. 빼지 않는다.
+- 열리면 초점이 모달 안으로 들어가고, Esc·바깥 누름·X 로 닫힌다(base-ui).
