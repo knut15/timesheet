@@ -1,0 +1,48 @@
+export const metadata = { title: "View Toggle" };
+
+# View Toggle
+
+멤버 기록 탭의 달력·목록 전환. 두 칸짜리 눌림 버튼 묶음.
+
+<ComponentPreview name="view-toggle/basic" width="max-w-md" />
+
+<FileLocation path="web/src/components/calendar/ViewToggle.tsx" importLine={`import { ViewToggle } from "@/components/calendar/ViewToggle";`} />
+
+## 사용법
+
+```tsx
+const [view, setView] = useState<"calendar" | "list">("calendar");
+<ViewToggle value={view} onChange={setView} />
+```
+
+## 구성
+
+```
+ViewToggle  <div role="group" aria-label="보기", rounded-xl border bg-background p-1>
+└─ <button aria-pressed> × 2  (선택: bg-surface shadow-sm)
+   ├─ Icon 16px (CalendarDays / List)
+   └─ "달력" / "목록"
+```
+
+## 목록 선택
+
+시작 값 `"list"`.
+
+<ComponentPreview name="view-toggle/list" width="max-w-md" />
+
+## 사용 규칙
+
+<DocLink path="docs/design/calendar.md" hash="보기-전환-viewtoggle">달력 명세 §2 보기 전환</DocLink>.
+
+## 하지 말 것
+
+- 두 값 밖의 보기를 넣으려고 복사해 새 전환을 만들지 않는다 — 값 목록(`VIEWS`)이 컴포넌트 안에 고정이다. 필요하면 개발에 요청한다.
+
+## API 레퍼런스
+
+<PropsTable
+  rows={[
+    { prop: "value", type: '"calendar" | "list"', required: true },
+    { prop: "onChange", type: '(v: "calendar" | "list") => void', required: true },
+  ]}
+/>

@@ -1,11 +1,13 @@
 "use client";
-// 초대 코드 발급·복사·취소. docs/prd/06-store-invite.md
+// 초대 코드 발급·보내기(문자·공유)·복사·취소. docs/prd/06-store-invite.md
 import Link from "next/link";
 import { useState } from "react";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, MessageSquareText, Share2 } from "lucide-react";
 import { api, type Invite } from "@/api/client";
 import { Avatar } from "@/components/shell";
-import { Card, dayLabel, Spinner } from "@/components/ui";
+import { useSession } from "@/auth/hooks";
+import { Card, dayLabel, Field, Spinner } from "@/components/ui";
+import { inviteMessage, joinUrl, smsHref } from "@/lib/inviteLink";
 import { useApi } from "@/lib/useApi";
 
 const STATUS: Record<Invite["status"], string> = { active: "사용 가능", used: "사용됨", expired: "만료", revoked: "취소됨" };
@@ -14,6 +16,9 @@ export default function InvitesPage() {
   const { data, reload } = useApi(() => api.GET("/api/stores/me/invites"), "");
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
+  const [sending, setSending] = useState<string | null>(null);
+  const session = useSession();
+  const storeName = session.status === "authenticated" ? (session.me.membership?.store.name ?? "") : "";
   if (!data) return <Spinner />;
 
   const issue = async () => {
@@ -63,15 +68,53 @@ export default function InvitesPage() {
                 )}
                 {i.status === "active" && (
                   <div className="mt-3 flex gap-4 text-sm">
+                    <button onClick={() => setSending(sending === i.id ? null : i.id)} className="flex items-center gap-1 font-semibold text-accent">
+                      <MessageSquareText size={16} aria-hidden /> 문자로 보내기
+                    </button>
                     <button onClick={() => copy(i.code)} className="text-accent">{copied === i.code ? "복사됨" : "복사"}</button>
                     <button onClick={() => revoke(i.id)} className="text-warn">취소</button>
                   </div>
                 )}
+                {i.status === "active" && sending === i.id && <SendInvite code={i.code} storeName={storeName} />}
               </Card>
             </li>
           ))}
         </ul>
       )}
+    </div>
+  );
+}
+
+/**
+ * 휴대폰 문자 앱으로 보낸다 — 서버가 문자를 보내지 않는다(사용자 결정). 사장님 번호로 나가고 "보내기" 는 사장님이 누른다.
+ * 공유를 지원하는 폰에서는 공유 시트(카카오톡·문자 등)도 연다.
+ */
+function SendInvite({ code, storeName }: { code: string; storeName: string }) {
+  const [phone, setPhone] = useState("");
+  const url = joinUrl(window.location.origin, code);
+  const body = inviteMessage(storeName || "타임시트", code, url);
+  const canShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
+  return (
+    <div className="mt-3 space-y-3 rounded-xl bg-background p-3">
+      <Field label="받는 사람 휴대폰 번호 (비우면 문자 앱에서 고르기)">
+        <input type="tel" inputMode="tel" autoComplete="off" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="010-0000-0000" className="field" />
+      </Field>
+      <pre className="whitespace-pre-wrap break-all rounded-lg bg-surface p-3 text-xs text-muted">{body}</pre>
+      <div className="flex gap-2">
+        <a href={smsHref(phone, body)} className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-accent py-2.5 text-sm font-semibold text-white">
+          <MessageSquareText size={16} aria-hidden /> 문자 앱 열기
+        </a>
+        {canShare && (
+          <button
+            type="button"
+            onClick={() => navigator.share({ title: "타임시트 초대", text: body }).catch(() => {})}
+            className="flex items-center gap-1.5 rounded-xl border border-line px-4 py-2.5 text-sm"
+          >
+            <Share2 size={16} aria-hidden /> 공유
+          </button>
+        )}
+      </div>
+      <p className="text-xs text-muted">휴대폰에서 열어야 문자 앱이 떠요. 컴퓨터에서는 &quot;복사&quot; 를 쓰세요.</p>
     </div>
   );
 }

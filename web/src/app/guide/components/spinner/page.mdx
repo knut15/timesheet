@@ -1,0 +1,30 @@
+export const metadata = { title: "Spinner" };
+
+# Spinner
+
+불러오는 중 자리 표시. 회전 그림 없이 글자 `불러오는 중…`. 미리보기는 높이 240px 틀 안이다.
+
+<ComponentPreview name="spinner/basic" width="max-w-md" />
+
+<FileLocation path="web/src/components/ui.tsx" importLine={`import { Spinner } from "@/components/ui";`} />
+
+## 사용법
+
+```tsx
+if (!data) return <Spinner />;
+```
+
+## 구성
+
+```
+Spinner  <div flex-1 가운데 py-20 text-sm text-muted>
+└─ "불러오는 중…"
+```
+
+## 하지 말 것
+
+- 화면마다 로딩 글자를 새로 쓰지 않는다. 단, 달력 격자 안처럼 좁은 자리는 `footer` 에 `불러오는 중…` 한 줄을 직접 둔다 — Month Grid 의 "불러오는 중" 예시.
+
+## API 레퍼런스
+
+props 없음.

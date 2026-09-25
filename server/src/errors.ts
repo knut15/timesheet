@@ -25,6 +25,8 @@ export const ERROR_CODES = [
   "REQUEST_CLOSED",
   "LEAVE_OVERLAP",
   "SUBSTITUTE_NOT_ACCEPTED",
+  "LOGO_INVALID",
+  "PAYLOAD_TOO_LARGE",
 ] as const;
 export type ErrorCode = (typeof ERROR_CODES)[number];
 
@@ -41,6 +43,11 @@ export class AppError extends Error {
 export const errorHandler: ErrorRequestHandler = (err, req, res, _next) => {
   if (err instanceof AppError) {
     res.status(err.statusCode).json({ statusCode: err.statusCode, code: err.code, message: err.message });
+    return;
+  }
+  // body-parser(express.raw·json) 가 한도를 넘긴 본문에 던지는 에러
+  if ((err as { type?: string }).type === "entity.too.large") {
+    res.status(413).json({ statusCode: 413, code: "PAYLOAD_TOO_LARGE", message: "PAYLOAD_TOO_LARGE" });
     return;
   }
   if (err instanceof ZodError) {

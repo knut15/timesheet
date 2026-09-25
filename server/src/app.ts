@@ -9,6 +9,7 @@ import { env } from "./env.js";
 import { errorHandler } from "./errors.js";
 import { shiftRouter } from "./shifts/routes.js";
 import { requestsRouter } from "./requests/routes.js";
+import { logoRouter } from "./stores/logo.js";
 import { storeRouter } from "./stores/routes.js";
 
 // Vercel 빌더의 타입 검사는 helmet 의 기본 내보내기를 모듈 객체로 잡는다(로컬 tsc 는 아니다).
@@ -36,7 +37,7 @@ if (env.SWAGGER_ENABLED) {
 // 인증이 쿠키라 브라우저가 자동으로 싣는다 — 상태를 바꾸는 모든 요청에 Origin + CSRF 토큰 검사를 건다.
 const UNSAFE = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 app.use("/api", (req, res, next) => (UNSAFE.has(req.method) ? csrfGuard(req, res, next) : next()));
-app.use("/api", authRouter, storeRouter, shiftRouter, requestsRouter);
+app.use("/api", authRouter, logoRouter, storeRouter, shiftRouter, requestsRouter);
 app.use(errorHandler);
 
 // Vercel 은 src/app.ts 를 server.ts 보다 먼저 진입점으로 고른다. 기본 내보내기가 앱이어야 한다.

@@ -1,0 +1,64 @@
+export const metadata = { title: "Avatar Stack" };
+
+# Avatar Stack
+
+마스터 달력 칸의 아바타 겹침. 3명까지 다 보이고, 4명 이상이면 2명 + `+N`.
+
+<ComponentPreview name="avatar-stack/basic" surface />
+
+<FileLocation path="web/src/components/calendar/AvatarStack.tsx" importLine={`import { AvatarStack } from "@/components/calendar/AvatarStack";`} />
+
+## 사용법
+
+```tsx
+<AvatarStack people={[{ userId: "user-demo-01", nickname: "김하늘" }, { userId: "user-demo-05", nickname: "이서준" }]} />
+```
+
+## 구성
+
+```
+AvatarStack  <span aria-hidden flex>
+├─ 겹침 틀 <span ring-2 ring-surface, 둘째부터 -ml-1.5> × 보이는 인원
+│  └─ Avatar xs
+└─ +N  <span 18px rounded-full bg-line text-[9px]> (남은 인원 > 0, 최대 +99)
+```
+
+미리보기 틀은 칸 배경과 같은 `bg-surface` 다 — `ring-surface` 경계가 보인다.
+
+## 3명
+
+다 보인다.
+
+<ComponentPreview name="avatar-stack/three" surface />
+
+## 4명 이상
+
+2명 + `+N`. 5명이면 `김` `이` `+3`.
+
+<ComponentPreview name="avatar-stack/overflow" surface />
+
+## 달력 칸 안
+
+칸 폭 약 44px 안에 들어간다. Month Grid 마스터 예시와 같은 데이터다.
+
+<SourceCode name="month-grid/demo-data" />
+
+<ComponentPreview name="avatar-stack/in-calendar" width="max-w-md" />
+
+## 사용 규칙
+
+<DocLink path="docs/design/calendar.md" hash="마스터-칸--아바타-겹침">달력 명세 §3 마스터 칸 — 아바타 겹침</DocLink>, <DocLink path=".claude/skills/timesheet-ui/SKILL.md" hash="4-달력">timesheet-ui 스킬 §4</DocLink>.
+
+## 하지 말 것
+
+- 인원수 글자(`3명`)를 칸에 따로 쓰지 않는다 — 읽는 이름과 상세에 있다.
+- 겹침 안의 아바타에 `label` 을 주지 않는다 — 전체가 `aria-hidden`, 읽는 이름은 칸 버튼이 가진다.
+
+## API 레퍼런스
+
+<PropsTable
+  rows={[
+    { prop: "people", type: "{ userId: string; nickname: string }[]", required: true, description: "먼저 출근한 순서로 넘긴다" },
+    { prop: "max", type: "3", default: "3", description: "타입이 리터럴 `3` 이라 다른 값은 넣을 수 없다" },
+  ]}
+/>

@@ -65,6 +65,10 @@ model Store {
   lng       Float?
   fivePlus  Boolean  @default(true) @map("five_plus")
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  // 매장 로고 (docs/prd/11). 매장당 하나, 1MB 이하라 별도 파일 저장소 없이 둔다
+  logo          Bytes?    @db.ByteA
+  logoType      String?   @map("logo_type")
+  logoUpdatedAt DateTime? @map("logo_updated_at") @db.Timestamptz
 
   memberships   Membership[]
   invites       Invite[]

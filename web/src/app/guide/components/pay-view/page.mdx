@@ -1,0 +1,91 @@
+export const metadata = { title: "Pay View" };
+
+# Pay View
+
+월 급여 요약 카드와 주별 내역 카드. 멤버 급여 탭과 마스터 멤버 상세가 같이 쓴다. 계산은 `lib/pay.ts` 가 하고 이 컴포넌트는 보여주기만 한다. 아래 금액은 모두 미리보기가 `pay.ts` 로 계산한 값이다.
+
+<ComponentPreview name="pay-view/basic" width="max-w-md" />
+
+<FileLocation path="web/src/components/PayView.tsx" importLine={`import { PayView, holidayStatus } from "@/components/PayView";`} />
+
+## 사용법
+
+```tsx
+<PayView shifts={shifts} settings={settings} year={2026} month={8} now={now} />
+```
+
+## 구성
+
+```
+PayView  <div space-y-4>
+├─ 요약 Card
+│  ├─ "예상 급여 (세전)" + 총액 text-3xl
+│  ├─ <dl> 기본급(시간) · 주휴수당 · 휴가수당(있을 때만) · 연장 가산(시간)
+│  └─ 안내 글자 (합산 기준·미반영 항목)
+├─ 빈 달 글자 "이 달 기록이 없어요." (주가 0개일 때)
+└─ WeekCard (내부) × 주
+   ├─ 기간 date(주 시작) ~ date(주 끝 − 1ms) + 주 합계
+   ├─ <dl> 근무 · 기본급 · 휴가수당(있을 때) · 주휴수당 · holidayStatus · 연장(5인 미만 표시)
+   └─ 한도 경고 text-warn (연장 12시간 초과)
+```
+
+예시는 모두 2026년 9월, 기준 시각 `now` 는 9월 30일 18:00 으로 고정한다. 시급은 `lib/pay.ts` 의 `MINIMUM_WAGE`(2026) 와 같은 10,320원이다.
+
+## 주휴 미충족
+
+지난 주에 3일만 일했다 → `미충족 (3/5일)`.
+
+<ComponentPreview name="pay-view/holiday-unmet" width="max-w-md" />
+
+## 휴가 포함
+
+휴가 날이 개근을 채우고, 휴가수당 줄이 생긴다.
+
+<ComponentPreview name="pay-view/leave" width="max-w-md" />
+
+## 연장 한도 초과 (5인 이상)
+
+주 12시간 넘는 연장 → 경고 줄.
+
+<ComponentPreview name="pay-view/overtime-limit" width="max-w-md" />
+
+## 빈 달
+
+기록이 없으면 요약 카드 0원과 `이 달 기록이 없어요.`
+
+<ComponentPreview name="pay-view/empty" width="max-w-md" />
+
+## 사용 규칙
+
+계산식은 <DocLink path="docs/prd/02-pay.md">PRD 02</DocLink>·<DocLink path="docs/prd/03-overtime.md">PRD 03</DocLink>, 휴가는 <DocLink path="docs/prd/09-leave-substitution.md">PRD 09</DocLink>. 프로젝트 규칙 "화면 컴포넌트에서 금액을 계산하지 않는다"(`CLAUDE.md` §2).
+
+## 하지 말 것
+
+- 예시에서 금액을 손으로 적어 넣지 않는다.
+- `now` 를 `Date.now()` 로 두지 않는다.
+- `WeekCard` 를 따로 쓰려 하지 않는다 — export 되지 않는다.
+
+## API 레퍼런스
+
+### PayView
+
+<PropsTable
+  rows={[
+    { prop: "shifts", type: "Shift[] ({ id: string; start: number; end: number | null })", required: true, description: "ms 타임스탬프. 서버 응답은 `toShift` 로 바꾼다" },
+    { prop: "settings", type: "PaySettings ({ hourlyWage; weeklyHours; workDaysPerWeek; fivePlus })", required: true },
+    { prop: "year", type: "number", required: true },
+    { prop: "month", type: "number", required: true, description: "0~11" },
+    { prop: "now", type: "number", required: true, description: "진행 중 근무와 주 진행 여부 기준 시각" },
+    { prop: "absences", type: 'Absence[] ({ date: "YYYY-MM-DD"; kind: "paid_leave" | "unpaid_leave" | "substitution" })', default: "[]", description: "승인된 휴가·대타" },
+  ]}
+/>
+
+### holidayStatus(week, settings, now): string
+
+주휴 상태 글자. 결과는 아래 중 하나다.
+
+- `대상 아님 (주 15시간 미만)`
+- `개근`
+- `대상 아님 (그 주 전부 휴가)`
+- `진행 중 (n/m일)`
+- `미충족 (n/m일)`

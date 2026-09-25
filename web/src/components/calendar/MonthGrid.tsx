@@ -40,8 +40,8 @@ export function MonthGrid({ year, month, todayKey, selectedKey, onSelect, busy =
             const today = c.key === todayKey;
             const selected = c.key === selectedKey;
             const shown = busy ? {} : marks;
-            // 선택(실선 2px)이 점선보다 우선한다
-            const border = selected ? "border-2 border-accent bg-accent/10" : shown.dashed ? "border border-dashed border-muted" : "border border-transparent";
+            // 선택은 테두리 없이 연한 배경 + 굵은 날짜로 표시한다 (2026-09-25 사용자 요청: 선택 시 파란 선 제거)
+            const border = `${shown.dashed ? "border border-dashed border-muted" : "border border-transparent"}${selected ? " bg-accent/10" : ""}`;
             return (
               <button
                 key={c.key}
@@ -53,7 +53,7 @@ export function MonthGrid({ year, month, todayKey, selectedKey, onSelect, busy =
                 className={`relative m-0.5 flex min-w-0 flex-col rounded-lg text-left ${HEIGHT[cellHeight]} ${border} focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent`}
               >
                 <span className="flex items-start justify-between px-0.5 pt-0.5">
-                  <span className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-xs tabular-nums ${today ? "font-bold text-accent ring-[1.5px] ring-accent" : "font-medium"}`}>{c.day}</span>
+                  <span className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-xs tabular-nums ${today ? "font-bold text-accent ring-[1.5px] ring-accent" : selected ? "font-bold" : "font-medium"}`}>{c.day}</span>
                   <span aria-hidden className="flex items-center gap-0.5 pt-1">
                     {shown.open === "today" && <OpenDot />}
                     {shown.open === "stale" && <TriangleAlert size={10} className="text-warn" />}

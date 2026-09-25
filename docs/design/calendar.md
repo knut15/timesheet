@@ -124,7 +124,7 @@
 | 격자 폭 | 334px | 350 − 8×2 |
 | **칸 폭** | **약 47.7px** | 334 ÷ 7, `grid-cols-7 gap-0` |
 | 칸 높이 | 멤버 **56px**, 마스터 **64px** | 터치 영역 47×56 / 47×64 — 40px 이상(CAL-8) |
-| 칸 안쪽 여백 | 2px | 칸 테두리·선택 테두리가 이웃과 붙지 않게 버튼에 `m-0.5`(표시 폭 약 43.7px) |
+| 칸 안쪽 여백 | 2px | 칸 테두리가 이웃과 붙지 않게 버튼에 `m-0.5`(표시 폭 약 43.7px) |
 | 요일 줄 | 높이 24px, `text-[11px] text-muted` 가운데 | `월 화 수 목 금 토 일` — **월요일 시작**(CAL-1) |
 | 주 수 | 그 달에 필요한 만큼 (4~6줄) | 칸 높이 × 줄 수. 멤버 6줄 = 336px |
 
@@ -171,12 +171,12 @@
 | 퇴근 안 찍힘 (지난 날 출근, 아직 열림) | 오른쪽 위 **`TriangleAlert`** 10px | `text-warn` | "퇴근 기록 없음" |
 | 수정 요청 대기 | 오른쪽 위 **`Hourglass`** 10px | `text-amber-700 dark:text-amber-400` | "수정 요청 대기 중" |
 | 오늘 | 날짜 숫자 둘레 **원 테두리** 1.5px + 숫자 굵게 | `ring-accent`, 숫자 `text-accent font-bold` | "오늘" + `aria-current="date"` |
-| 선택됨 | 칸 전체 **실선 테두리 2px** + 옅은 배경 | `border-accent bg-accent/10` | `aria-pressed="true"` |
+| 선택됨 | 옅은 배경 + **날짜 숫자 굵게** (테두리 없음 — 2026-09-25 사용자 요청 "선택 시 파란 라인 제거") | `bg-accent/10`, 숫자 `font-bold` | `aria-pressed="true"` |
 | 이번 달 밖 | 숫자만, 흐리게. 누를 수 없다 | `text-muted opacity-40` | 버튼 아님, `aria-hidden` |
 | 기록 없음 (이번 달) | 숫자만 | — | "기록 없음" |
 
-- 오늘(작은 원)과 선택됨(칸 전체 사각 테두리)은 **모양 크기**로 갈린다. 둘이 겹치면 둘 다 보인다.
-- 선택된 칸은 점선 테두리 대신 실선이 된다. 휴가·대타 글자는 남아 있으므로 구별은 유지된다.
+- 오늘(숫자 둘레 원)과 선택됨(옅은 배경 + 굵은 숫자)은 둘이 겹치면 둘 다 보인다.
+- 선택된 칸은 휴가·대타의 점선 테두리를 그대로 두고 배경만 더한다. 색 외의 선택 신호는 굵은 날짜와 아래 상세 머리의 날짜다.
 - 오늘을 accent 로 **채우지 않는다.** 다크 모드에서 흰 글자/`#3b82f6` 대비가 3.68 로 4.5 에 못 미친다(§8).
 - 근무와 휴가가 같은 날 겹치면(예: 반차처럼 휴가 날에 기록이 있음) 멤버 칸은 시간(2줄)과 휴가 글자(3줄)를 둘 다, 마스터 칸은 시간 + 점선 테두리를 둘 다 보인다.
 - 날짜 기준: 기록은 **출근 시각의 날**(`dayKey(s.start)`)에 붙는다. `pay.ts` 가 주를 나누는 기준과 같다. 자정을 넘긴 근무도 출근한 날 한 칸에만 나온다.
@@ -319,7 +319,7 @@
 | 선택 | `aria-pressed={selected}` (CAL-9) |
 | 오늘 | `aria-current="date"` + 이름에 "오늘" |
 | 키보드 | **화살표 이동은 넣지 않는다.** 날짜마다 평범한 버튼이라 Tab 으로 차례대로 가고 Enter·Space 로 선택한다. `role="grid"` 와 roving tabindex 는 구현·검증 비용에 비해 이 화면(한 달 최대 31칸, 누르면 아래 상세)에서 얻는 것이 적다. 대신 `MonthPicker` 버튼이 격자 앞에 있어 달 이동은 Tab 한 번 거리다 |
-| 포커스 | `focus-visible:outline-2 outline-accent outline-offset-1` — 선택 테두리(2px border)와 다른 바깥 선 |
+| 포커스 | `focus-visible:outline-2 outline-accent outline-offset-1` — 키보드로 이동할 때만 보이는 바깥 선. 마우스·터치 선택에는 나오지 않는다 |
 | 상세 | 상세 머리에 `aria-live="polite"` — 날짜를 바꾸면 새 날짜와 합이 읽힌다 |
 | 범례 | 보이는 글자로 둔다(`aria-hidden` 은 표시 모양에만) |
 
@@ -347,7 +347,7 @@
 | 쓰임 | 라이트 | 다크 | 대비 (라이트 / 다크, 배경 surface) |
 |---|---|---|---|
 | 오늘 숫자·원 | `--accent` #2563eb | #3b82f6 | 5.17 / 4.75 ✓ |
-| 선택 테두리 | `--accent` | 같음 | 5.17 / 4.75 ✓ |
+| 선택 배경 | `--accent` 10% | 같음 | 글자 대비는 배경 위 `foreground` 로 유지 |
 | 선택 배경 | `bg-accent/10` | 같음 | 배경이라 대비 대상 아님 |
 | 점선 테두리 (휴가·대타) | `--muted` #78716c | #a8a29e | 4.80 / 6.93 ✓ — `--line` 은 1.26 / 1.15 라 **쓰지 않는다** |
 | 근무 중 점 | `green-600` #16a34a | `green-400` #4ade80 | 3.30 / 10.04 ✓ — 대시보드의 `green-500` 은 흰 배경에서 2.28 이라 달력에서는 600 을 쓴다 |
@@ -410,7 +410,7 @@ export function MonthGrid(props: {
 ```
 
 - `Card className="px-2 py-3"` 로 감싼다. 요일 줄, 칸, `footer` 순서.
-- 칸 버튼: `relative m-0.5 flex flex-col rounded-lg border text-left` + 상태별 클래스(§3 표). 테두리 기본 `border-transparent`, 점선 `border-dashed border-muted`, 선택 `border-2 border-accent bg-accent/10`(선택이 점선보다 우선).
+- 칸 버튼: `relative m-0.5 flex flex-col rounded-lg border text-left` + 상태별 클래스(§3 표). 테두리 기본 `border-transparent`, 점선 `border-dashed border-muted`, 선택 `bg-accent/10` + 날짜 `font-bold` (테두리 없음, 점선은 유지).
 - 오늘 숫자: `inline-flex h-5 w-5 items-center justify-center rounded-full ring-[1.5px] ring-accent text-accent font-bold`.
 
 ### `components/calendar/AvatarStack.tsx`

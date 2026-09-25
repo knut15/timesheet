@@ -5,6 +5,7 @@ import { api, errorCode } from "@/api/client";
 import { useArea } from "@/auth/hooks";
 import { logout, reloadMe } from "@/auth/session";
 import { Card, ErrorText, Field, Spinner } from "@/components/ui";
+import { clearInviteCode, peekInviteCode } from "@/lib/inviteLink";
 
 const MESSAGES: Record<string, string> = {
   INVITE_INVALID: "사용할 수 없는 코드예요. 사장님께 새 코드를 받아 주세요.",
@@ -14,7 +15,8 @@ const MESSAGES: Record<string, string> = {
 
 export default function OnboardingPage() {
   const { me } = useArea("onboarding");
-  const [code, setCode] = useState("");
+  // 초대 링크(/join?code=)로 들어왔으면 코드를 채워 둔다
+  const [code, setCode] = useState(() => (typeof window === "undefined" ? "" : (peekInviteCode() ?? "")));
   const [storeName, setStoreName] = useState("");
   const [error, setError] = useState<{ which: "code" | "store"; msg: string } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -25,6 +27,7 @@ export default function OnboardingPage() {
     const { error } = await send();
     setBusy(false);
     if (error) return setError({ which, msg: MESSAGES[errorCode(error) ?? ""] ?? "잠시 뒤 다시 시도해 주세요." });
+    clearInviteCode();
     await reloadMe(); // 소속이 생기면 useArea 가 역할에 맞는 화면으로 보낸다
   };
 

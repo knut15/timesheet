@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
 :root {
+  /* 스크롤바·폼 컨트롤을 OS 테마에 맞춘다 — 없으면 다크 모드에서도 흰 스크롤바가 그려진다 */
+  color-scheme: light dark;
   --background: #f5f5f4;
   --foreground: #1c1917;
   --surface: #ffffff;

@@ -50,6 +50,20 @@ class Client {
     return { status: res.status, body: text ? JSON.parse(text) : null, setCookies, headers: res.headers };
   }
 
+  /** 파일 바이트를 그대로 보낸다 (로고 업로드). 쿠키·CSRF 는 req 와 같다 */
+  async raw(method: string, path: string, body: Buffer, type: string) {
+    const csrf = await this.ensureCsrf();
+    const res = await fetch(API + path, {
+      method,
+      headers: { Origin: ORIGIN, "X-Forwarded-For": this.ip, Cookie: [...this.jar].map(([k, v]) => `${k}=${v}`).join("; "), "Content-Type": type, "X-CSRF-Token": csrf },
+      body: new Uint8Array(body),
+    });
+    const text = await res.text();
+    let json: any = null;
+    try { json = text ? JSON.parse(text) : null; } catch { json = null; }
+    return { status: res.status, body: json, headers: res.headers };
+  }
+
   async ensureCsrf() {
     this.csrf ??= (await this.req("GET", "/api/auth/csrf", { csrf: false })).body.csrfToken as string;
     return this.csrf;
@@ -519,6 +533,74 @@ if (process.env.S17) {
       // 동료 목록은 나를 뺀 멤버
       const col = (await a.c.req("GET", "/api/stores/me/colleagues")).body as { userId: string }[];
       assert.deepEqual(col.map((x) => x.userId), [b.id]);
+    });
+  });
+
+  describe("매장 로고 (docs/prd/11)", () => {
+    // 1x1 투명 PNG
+    const PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=", "base64");
+    const SVG = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#2563eb"/></svg>');
+
+    test("LG-1~LG-7 올리기·형식 검사·SVG 안전·크기·권한·교체·삭제", async () => {
+      const master = new Client();
+      await master.signupLogin("사장");
+      await master.req("POST", "/api/stores", { body: { name: "로고 매장" } });
+      const alba = new Client();
+      await alba.signupLogin("알바");
+      const inv = await master.req("POST", "/api/stores/me/invites");
+      await alba.req("POST", "/api/invites/redeem", { body: { code: inv.body.code } });
+
+      // 없으면 null·404
+      assert.equal((await master.req("GET", "/api/stores/me")).body.logoUrl, null);
+      assert.equal((await alba.req("GET", "/api/stores/me/logo")).status, 404);
+
+      // LG-1 PNG 올리기 → logoUrl, 멤버도 같은 바이트를 받는다
+      const up = await master.raw("PUT", "/api/stores/me/logo", PNG, "image/png");
+      assert.equal(up.status, 200);
+      assert.match(up.body.logoUrl, /^\/api\/stores\/me\/logo\?v=\d+$/);
+      const got = await fetch(API + "/api/stores/me/logo", { headers: { Cookie: [...alba.jar].map(([k, v]) => `${k}=${v}`).join("; ") } });
+      assert.equal(got.status, 200);
+      assert.equal(got.headers.get("content-type"), "image/png");
+      assert.equal(got.headers.get("x-content-type-options"), "nosniff");
+      assert.ok(got.headers.get("content-security-policy")!.includes("sandbox"));
+      assert.deepEqual(Buffer.from(await got.arrayBuffer()), PNG);
+      // /users/me 의 매장에도 logoUrl 이 오고, 로고 바이트는 오지 않는다
+      const me = await alba.req("GET", "/api/users/me");
+      assert.equal(me.body.membership.store.logoUrl, up.body.logoUrl);
+      assert.equal("logo" in me.body.membership.store, false);
+
+      // LG-2 이름만 PNG 인 텍스트, 형식 불일치
+      assert.equal((await master.raw("PUT", "/api/stores/me/logo", Buffer.from("not a png"), "image/png")).body.code, "LOGO_INVALID");
+      assert.equal((await master.raw("PUT", "/api/stores/me/logo", PNG, "image/jpeg")).body.code, "LOGO_INVALID");
+      // LG-3 위험한 SVG 는 거부
+      for (const bad of [
+        '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>',
+        '<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"></svg>',
+        '<svg xmlns="http://www.w3.org/2000/svg"><image href="https://evil.test/x.png"/></svg>',
+        '<svg xmlns="http://www.w3.org/2000/svg"><foreignObject><div/></foreignObject></svg>',
+        '<html><svg/></html>',
+      ]) assert.equal((await master.raw("PUT", "/api/stores/me/logo", Buffer.from(bad), "image/svg+xml")).body?.code, "LOGO_INVALID", bad);
+      // 허용 목록 밖 종류는 본문을 읽지 않아 비어 있다 → LOGO_INVALID
+      assert.equal((await master.raw("PUT", "/api/stores/me/logo", PNG, "image/gif")).body.code, "LOGO_INVALID");
+
+      // LG-4 1MB 초과 413
+      const big = Buffer.concat([PNG, Buffer.alloc(1024 * 1024)]);
+      const tooBig = await master.raw("PUT", "/api/stores/me/logo", big, "image/png");
+      assert.equal(tooBig.status, 413);
+
+      // LG-6 멤버는 못 올린다, CSRF 없이 403
+      assert.equal((await alba.raw("PUT", "/api/stores/me/logo", PNG, "image/png")).status, 403);
+      const noCsrf = await fetch(API + "/api/stores/me/logo", { method: "PUT", headers: { Origin: ORIGIN, Cookie: [...master.jar].map(([k, v]) => `${k}=${v}`).join("; "), "Content-Type": "image/png" }, body: new Uint8Array(PNG) });
+      assert.equal(noCsrf.status, 403);
+      assert.equal((await fetch(API + "/api/stores/me/logo")).status, 401);
+
+      // LG-7 SVG 로 교체 → 주소 바뀜, 지우면 null·404
+      const svgUp = await master.raw("PUT", "/api/stores/me/logo", SVG, "image/svg+xml");
+      assert.equal(svgUp.status, 200);
+      assert.notEqual(svgUp.body.logoUrl, up.body.logoUrl);
+      assert.equal((await master.req("DELETE", "/api/stores/me/logo")).status, 204);
+      assert.equal((await master.req("GET", "/api/stores/me")).body.logoUrl, null);
+      assert.equal((await master.req("GET", "/api/stores/me/logo")).status, 404);
     });
   });
 }

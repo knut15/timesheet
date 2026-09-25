@@ -73,6 +73,9 @@ pnpm dev:web
 | 기록 수정 요청·승인, 휴가·대타 근무 | 완료 — [PRD 08](docs/prd/08-correction-requests.md)·[09](docs/prd/09-leave-substitution.md), 스킬 [`timesheet-requests`](.claude/skills/timesheet-requests/SKILL.md) |
 | 로그인 유지 — 쿠키 세션(액세스·리프레시 모두 HttpOnly 쿠키), 30일 슬라이딩 | 완료 — 스킬 [`timesheet-auth`](.claude/skills/timesheet-auth/SKILL.md) |
 | 근무 달력 — 마스터는 전체 멤버, 멤버는 본인 | 배포 — 실화면 확인 대기 ([PRD 10](docs/prd/10-calendar.md), [디자인](docs/design/calendar.md)) |
+| 디자인 컴포넌트 가이드 — 웹 `/guide` (MDX) | 배포 — https://timesheet-brown-ten.vercel.app/guide |
+| 매장 로고 업로드·헤더 노출 | 배포 ([PRD 11](docs/prd/11-store-logo.md)) |
+| 초대 코드 문자 보내기(휴대폰 문자 앱·공유), 가입 링크 | 배포 ([PRD 06](docs/prd/06-store-invite.md)) |
 | 배포 | 웹 https://timesheet-brown-ten.vercel.app · API·Neon DB ([docs/deploy.md](docs/deploy.md)) |
 
 ## 문서
