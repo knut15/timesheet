@@ -903,6 +903,195 @@ export interface paths {
         };
         trace?: never;
     };
+    "/api/stores/me/members/{userId}/schedule-exceptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 멤버 날짜별 근무 변경 (마스터) */
+        get: {
+            parameters: {
+                query: {
+                    from: string;
+                };
+                header?: never;
+                path: {
+                    userId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ScheduleExceptionDto"][];
+                    };
+                };
+                /** @description NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** 날짜별 근무 변경 등록 — 같은 날짜면 덮어쓴다 (마스터) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
+                path: {
+                    userId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["CreateScheduleExceptionBody"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ScheduleExceptionDto"];
+                    };
+                };
+                /** @description VALIDATION_FAILED */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stores/me/schedule-exceptions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** 날짜별 근무 변경 삭제 (마스터) */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: {
+                    "x-csrf-token"?: string;
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description NOT_FOUND */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/schedule-exceptions/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 내 날짜별 근무 변경 */
+        get: {
+            parameters: {
+                query: {
+                    from: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ScheduleExceptionDto"][];
+                    };
+                };
+                /** @description NO_STORE */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/stores/me/members/{userId}/shifts": {
         parameters: {
             query?: never;
@@ -2411,10 +2600,16 @@ export interface components {
             hourlyWage: number;
             weeklyHours: number;
             workDaysPerWeek: number;
+            schedule: components["schemas"]["ScheduleDto"] | null;
             store: components["schemas"]["StoreDto"];
         };
         /** @enum {string} */
         Role: "master" | "member";
+        ScheduleDto: {
+            days: number[];
+            start: string;
+            end: string;
+        };
         StoreDto: {
             id: string;
             name: string;
@@ -2453,12 +2648,32 @@ export interface components {
             hourlyWage: number;
             weeklyHours: number;
             workDaysPerWeek: number;
+            schedule: components["schemas"]["ScheduleDto"] | null;
             joinedAt: string;
         };
         UpdateMemberBody: {
             hourlyWage?: number;
-            weeklyHours?: number;
-            workDaysPerWeek?: number;
+            schedule?: {
+                days: number[];
+                start: string;
+                end: string;
+            };
+        };
+        ScheduleExceptionDto: {
+            id: string;
+            userId: string;
+            date: string;
+            /** @enum {string} */
+            kind: "off" | "work";
+            start: string | null;
+            end: string | null;
+        };
+        CreateScheduleExceptionBody: {
+            date: string;
+            /** @enum {string} */
+            kind: "off" | "work";
+            start?: string;
+            end?: string;
         };
         ShiftDto: {
             id: string;

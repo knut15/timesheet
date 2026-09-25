@@ -77,6 +77,7 @@ pnpm dev:web
 | 매장 로고 업로드·헤더 노출 | 배포 ([PRD 11](docs/prd/11-store-logo.md)) |
 | 초대 코드 문자 보내기(휴대폰 문자 앱·공유), 가입 링크 | 배포 ([PRD 06](docs/prd/06-store-invite.md)) |
 | 멤버 오늘 근무 대시보드 — 출퇴근 탭 시계 아래 | 배포 — 실화면 확인 대기 ([PRD 12](docs/prd/12-member-today.md), [디자인](docs/design/member-today.md)) |
+| 근무 시간표 — 요일·출퇴근 시각, 날짜별 변경(마스터), 시급 천 단위 쉼표 | 배포 — 실화면 확인 대기 ([PRD 13](docs/prd/13-work-schedule.md)) |
 | 배포 | 웹 https://timesheet-brown-ten.vercel.app · API·Neon DB ([docs/deploy.md](docs/deploy.md)) |
 
 ## 문서

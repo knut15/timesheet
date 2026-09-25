@@ -33,6 +33,9 @@
 | 2026-09-25 | 근무 달력 — 마스터는 전체 멤버, 멤버는 본인만 | [PRD 10](prd/10-calendar.md) |
 | 2026-09-25 | 멤버 첫 화면에 오늘 근무 대시보드 — 출퇴근 탭의 시계 바로 아래 | [PRD 12](prd/12-member-today.md) |
 | 2026-09-25 | 퇴근하면 다시 출근 없음 — 내일 0시까지 출근 버튼 비활성, 50m 알림도 끔 | [PRD 12](prd/12-member-today.md) T-7 |
+| 2026-09-25 | 마스터가 멤버별 근무 요일·출퇴근 시각을 정하고, 주 시간·일수는 그 시간표로 계산 | [PRD 13](prd/13-work-schedule.md) |
+| 2026-09-25 | 대타·사정으로 달라지는 날은 날짜별 변경(쉼·시각)으로 — 마스터만 | [PRD 13](prd/13-work-schedule.md) |
+| 2026-09-25 | 시급 입력은 천 단위 쉼표 | [PRD 13](prd/13-work-schedule.md) WS-6 |
 | 2026-09-25 | 마스터가 로고(PNG·JPG·SVG) 업로드, 헤더에 노출 | [PRD 11](prd/11-store-logo.md) |
 | 2026-09-25 | 로고가 있으면 매장 이름 글자는 지운다 | [PRD 11](prd/11-store-logo.md) LG-5 |
 | 2026-09-25 | 초대 코드는 휴대폰 문자 앱(공유)으로 보낸다 — 서버 자동 문자 아님 | [PRD 06](prd/06-store-invite.md) "초대 코드 보내기" |
@@ -47,4 +50,5 @@
 | 2026-09-25 | 좌우 화살표는 심플한 아이콘 — lucide Chevron | timesheet-ui §0·§2, [가이드 명세](design/component-guide.md) §2-5 |
 | 2026-09-25 | 스크롤은 전부 shadcn ScrollArea | timesheet-ui §0·§2, [가이드 명세](design/component-guide.md) §2-5 |
 | 2026-09-25 | 멤버 시계는 모바일에서도 한 줄 — HH:MM:SS | `web/src/lib/format.ts` clockText, [PRD 12](prd/12-member-today.md) |
+| 2026-09-25 | 멤버 카드의 글자 링크(근무 기록·조건 수정·내보내기)는 버튼 모양으로 | timesheet-ui §0 "카드 안 동작" |
 | 2026-09-25 | 글꼴은 Pretendard | timesheet-ui §0, [가이드 명세](design/component-guide.md) §2-2, 웹 `/guide/foundations` |

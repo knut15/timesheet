@@ -192,6 +192,16 @@
             "minimum": 1,
             "maximum": 7
           },
+          "schedule": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScheduleDto"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "store": {
             "$ref": "#/components/schemas/StoreDto"
           }
@@ -201,6 +211,7 @@
           "hourlyWage",
           "weeklyHours",
           "workDaysPerWeek",
+          "schedule",
           "store"
         ]
       },
@@ -209,6 +220,34 @@
         "enum": [
           "master",
           "member"
+        ]
+      },
+      "ScheduleDto": {
+        "type": "object",
+        "properties": {
+          "days": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 6
+            },
+            "minItems": 1,
+            "maxItems": 7
+          },
+          "start": {
+            "type": "string",
+            "pattern": "^([01]\\d|2[0-3]):(00|30)$"
+          },
+          "end": {
+            "type": "string",
+            "pattern": "^([01]\\d|2[0-3]):(00|30)$"
+          }
+        },
+        "required": [
+          "days",
+          "start",
+          "end"
         ]
       },
       "StoreDto": {
@@ -382,6 +421,16 @@
             "minimum": 1,
             "maximum": 7
           },
+          "schedule": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ScheduleDto"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "joinedAt": {
             "type": "string"
           }
@@ -394,6 +443,7 @@
           "hourlyWage",
           "weeklyHours",
           "workDaysPerWeek",
+          "schedule",
           "joinedAt"
         ]
       },
@@ -405,17 +455,104 @@
             "minimum": 0,
             "maximum": 1000000
           },
-          "weeklyHours": {
-            "type": "number",
-            "minimum": 0,
-            "maximum": 52
-          },
-          "workDaysPerWeek": {
-            "type": "integer",
-            "minimum": 1,
-            "maximum": 7
+          "schedule": {
+            "type": "object",
+            "properties": {
+              "days": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 6
+                },
+                "minItems": 1,
+                "maxItems": 7
+              },
+              "start": {
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):(00|30)$"
+              },
+              "end": {
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):(00|30)$"
+              }
+            },
+            "required": [
+              "days",
+              "start",
+              "end"
+            ]
           }
         }
+      },
+      "ScheduleExceptionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "off",
+              "work"
+            ]
+          },
+          "start": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "end": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "date",
+          "kind",
+          "start",
+          "end"
+        ]
+      },
+      "CreateScheduleExceptionBody": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "off",
+              "work"
+            ]
+          },
+          "start": {
+            "type": "string",
+            "pattern": "^([01]\\d|2[0-3]):(00|30)$"
+          },
+          "end": {
+            "type": "string",
+            "pattern": "^([01]\\d|2[0-3]):(00|30)$"
+          }
+        },
+        "required": [
+          "date",
+          "kind"
+        ]
       },
       "ShiftDto": {
         "type": "object",
@@ -1836,6 +1973,216 @@
           },
           "404": {
             "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stores/me/members/{userId}/schedule-exceptions": {
+      "get": {
+        "summary": "멤버 날짜별 근무 변경 (마스터)",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "required": true,
+            "name": "from",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ScheduleExceptionDto"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "날짜별 근무 변경 등록 — 같은 날짜면 덮어쓴다 (마스터)",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateScheduleExceptionBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduleExceptionDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "VALIDATION_FAILED",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stores/me/schedule-exceptions/{id}": {
+      "delete": {
+        "summary": "날짜별 근무 변경 삭제 (마스터)",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "x-csrf-token",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/schedule-exceptions/me": {
+      "get": {
+        "summary": "내 날짜별 근무 변경",
+        "security": [
+          {
+            "accessCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "required": true,
+            "name": "from",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ScheduleExceptionDto"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NO_STORE",
             "content": {
               "application/json": {
                 "schema": {

@@ -3,18 +3,21 @@ import { randomInt } from "node:crypto";
 import { Router } from "express";
 import { rateLimit } from "express-rate-limit";
 import {
+  CreateScheduleExceptionBody,
   CreateStoreBody,
   DashboardQuery,
+  FromDayQuery,
   RangeQuery,
   RedeemBody,
   UpdateMemberBody,
   UpdateShiftBody,
   UpdateStoreBody,
+  scheduleTerms,
 } from "../contract.js";
 import { prisma } from "../db.js";
 import { AppError } from "../errors.js";
 import { requireAuth, requireMaster, requireMembership, requireNoMembership } from "../auth/guard.js";
-import { toInviteDto, toMemberDto, toMyMembershipDto, toShiftDto, toStoreDto } from "../lib/dto.js";
+import { toInviteDto, toMemberDto, toMyMembershipDto, toScheduleExceptionDto, toShiftDto, toStoreDto } from "../lib/dto.js";
 import { absencesFor, pendingRequestCount } from "../requests/routes.js";
 
 const INVITE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 0·O·1·I 제외
@@ -133,8 +136,59 @@ async function findMember(storeId: string, userId: string) {
 storeRouter.patch("/stores/me/members/:userId", ...master, async (req, res) => {
   const body = UpdateMemberBody.parse(req.body);
   const m = await findMember(req.membership!.storeId, String(req.params.userId));
-  const updated = await prisma.membership.update({ where: { userId: m.userId }, data: body, include: { user: true } });
+  const data = {
+    hourlyWage: body.hourlyWage,
+    // 시간표를 받으면 주 시간·주 일수를 거기서 계산해 같이 저장한다 (docs/prd/13)
+    ...(body.schedule && {
+      scheduleDays: [...body.schedule.days].sort(),
+      scheduleStart: body.schedule.start,
+      scheduleEnd: body.schedule.end,
+      ...scheduleTerms(body.schedule),
+    }),
+  };
+  const updated = await prisma.membership.update({ where: { userId: m.userId }, data, include: { user: true } });
   res.json(toMemberDto(updated));
+});
+
+// 날짜별 근무 변경 — 마스터만 정한다. date 는 기기 시간대의 YYYY-MM-DD 그대로 (휴가·대타와 같은 방식)
+const fromDay = (s: string) => new Date(`${s}T00:00:00Z`);
+
+storeRouter.get("/stores/me/members/:userId/schedule-exceptions", ...master, async (req, res) => {
+  const { from } = FromDayQuery.parse(req.query);
+  const m = await findMember(req.membership!.storeId, String(req.params.userId));
+  const list = await prisma.scheduleException.findMany({
+    where: { storeId: m.storeId, userId: m.userId, date: { gte: fromDay(from) } },
+    orderBy: { date: "asc" },
+  });
+  res.json(list.map(toScheduleExceptionDto));
+});
+
+storeRouter.post("/stores/me/members/:userId/schedule-exceptions", ...master, async (req, res) => {
+  const body = CreateScheduleExceptionBody.parse(req.body);
+  const m = await findMember(req.membership!.storeId, String(req.params.userId));
+  const fields = { kind: body.kind, start: body.start ?? null, end: body.end ?? null };
+  // 한 멤버·한 날짜에 하나 — 다시 등록하면 덮어쓴다
+  const e = await prisma.scheduleException.upsert({
+    where: { userId_date: { userId: m.userId, date: fromDay(body.date) } },
+    create: { storeId: m.storeId, userId: m.userId, date: fromDay(body.date), ...fields },
+    update: { storeId: m.storeId, ...fields },
+  });
+  res.json(toScheduleExceptionDto(e));
+});
+
+storeRouter.delete("/stores/me/schedule-exceptions/:id", ...master, async (req, res) => {
+  const { count } = await prisma.scheduleException.deleteMany({ where: { id: String(req.params.id), storeId: req.membership!.storeId } });
+  if (count === 0) throw new AppError(404, "NOT_FOUND");
+  res.status(204).end();
+});
+
+storeRouter.get("/schedule-exceptions/me", requireAuth, requireMembership, async (req, res) => {
+  const { from } = FromDayQuery.parse(req.query);
+  const list = await prisma.scheduleException.findMany({
+    where: { storeId: req.membership!.storeId, userId: req.membership!.userId, date: { gte: fromDay(from) } },
+    orderBy: { date: "asc" },
+  });
+  res.json(list.map(toScheduleExceptionDto));
 });
 
 storeRouter.delete("/stores/me/members/:userId", ...master, async (req, res) => {
@@ -143,6 +197,7 @@ storeRouter.delete("/stores/me/members/:userId", ...master, async (req, res) => 
   // 열린 기록을 닫고 소속만 지운다. 근무 기록은 남는다.
   await prisma.$transaction([
     prisma.shift.updateMany({ where: { userId: m.userId, end: null }, data: { end: new Date() } }),
+    prisma.scheduleException.deleteMany({ where: { userId: m.userId, storeId: m.storeId } }),
     prisma.membership.delete({ where: { userId: m.userId } }),
   ]);
   res.status(204).end();

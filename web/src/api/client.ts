@@ -29,3 +29,5 @@ export type Absence = S["AbsenceDto"];
 export type Colleague = S["ColleagueDto"];
 export type MyRequests = S["MyRequestsDto"];
 export type StoreRequests = S["StoreRequestsDto"];
+export type Schedule = S["ScheduleDto"];
+export type ScheduleException = S["ScheduleExceptionDto"];

@@ -22,6 +22,7 @@ description: >
 | 스크롤 영역 | shadcn ScrollArea (2절) | 2026-09-25 요청 15 |
 | 달력 선택 | 테두리 없음 — 배경 + 굵은 날짜 (4절) | 2026-09-25 요청 11 |
 | 로고 | 로고가 있으면 매장 이름 글자 대신 (1절) | 2026-09-25 요청 12·14 |
+| 카드 안 동작 | 글자 링크 대신 **버튼 모양** — 테두리 `h-10 rounded-xl border px-3 text-sm font-semibold`, 보통은 `border-accent text-accent`, 지우기·내보내기는 `border-warn text-warn` (멤버 카드 `web/src/app/admin/members/page.tsx` 의 `BTN_*`) | 2026-09-25 "텍스트 전부 버튼 디자인으로 변경" |
 | 입력칸 | `.field` 하나로 input·date·select 모두 높이 44px, `min-w-0`, 날짜 칸 기본 모양 끔, select 는 lucide chevron-down 배경. 두 칸 격자는 `Field` 에 맡긴다(`min-w-0`) — 칸마다 높이·폭을 따로 주지 않는다 | 2026-09-25 모바일 겹침 수정 |
 
 ### shadcn 컴포넌트를 들일 때

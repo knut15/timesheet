@@ -5,7 +5,8 @@ import { api, errorCode, type Absence, type Me, type MyMembership, type MyReques
 import { useArea } from "@/auth/hooks";
 import { logout } from "@/auth/session";
 import { GEOFENCE_RADIUS_M } from "@/lib/geo";
-import { MINIMUM_WAGE, type PaySettings, type Shift } from "@/lib/pay";
+import { dayKey, MINIMUM_WAGE, parseDay, type PaySettings, type Shift } from "@/lib/pay";
+import { scheduleText } from "@/lib/schedule";
 import { setDeviceSettings, useDeviceSettings } from "@/lib/storage";
 import { todayState, toMinute } from "@/lib/today";
 import { useApi } from "@/lib/useApi";
@@ -16,7 +17,7 @@ import { RequestsPanel } from "./member/RequestsPanel";
 import { PayView } from "./PayView";
 import { ClockCard, TodayDashboard, type ClockState } from "./TodayDashboard";
 import { AppHeader, Avatar, BottomNav, type NavItem } from "./shell";
-import { Card, keyed, MonthPicker, monthRange, Spinner, time, toShift, useMonthCursor, useNow, won } from "./ui";
+import { Card, date, keyed, MonthPicker, monthRange, Spinner, time, toShift, useMonthCursor, useNow, won } from "./ui";
 
 type Tab = "clock" | "records" | "requests" | "pay" | "me";
 const TABS = [
@@ -260,6 +261,26 @@ function ClockPanel({
   );
 }
 
+/** 오늘 이후 날짜별 근무 변경 — 보기만 한다. 없으면 카드째 숨긴다. docs/prd/13 */
+function MyScheduleExceptions() {
+  const today = dayKey(useNow(60_000));
+  const { data } = useApi(() => api.GET("/api/schedule-exceptions/me", { params: { query: { from: today } } }), today);
+  if (!data?.length) return null;
+  return (
+    <Card>
+      <h2 className="font-semibold">날짜별 근무 변경</h2>
+      <ul className="mt-3 space-y-2 text-sm">
+        {data.map((e) => (
+          <li key={e.id} className="flex justify-between gap-2 tabular-nums">
+            <span>{date(parseDay(e.date))}</span>
+            <span>{e.kind === "off" ? "쉼" : `${e.start}~${e.end} 근무`}</span>
+          </li>
+        ))}
+      </ul>
+    </Card>
+  );
+}
+
 function MePanel({ me, membership }: { me: Me; membership: MyMembership }) {
   return (
     <div className="space-y-4">
@@ -278,6 +299,8 @@ function MePanel({ me, membership }: { me: Me; membership: MyMembership }) {
           <dd className="text-right">{membership.store.name}</dd>
           <dt className="text-muted">시급</dt>
           <dd className="text-right tabular-nums">{won(membership.hourlyWage)}</dd>
+          <dt className="text-muted">근무 시간표</dt>
+          <dd className="text-right tabular-nums">{membership.schedule ? scheduleText(membership.schedule) : "정해지지 않음"}</dd>
           <dt className="text-muted">1주 소정근로시간</dt>
           <dd className="text-right tabular-nums">{membership.weeklyHours}시간</dd>
           <dt className="text-muted">1주 소정근로일수</dt>
@@ -286,6 +309,7 @@ function MePanel({ me, membership }: { me: Me; membership: MyMembership }) {
         {membership.hourlyWage < MINIMUM_WAGE && <p className="mt-3 text-sm text-warn">2026년 최저임금({won(MINIMUM_WAGE)})보다 낮아요.</p>}
         <p className="mt-3 text-xs text-muted">조건은 사장님이 정해요.</p>
       </Card>
+      <MyScheduleExceptions />
       <button onClick={() => logout()} className="w-full rounded-xl border border-line py-3 text-sm">
         로그아웃
       </button>

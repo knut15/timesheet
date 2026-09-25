@@ -48,8 +48,24 @@ export const PayTerms = {
   workDaysPerWeek: z.number().int().min(1).max(7),
 };
 
+// 근무 시간표 — 요일(0=일~6=토) + 출근·퇴근 "HH:MM" 30분 단위. docs/prd/13
+const Time = z.string().regex(/^([01]\d|2[0-3]):(00|30)$/);
+const minutesOf = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3));
+export const ScheduleDto = z
+  .object({ days: z.array(z.number().int().min(0).max(6)).min(1).max(7), start: Time, end: Time })
+  .meta({ id: "ScheduleDto" });
+const ScheduleBody = ScheduleDto.refine((s) => new Set(s.days).size === s.days.length, { message: "요일 중복", path: ["days"] })
+  .refine((s) => minutesOf(s.end) > minutesOf(s.start), { message: "퇴근은 출근보다 늦어야 한다", path: ["end"] })
+  .refine((s) => (s.days.length * (minutesOf(s.end) - minutesOf(s.start))) / 60 <= 52, { message: "주 52시간 초과", path: ["end"] });
+/** 시간표에서 주 시간·주 일수를 계산한다 */
+export const scheduleTerms = (s: { days: number[]; start: string; end: string }) => ({
+  workDaysPerWeek: s.days.length,
+  weeklyHours: (s.days.length * (minutesOf(s.end) - minutesOf(s.start))) / 60,
+});
+const MaybeSchedule = z.union([ScheduleDto, z.null()]);
+
 export const MyMembershipDto = z
-  .object({ role: Role, ...PayTerms, store: StoreDto })
+  .object({ role: Role, ...PayTerms, schedule: MaybeSchedule, store: StoreDto })
   .meta({ id: "MyMembershipDto" });
 
 // .nullable() 로 쓰면 생성기가 MyMembershipDto 자체를 nullable 로 만든다. union 으로 감싼다.
@@ -79,13 +95,13 @@ export const InviteDto = z
 export const RedeemBody = z.object({ code: z.string().max(32) }).meta({ id: "RedeemBody" });
 
 export const MemberDto = z
-  .object({ userId: z.string(), nickname: z.string(), email: z.string(), role: Role, ...PayTerms, joinedAt: z.string() })
+  .object({ userId: z.string(), nickname: z.string(), email: z.string(), role: Role, ...PayTerms, schedule: MaybeSchedule, joinedAt: z.string() })
   .meta({ id: "MemberDto" });
 export const UpdateMemberBody = z
   .object({
     hourlyWage: PayTerms.hourlyWage.optional(),
-    weeklyHours: PayTerms.weeklyHours.optional(),
-    workDaysPerWeek: PayTerms.workDaysPerWeek.optional(),
+    // 주 시간·주 일수는 직접 받지 않는다 — 시간표에서 계산한다 (docs/prd/13)
+    schedule: ScheduleBody.optional(),
   })
   .meta({ id: "UpdateMemberBody" });
 
@@ -188,6 +204,18 @@ export const ApproveLeaveBody = z.object({ paid: z.boolean(), note: z.string().t
 export const AbsenceDto = z
   .object({ userId: z.string(), date: z.string(), kind: z.enum(["paid_leave", "unpaid_leave", "substitution"]), sourceId: z.string() })
   .meta({ id: "AbsenceDto" });
+export const ScheduleExceptionDto = z
+  .object({ id: z.string(), userId: z.string(), date: z.string(), kind: z.enum(["off", "work"]), start: z.string().nullable(), end: z.string().nullable() })
+  .meta({ id: "ScheduleExceptionDto" });
+export const CreateScheduleExceptionBody = z
+  .object({ date: Day, kind: z.enum(["off", "work"]), start: Time.optional(), end: Time.optional() })
+  .refine((b) => (b.kind === "off" ? !b.start && !b.end : !!b.start && !!b.end && minutesOf(b.end) > minutesOf(b.start)), {
+    message: "work 는 출근 < 퇴근 시각 필수, off 는 시각 없음",
+    path: ["end"],
+  })
+  .meta({ id: "CreateScheduleExceptionBody" });
+export const FromDayQuery = z.object({ from: Day });
+
 export const ColleagueDto = z.object({ userId: z.string(), nickname: z.string() }).meta({ id: "ColleagueDto" });
 
 export const MyRequestsDto = z
@@ -285,6 +313,10 @@ path("post", "/api/invites/redeem", "초대 코드 등록 (멤버가 된다)", {
 path("get", "/api/stores/me/members", "멤버 목록 (마스터)", { auth: true, ok: [200, z.array(MemberDto)], errors: { 403: "FORBIDDEN" } });
 path("patch", "/api/stores/me/members/{userId}", "멤버 급여 조건 (마스터)", { auth: true, params: id("userId"), body: UpdateMemberBody, ok: [200, MemberDto], errors: { 404: "NOT_FOUND" } });
 path("delete", "/api/stores/me/members/{userId}", "멤버 내보내기 (마스터)", { auth: true, params: id("userId"), ok: [204, null], errors: { 404: "NOT_FOUND" } });
+path("get", "/api/stores/me/members/{userId}/schedule-exceptions", "멤버 날짜별 근무 변경 (마스터)", { auth: true, params: id("userId"), query: FromDayQuery, ok: [200, z.array(ScheduleExceptionDto)], errors: { 404: "NOT_FOUND" } });
+path("post", "/api/stores/me/members/{userId}/schedule-exceptions", "날짜별 근무 변경 등록 — 같은 날짜면 덮어쓴다 (마스터)", { auth: true, params: id("userId"), body: CreateScheduleExceptionBody, ok: [200, ScheduleExceptionDto], errors: { 400: "VALIDATION_FAILED", 404: "NOT_FOUND" } });
+path("delete", "/api/stores/me/schedule-exceptions/{id}", "날짜별 근무 변경 삭제 (마스터)", { auth: true, params: id("id"), ok: [204, null], errors: { 404: "NOT_FOUND" } });
+path("get", "/api/schedule-exceptions/me", "내 날짜별 근무 변경", { auth: true, query: FromDayQuery, ok: [200, z.array(ScheduleExceptionDto)], errors: { 404: "NO_STORE" } });
 path("get", "/api/stores/me/members/{userId}/shifts", "멤버 근무 기록 (마스터)", { auth: true, params: id("userId"), query: RangeQuery, ok: [200, z.array(ShiftDto)], errors: { 404: "NOT_FOUND" } });
 path("patch", "/api/stores/me/shifts/{shiftId}", "근무 기록 수정 (마스터)", { auth: true, params: id("shiftId"), body: UpdateShiftBody, ok: [200, ShiftDto], errors: { 404: "NOT_FOUND" } });
 path("delete", "/api/stores/me/shifts/{shiftId}", "근무 기록 삭제 (마스터)", { auth: true, params: id("shiftId"), ok: [204, null], errors: { 404: "NOT_FOUND" } });
