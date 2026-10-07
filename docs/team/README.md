@@ -34,6 +34,7 @@ Claude Code: `.claude/skills/timesheet-team`과 `.claude/agents/`를 사용한�
 - UI 규칙은 기존 timesheet-ui 스킬, 실행 증거는 docs/verify/에 둔다.
 - 문서는 docs/ 아래에 만들고 docs/README.md에 링크한다. 에이전트·스킬 파일은 도구 인식을 위한 설정이다.
 - 병렬 수정은 파일 소유권을 나눈 뒤 진행한다. 공유 파일은 한 담당자만 쓴다.
+- 담당자마다 `release` 에서 딴 자기 작업 브랜치(`<담당>/<주제>`)에서 일한다. 머지는 [브랜치 전략](../branching.md)을 따른다.
 - 역할 권한은 지침이며 OS 수준 접근 제한은 아니다. 실제 실행 권한은 호스트가 적용한다.
 
 ## 형식 근거

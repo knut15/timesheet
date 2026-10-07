@@ -45,3 +45,4 @@
 | 2026-09-25 | 좌우 화살표는 심플한 아이콘 — lucide Chevron | timesheet-ui §0·§2, [가이드 명세](design/component-guide.md) §2-5 |
 | 2026-09-25 | 스크롤은 전부 shadcn ScrollArea | timesheet-ui §0·§2, [가이드 명세](design/component-guide.md) §2-5 |
 | 2026-09-25 | 글꼴은 Pretendard | timesheet-ui §0, [가이드 명세](design/component-guide.md) §2-2, 웹 `/guide/foundations` |
+| 2026-10-07 | 브랜치 전략: 작업 브랜치는 release 에서 분기 → release 위로 리베이스 → release 에 스쿼시 머지. main 은 release 를 fast-forward(스쿼시 안 함) = 운영 배포 | [브랜치 전략](branching.md) |

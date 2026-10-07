@@ -15,6 +15,7 @@
 | [docs/prd/README.md](docs/prd/README.md) | PRD 개요와 기능 문서 링크 |
 | [docs/deploy.md](docs/deploy.md) | 배포 방법과 주소 |
 | [docs/verify/auth.md](docs/verify/auth.md) | 로그인·매장·초대 검증 기록 |
+| [docs/branching.md](docs/branching.md) | 브랜치 전략 — 작업 브랜치는 release 에서 따고 스쿼시 머지, main 은 release 를 fast-forward |
 | [docs/api/openapi.json](docs/api/openapi.json) | API 계약 (생성물) |
 
 ## 2. 급여 규칙은 PRD 가 기준이다

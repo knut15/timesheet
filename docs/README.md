@@ -44,6 +44,7 @@
 ## 운영
 
 - [배포](deploy.md)
+- [브랜치 전략](branching.md) — release 에서 분기·스쿼시 머지, main 은 release 를 fast-forward (= 배포)
 
 ## 히스토리
 

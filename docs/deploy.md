@@ -24,7 +24,7 @@
 
 ## main 머지 = 웹 자동 배포
 
-웹 프로젝트(`timesheet`)는 GitHub 저장소에 연결돼 있다. **`main` 에 머지하면 웹이 운영에 자동 배포**되고, PR 에는 미리보기 배포가 붙는다.
+웹 프로젝트(`timesheet`)는 GitHub 저장소에 연결돼 있다. **`main` 에 머지하면 웹이 운영에 자동 배포**되고, PR 에는 미리보기 배포가 붙는다. `main` 은 `release` 를 fast-forward 로만 받는다 — [브랜치 전략](branching.md).
 API 프로젝트(`timesheet-api`)는 Git 연결이 없다 — 서버가 바뀌면 아래 절차로 직접 배포한다. 계약이 바뀐 변경은 **API 를 먼저** 올린다.
 
 ## 배포 방법
