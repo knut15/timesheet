@@ -26,7 +26,9 @@ function getChannel() {
 }
 
 export const getSession = () => state;
-export const getServerSession = (): SessionState => ({ status: "unknown" });
+// getServerSnapshot 은 부를 때마다 같은 참조여야 한다. 새 객체를 만들면 React 가 무한 렌더를 경고한다.
+const SERVER_SESSION: SessionState = { status: "unknown" };
+export const getServerSession = (): SessionState => SERVER_SESSION;
 export const subscribe = (fn: () => void) => {
   getChannel();
   listeners.add(fn);

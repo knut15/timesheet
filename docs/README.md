@@ -31,6 +31,10 @@
 
 - [로그인·매장·초대 검증 기록](verify/auth.md)
 
+## 버그 기록
+
+- [/login "1 Issue" — getServerSnapshot 캐시 안 됨](bugs/2026-10-07-login-server-snapshot.md) (2026-10-07)
+
 ## 운영
 
 - [배포](deploy.md)
