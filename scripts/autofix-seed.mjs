@@ -12,6 +12,11 @@ const stateDir = process.env.AUTOFIX_STATE_DIR;
 if (!stateDir) throw new Error("AUTOFIX_STATE_DIR 가 없습니다");
 mkdirSync(stateDir, { recursive: true });
 
+// 웹의 /api/* 가 운영 API 로 rewrite 되는 셸에서 돌면 운영 DB 에 고정 계정이 생긴다
+if (process.env.API_URL && !["localhost", "127.0.0.1"].includes(new URL(process.env.API_URL).hostname)) {
+  throw new Error(`API_URL 이 로컬이 아닙니다: ${process.env.API_URL}`);
+}
+
 const BASE = "http://localhost:3200";
 const PASSWORD = "autofix-pass-1234";
 const ACCOUNTS = [

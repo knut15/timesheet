@@ -39,6 +39,7 @@
 
 - [정상 목록](autofix/allowlist.json) — 감지에서 에러로 세지 않을 신호와 근거
 - [감지 보고서](autofix/reports/) — `autofix detect` 가 날짜별로 쓴다
+- 주의: 시드는 이미 떠 있는 웹 서버의 `API_URL` 을 알 수 없다. 운영 API 를 가리키는 웹이 떠 있으면 시드 계정이 운영에 생길 수 있으니, detect 전에 웹을 직접 띄웠다면 `API_URL` 을 확인한다.
 
 ## 운영
 

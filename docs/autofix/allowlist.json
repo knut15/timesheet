@@ -3,7 +3,7 @@
     "source": "crawl",
     "match": "status of 401",
     "where": "@guest$",
-    "reason": "로그인 전 부팅: /api/users/me → 401 → /api/auth/refresh → 401",
+    "reason": "로그인 전 부팅: /api/users/me → 401 → /api/auth/refresh → 401. 콘솔 메시지에 URL 이 없어 guest 의 다른 API 401 도 함께 걸러진다 (잔여 위험)",
     "ref": "docs/bugs/2026-10-07-login-server-snapshot.md"
   }
 ]
