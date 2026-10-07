@@ -116,7 +116,7 @@ export function BottomNav({ items, active, width = "max-w-3xl" }: { items: NavIt
 /** 헤더 오른쪽에 두는 아이콘 버튼. 이름은 aria-label 로. */
 export function IconButton({ icon: Icon, label, onClick }: { icon: LucideIcon; label: string; onClick: () => void }) {
   return (
-    <button type="button" onClick={onClick} aria-label={label} title={label} className="inline-flex h-10 w-10 items-center justify-center rounded-full text-muted hover:bg-line/60 hover:text-foreground">
+    <button type="button" onClick={onClick} aria-label={label} title={label} className="inline-flex h-11 w-11 items-center justify-center rounded-full text-muted hover:bg-line/60 hover:text-foreground">
       <Icon size={20} aria-hidden />
     </button>
   );
