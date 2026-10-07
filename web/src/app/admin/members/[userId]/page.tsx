@@ -120,7 +120,7 @@ function ShiftRow({ shift, onChange }: { shift: ShiftDto; onChange: () => void }
         {invalid && <p className="text-sm text-warn">퇴근은 출근보다 늦어야 해요.</p>}
         <ErrorText>{error}</ErrorText>
         <div className="flex gap-2">
-          <button onClick={save} disabled={invalid} className="flex-1 rounded-xl bg-accent py-2.5 text-sm font-semibold text-white disabled:opacity-40">저장</button>
+          <button onClick={save} disabled={invalid} className="flex-1 rounded-xl bg-accent py-2.5 text-sm font-semibold text-on-accent disabled:opacity-40">저장</button>
           <button onClick={() => setEditing(false)} className="flex-1 rounded-xl border border-line py-2.5 text-sm">취소</button>
         </div>
       </li>

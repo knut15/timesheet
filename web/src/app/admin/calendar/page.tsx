@@ -184,7 +184,7 @@ function MemberDayRow({ row, pending, now }: { row: Row; pending: Correction[]; 
       <Link href={`/admin/members/${row.userId}`} className={`flex items-center gap-3 px-5 py-4 hover:bg-background ${row.shifts.length === 0 && row.absence ? "border-l-2 border-dashed border-l-muted" : ""}`}>
         <span className="relative self-start">
           <Avatar name={row.nickname} seed={row.userId} size="sm" />
-          {working && <span aria-hidden className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-surface bg-green-600 dark:bg-green-400" />}
+          {working && <span aria-hidden className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-surface bg-ok" />}
         </span>
         <div className="min-w-0 flex-1">
           <p className="font-medium">{row.nickname}</p>

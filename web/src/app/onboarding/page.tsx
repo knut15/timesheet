@@ -52,7 +52,7 @@ export default function OnboardingPage() {
             <input required value={code} onChange={(e) => setCode(e.target.value)} placeholder="예: K7PX3MWA" autoCapitalize="characters" className="field font-mono tracking-widest uppercase" />
           </Field>
           {error?.which === "code" && <ErrorText>{error.msg}</ErrorText>}
-          <button disabled={busy} className="w-full rounded-xl bg-accent py-3 font-semibold text-white disabled:opacity-50">코드 등록</button>
+          <button disabled={busy} className="w-full rounded-xl bg-accent py-3 font-semibold text-on-accent disabled:opacity-50">코드 등록</button>
         </form>
       </Card>
 

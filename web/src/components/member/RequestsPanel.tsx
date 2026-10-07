@@ -55,7 +55,7 @@ function IncomingSub({ sub, onChange }: { sub: MyRequests["substitutionsIn"][num
       <p className="mt-1 text-sm text-muted">{sub.reason}</p>
       <ErrorText>{error}</ErrorText>
       <div className="mt-3 flex gap-2">
-        <button onClick={() => act("accept")} className="flex-1 rounded-xl bg-accent py-2.5 text-sm font-semibold text-white">수락</button>
+        <button onClick={() => act("accept")} className="flex-1 rounded-xl bg-accent py-2.5 text-sm font-semibold text-on-accent">수락</button>
         <button onClick={() => act("decline")} className="flex-1 rounded-xl border border-line py-2.5 text-sm">거절</button>
       </div>
       <p className="mt-2 text-xs text-muted">수락하면 사장님이 승인해야 확정돼요.</p>
@@ -90,7 +90,7 @@ function LeaveForm({ onDone }: { onDone: () => void }) {
         <Field label="사유"><input required maxLength={200} value={reason} onChange={(e) => setReason(e.target.value)} className="field" /></Field>
         <ErrorText>{error}</ErrorText>
         {sent && !error && <p className="text-sm text-accent">신청했어요. 사장님 승인을 기다려요.</p>}
-        <button className="w-full rounded-xl bg-accent py-3 font-semibold text-white">신청</button>
+        <button className="w-full rounded-xl bg-accent py-3 font-semibold text-on-accent">신청</button>
       </form>
     </Card>
   );

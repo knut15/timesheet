@@ -94,10 +94,10 @@ export const dayLabel = (t: number | Date) => new Date(t).toLocaleDateString("ko
 
 /** 요청 상태 표시. 수정 요청·휴가·대타가 같이 쓴다. docs/prd/08·09 */
 const STATUS: Record<string, { label: string; tone: string }> = {
-  pending: { label: "승인 대기", tone: "bg-amber-500/15 text-amber-600 dark:text-amber-400" },
-  requested: { label: "동료 수락 대기", tone: "bg-amber-500/15 text-amber-600 dark:text-amber-400" },
-  accepted: { label: "승인 대기", tone: "bg-amber-500/15 text-amber-600 dark:text-amber-400" },
-  approved: { label: "승인", tone: "bg-green-500/15 text-green-700 dark:text-green-400" },
+  pending: { label: "승인 대기", tone: "bg-caution/15 text-caution" },
+  requested: { label: "동료 수락 대기", tone: "bg-caution/15 text-caution" },
+  accepted: { label: "승인 대기", tone: "bg-caution/15 text-caution" },
+  approved: { label: "승인", tone: "bg-ok/15 text-ok" },
   rejected: { label: "거절", tone: "bg-warn/15 text-warn" },
   declined: { label: "동료 거절", tone: "bg-warn/15 text-warn" },
   canceled: { label: "취소", tone: "bg-line text-muted" },

@@ -89,7 +89,7 @@ export function BottomNav({ items, active, width = "max-w-3xl" }: { items: NavIt
               <span className="relative">
                 <Icon size={22} strokeWidth={on ? 2.4 : 1.8} aria-hidden />
                 {!!item.badge && (
-                  <span className="absolute -right-2.5 -top-1.5 min-w-4 rounded-full bg-warn px-1 text-center text-[10px] font-bold leading-4 text-white">
+                  <span className="absolute -right-2.5 -top-1.5 min-w-4 rounded-full bg-warn px-1 text-center text-[10px] font-bold leading-4 text-background">
                     {item.badge > 9 ? "9+" : item.badge}
                   </span>
                 )}

@@ -130,7 +130,7 @@ function Review({ onApprove, onReject, onDone, approveLabel = "승인", canAppro
       <input value={note} onChange={(e) => setNote(e.target.value)} maxLength={200} placeholder="메모 (거절 사유 등, 선택)" className="field text-sm" />
       <ErrorText>{error}</ErrorText>
       <div className="flex gap-2">
-        {canApprove && <button disabled={busy} onClick={() => run(onApprove)} className="flex-1 rounded-xl bg-accent py-2.5 text-sm font-semibold text-white disabled:opacity-50">{approveLabel}</button>}
+        {canApprove && <button disabled={busy} onClick={() => run(onApprove)} className="flex-1 rounded-xl bg-accent py-2.5 text-sm font-semibold text-on-accent disabled:opacity-50">{approveLabel}</button>}
         <button disabled={busy} onClick={() => run(() => onReject(note))} className="flex-1 rounded-xl border border-line py-2.5 text-sm disabled:opacity-50">거절</button>
       </div>
     </div>
@@ -238,7 +238,7 @@ function DirectLeave({ team, onDone }: { team: Member[]; onDone: () => void }) {
         </label>
         <Field label="사유"><input required maxLength={200} value={reason} onChange={(e) => setReason(e.target.value)} className="field" /></Field>
         <ErrorText>{error}</ErrorText>
-        <button className="w-full rounded-xl bg-accent py-3 font-semibold text-white">등록 (바로 확정)</button>
+        <button className="w-full rounded-xl bg-accent py-3 font-semibold text-on-accent">등록 (바로 확정)</button>
       </form>
     </Card>
   );

@@ -45,7 +45,7 @@ export default function InvitesPage() {
       <Card>
         <h2 className="font-semibold">알바생 초대</h2>
         <p className="mt-1 text-sm text-muted">코드는 7일 동안, 한 명만 쓸 수 있어요. 알바생은 가입한 뒤 이 코드를 입력하면 매장에 들어와요.</p>
-        <button onClick={issue} disabled={busy} className="mt-4 w-full rounded-xl bg-accent py-3 font-semibold text-white disabled:opacity-50">
+        <button onClick={issue} disabled={busy} className="mt-4 w-full rounded-xl bg-accent py-3 font-semibold text-on-accent disabled:opacity-50">
           초대 코드 발급
         </button>
       </Card>
@@ -101,7 +101,7 @@ function SendInvite({ code, storeName }: { code: string; storeName: string }) {
       </Field>
       <pre className="whitespace-pre-wrap break-all rounded-lg bg-surface p-3 text-xs text-muted">{body}</pre>
       <div className="flex gap-2">
-        <a href={smsHref(phone, body)} className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-accent py-2.5 text-sm font-semibold text-white">
+        <a href={smsHref(phone, body)} className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-accent py-2.5 text-sm font-semibold text-on-accent">
           <MessageSquareText size={16} aria-hidden /> 문자 앱 열기
         </a>
         {canShare && (

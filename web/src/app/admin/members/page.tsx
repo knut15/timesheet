@@ -84,7 +84,7 @@ function MemberRow({ member, onChange }: { member: Member; onChange: () => void 
             {form.hourlyWage < MINIMUM_WAGE && <p className="text-sm text-warn">2026년 최저임금({won(MINIMUM_WAGE)})보다 낮아요.</p>}
             <ErrorText>{error}</ErrorText>
             <div className="flex gap-2">
-              <button onClick={save} className="flex-1 rounded-xl bg-accent py-2.5 text-sm font-semibold text-white">저장</button>
+              <button onClick={save} className="flex-1 rounded-xl bg-accent py-2.5 text-sm font-semibold text-on-accent">저장</button>
               <button onClick={() => setEditing(false)} className="flex-1 rounded-xl border border-line py-2.5 text-sm">취소</button>
             </div>
           </div>

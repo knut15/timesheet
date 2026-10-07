@@ -148,9 +148,9 @@ function ClockPanel({ shifts, membership, onChange }: { shifts: Shift[]; members
   return (
     <div className="space-y-4">
       {geo.inside && !open && (
-        <div role="alert" className="rounded-2xl bg-accent p-5 text-white">
+        <div role="alert" className="rounded-2xl bg-accent p-5 text-on-accent">
           <p className="font-semibold">매장 {GEOFENCE_RADIUS_M}m 안이에요. 출근 체크하세요.</p>
-          <button disabled={busy} onClick={() => punch("in")} className="mt-3 w-full rounded-xl bg-white py-3 font-bold text-accent">
+          <button disabled={busy} onClick={() => punch("in")} className="mt-3 w-full rounded-xl bg-on-accent py-3 font-bold text-accent">
             지금 출근
           </button>
         </div>
@@ -169,7 +169,7 @@ function ClockPanel({ shifts, membership, onChange }: { shifts: Shift[]; members
             </button>
           </>
         ) : (
-          <button disabled={busy} onClick={() => punch("in")} className="mt-6 w-full rounded-xl bg-accent py-4 text-lg font-bold text-white disabled:opacity-50">
+          <button disabled={busy} onClick={() => punch("in")} className="mt-6 w-full rounded-xl bg-accent py-4 text-lg font-bold text-on-accent disabled:opacity-50">
             출근
           </button>
         )}
@@ -192,7 +192,7 @@ function ClockPanel({ shifts, membership, onChange }: { shifts: Shift[]; members
             disabled={lat === null}
             className={`relative h-7 w-12 shrink-0 rounded-full transition disabled:opacity-40 ${device.alertsOn ? "bg-accent" : "bg-line"}`}
           >
-            <span className={`absolute top-1 h-5 w-5 rounded-full bg-white transition-all ${device.alertsOn ? "left-6" : "left-1"}`} />
+            <span className={`absolute top-1 h-5 w-5 rounded-full bg-white transition-[left] duration-150 ease-[var(--ease-out)] ${device.alertsOn ? "left-6" : "left-1"}`} />
           </button>
         </div>
         {lat === null && <p className="mt-3 text-sm text-warn">사장님이 매장 위치를 아직 정하지 않았어요.</p>}

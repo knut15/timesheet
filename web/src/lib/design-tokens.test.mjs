@@ -1,7 +1,7 @@
 // DESIGN.md 의 색 토큰 — globals.css 값이 대비 4.5:1 을 지키는지, 화면 코드가 토큰 밖 색을 쓰지 않는지
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 
 const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 
@@ -50,4 +50,28 @@ test("설계 §3-1 의 값 그대로", () => {
   assert.equal(readTokens("light").accent, "#0f766e");
   assert.equal(readTokens("dark").accent, "#2dd4bf");
   assert.equal(readTokens("dark")["on-accent"], "#05201d");
+});
+
+/** src 아래 .tsx 를 줄 단위로 훑어 "<상대경로>:<줄> <내용>" 을 돌려준다. */
+function scanTsx(re) {
+  const root = new URL("../", import.meta.url);
+  const hits = [];
+  for (const f of readdirSync(root, { recursive: true })) {
+    if (!f.endsWith(".tsx")) continue;
+    readFileSync(new URL(f, root), "utf8").split("\n").forEach((line, i) => {
+      if (re.test(line)) hits.push(`${f}:${i + 1} ${line.trim()}`);
+    });
+  }
+  return hits;
+}
+
+test("화면 코드에 직접 박은 색이 없다", () => {
+  // 허용: 아바타 흰 글자(고정 배경색이라 다크와 무관), 토글 손잡이 bg-white
+  const ALLOW = [/shell\.tsx:\d+ .*select-none.*text-white/, /TimesheetApp\.tsx:\d+ .*rounded-full bg-white transition/];
+  const BAD = /\b(text|bg|border|ring)-(white|black|(green|emerald|amber|yellow|red|blue|stone|gray|slate)-\d{2,3})\b/;
+  assert.deepEqual(scanTsx(BAD).filter((hit) => !ALLOW.some((re) => re.test(hit))), []);
+});
+
+test("transition-all 을 쓰지 않는다", () => {
+  assert.deepEqual(scanTsx(/\btransition-all\b/), []);
 });
