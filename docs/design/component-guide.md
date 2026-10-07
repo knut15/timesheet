@@ -499,7 +499,7 @@ AvatarStack  <span aria-hidden flex>
 | `approved` | 승인 | ok |
 | `rejected` | 거절 | warn |
 | `declined` | 동료 거절 | warn |
-| `canceled` | 취소 | line/muted |
+| `canceled` | 취소 | line 60% 바탕 / muted 글자 |
 
 **사용 규칙**: 상태 흐름은 [PRD 08](../prd/08-correction-requests.md)·[PRD 09](../prd/09-leave-substitution.md).
 

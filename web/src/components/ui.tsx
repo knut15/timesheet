@@ -100,10 +100,10 @@ const STATUS: Record<string, { label: string; tone: string }> = {
   approved: { label: "승인", tone: "bg-ok/15 text-ok" },
   rejected: { label: "거절", tone: "bg-warn/15 text-warn" },
   declined: { label: "동료 거절", tone: "bg-warn/15 text-warn" },
-  canceled: { label: "취소", tone: "bg-line text-muted" },
+  canceled: { label: "취소", tone: "bg-line/60 text-muted" },
 };
 
 export function StatusPill({ status }: { status: string }) {
-  const s = STATUS[status] ?? { label: status, tone: "bg-line text-muted" };
+  const s = STATUS[status] ?? { label: status, tone: "bg-line/60 text-muted" };
   return <span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ${s.tone}`}>{s.label}</span>;
 }

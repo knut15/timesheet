@@ -38,6 +38,13 @@ test("라이트·다크 글자 대비 4.5:1 이상", () => {
       assert.ok(t[fg] && t[bg], `${mode} 토큰 없음: ${fg} 또는 ${bg}`);
       assert.ok(contrast(t[fg], t[bg]) >= 4.5, `${mode} ${fg}/${bg} = ${contrast(t[fg], t[bg]).toFixed(2)}`);
     }
+    // 취소 배지: StatusPill canceled 의 bg-line/60 바탕 위 muted 글자
+    {
+      const c = contrast(t.muted, mix(t.line, t.surface, 0.6));
+      assert.ok(c >= 4.5, `${mode} muted/line60 = ${c.toFixed(2)}`);
+    }
+    // 내비 배지: bg-warn 위 text-background
+    assert.ok(contrast(t.background, t.warn) >= 4.5, `${mode} background/warn`);
     // 상태 배지: 카드 위에 15% 섞은 바탕 (StatusPill 의 bg-*/15)
     for (const s of ["ok", "caution", "warn"]) {
       const c = contrast(t[s], mix(t[s], t.surface, 0.15));
@@ -74,4 +81,9 @@ test("화면 코드에 직접 박은 색이 없다", () => {
 
 test("transition-all 을 쓰지 않는다", () => {
   assert.deepEqual(scanTsx(/\btransition-all\b/), []);
+});
+
+test("취소 배지는 대비가 맞는 bg-line/60 을 쓴다", () => {
+  // bg-line 그대로면 라이트에서 muted 글자 대비 4.35
+  assert.deepEqual(scanTsx(/bg-line text-muted/), []);
 });

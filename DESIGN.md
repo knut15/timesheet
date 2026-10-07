@@ -64,7 +64,7 @@
 | 대상 | 값 | 어디 |
 |---|---|---|
 | 곡선 | `--ease-out: cubic-bezier(0.23, 1, 0.32, 1)` 하나 | `globals.css` `:root` |
-| 버튼·링크 누름 | `:active` 에서 `scale(0.97)`, transform 120ms | `globals.css` `@layer base` — 전체에 건다 |
+| 버튼·하단 내비 링크 누름 | `:active` 에서 `scale(0.97)`, transform 120ms | `globals.css` `@layer base` — `button`·`[role=button]`·`nav a` 전체. 목록 행·카드 같은 블록 링크는 빼서 스크롤 중 행이 출렁이지 않게 |
 | 색·배경 전환 | 바뀌는 속성만 150ms | 같은 규칙. 요소에 `transition-colors` 를 따로 주면 누름 전환이 덮이니 주지 않는다 |
 | 드문 등장 — 오류 문구(`ErrorText`), 저장 완료, 온보딩 카드 | `.appear`: 투명도 0→1 + 위로 4px, 200ms | `globals.css` `@layer components` |
 | 모션 줄이기 | 누름 축소 끔, `.appear` 는 투명도만 | `@media (prefers-reduced-motion: reduce)` |
@@ -77,7 +77,7 @@
 
 | 항목 | 기준 | 2026-10-07 결과 |
 |---|---|---|
-| 글자 대비 | 4.5:1 이상 | 토큰 조합 전부 통과 (테스트) |
+| 글자 대비 | 4.5:1 이상 | 토큰 조합 전부 통과 (테스트). 취소 배지는 `bg-line/60` 바탕이라야 4.72 — `bg-line` 그대로면 4.35 |
 | 터치 영역 | 44×44px 이상 | 아이콘 버튼 40→44, 초대 코드 동작 버튼 키움. 예외: 문장 속 글자 링크, 달력 칸(375px 에 7칸이라 41px), 보기 전환 40px, 출근 알림 토글 48×28 — 모두 WCAG 최소 24px 은 넘는다 |
 | 아이콘만 있는 버튼 | `aria-label` | `IconButton` 이 `label` 을 필수로 받는다 |
 | 포커스 표시 | 키보드 이동 때 보인다 | 입력칸은 테두리가 `--accent` 로 바뀐다 |

@@ -50,7 +50,7 @@ export const metadata = { title: "기초" };
 ## 움직임
 
 - 곡선은 `--ease-out` (`cubic-bezier(0.23, 1, 0.32, 1)`) 하나. `ease-in`·`transition-all` 은 쓰지 않는다.
-- 버튼·링크는 누르는 동안 `scale(0.97)` (120ms). `globals.css` 가 전체에 건다 — 요소에 `transition-colors` 를 따로 주면 이 전환이 덮인다.
+- 버튼과 하단 내비 링크는 누르는 동안 `scale(0.97)` (120ms). `globals.css` 가 전체에 건다 — 목록 행·카드 링크는 빼서 스크롤 중 출렁이지 않게 한다 — 요소에 `transition-colors` 를 따로 주면 이 전환이 덮인다.
 - 오류 문구·저장 완료·온보딩 카드처럼 드물게 보는 것만 `.appear` 로 200ms 등장. 탭 전환처럼 자주 보는 것은 움직이지 않는다.
 - 모션 줄이기 설정이면 이동·크기 변화는 끄고 투명도만 남긴다.
 
