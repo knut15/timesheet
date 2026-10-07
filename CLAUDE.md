@@ -63,6 +63,7 @@ pnpm --filter timesheet-server test:e2e        # API 가 떠 있어야 한다
 pnpm --filter timesheet-server openapi:export  # → docs/api/openapi.json
 pnpm --filter timesheet-web gen:api            # → web/src/api/schema.d.ts
 pnpm typecheck
+node ~/Workspace/autofix/bin/autofix.mjs detect  # 에러 감지 → docs/autofix/reports/<날짜>.md
 ```
 
 - 패키지 매니저는 pnpm 고정.

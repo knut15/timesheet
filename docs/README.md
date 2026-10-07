@@ -35,6 +35,11 @@
 
 - [/login "1 Issue" — getServerSnapshot 캐시 안 됨](bugs/2026-10-07-login-server-snapshot.md) (2026-10-07)
 
+## 자동 수정 루프 (autofix)
+
+- [정상 목록](autofix/allowlist.json) — 감지에서 에러로 세지 않을 신호와 근거
+- [감지 보고서](autofix/reports/) — `autofix detect` 가 날짜별로 쓴다
+
 ## 운영
 
 - [배포](deploy.md)

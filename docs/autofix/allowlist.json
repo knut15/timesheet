@@ -1,0 +1,9 @@
+[
+  {
+    "source": "crawl",
+    "match": "status of 401",
+    "where": "@guest$",
+    "reason": "로그인 전 부팅: /api/users/me → 401 → /api/auth/refresh → 401",
+    "ref": "docs/bugs/2026-10-07-login-server-snapshot.md"
+  }
+]
