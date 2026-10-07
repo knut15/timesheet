@@ -1,6 +1,8 @@
 // autofix 감지 설정. 설계: ~/Workspace/autofix/docs/design.md 4절
 export default {
-  baseBranch: "main",
+  baseBranch: "release",
+  // 밤 작업 worktree 준비: 무시된 .env 는 복사만 하고, 의존성 설치와 Prisma 클라이언트 생성을 한다
+  worktree: { copy: ["server/.env"], setup: "pnpm install --frozen-lockfile && pnpm --filter timesheet-server generate" },
   rules: ["CLAUDE.md", "web/AGENTS.md", "docs/team/roles.md"],
   services: [
     { name: "db", start: "pnpm --filter timesheet-server db:up", once: true },

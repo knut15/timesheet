@@ -66,6 +66,7 @@ pnpm --filter timesheet-server openapi:export  # → docs/api/openapi.json
 pnpm --filter timesheet-web gen:api            # → web/src/api/schema.d.ts
 pnpm typecheck
 node ~/Workspace/autofix/bin/autofix.mjs detect  # 에러 감지 → docs/autofix/reports/<날짜>.md
+node ~/Workspace/autofix/bin/autofix.mjs run     # 밤 작업 (개발 서버를 끄고) → ../timesheet-autofix 의 autofix/<날짜> 브랜치
 ```
 
 - 패키지 매니저는 pnpm 고정.
