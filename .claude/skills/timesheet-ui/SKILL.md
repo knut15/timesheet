@@ -9,14 +9,16 @@ description: >
 
 코드는 `web/src/components/shell.tsx` 한 파일이다. 새 화면은 여기 있는 셋을 조립해서 만들고, 헤더·내비·아바타를 화면마다 새로 그리지 않는다.
 컴포넌트별 props·예시는 [컴포넌트 가이드 명세](../../../docs/design/component-guide.md)(웹 `/guide`)에 있다. 규칙의 원본은 이 문서다.
-2026-09-25 에 정했다. 따를 시안이 없어 기존 색 토큰(`web/src/app/globals.css` 의 `--accent` 등) 위에서 정한 것이다.
+2026-09-25 에 정했다. 색·모양·글꼴·움직임·접근성 기준의 원본은 루트 [DESIGN.md](../../../DESIGN.md) 다 (2026-10-07 라이트 청록·다크 민트). 이 스킬은 그 기준 위의 셸 규칙만 다룬다.
 
 
 ## 0. 디자인 기초 — 사용자가 정한 것
 
+색 토큰(`text-on-accent`·`ok`·`caution` 포함)·모서리·글꼴·움직임은 [DESIGN.md](../../../DESIGN.md) 를 따른다. 강조 바탕 위 글자에 `text-white`, 상태에 Tailwind 초록·amber 를 쓰지 않는다 — `web/src/lib/design-tokens.test.mjs` 가 막는다. 아래는 셸·컴포넌트에 걸린 결정이다.
+
 | 무엇 | 규칙 | 정한 날·요청 |
 |---|---|---|
-| 글꼴 | 본문 **Pretendard**(가변, `next/font/local` — npm `pretendard` 파일을 앱이 직접 제공, CDN 없음). 코드는 Geist Mono. 새 글꼴을 CDN 으로 붙이지 않는다 | 2026-09-25 "폰트는 pretendard로 수정" |
+| 글꼴 | Pretendard — 규칙 본문은 [DESIGN.md §4](../../../DESIGN.md) | 2026-09-25 "폰트는 pretendard로 수정" |
 | 아이콘 | lucide-react 만 (2절) | 2026-09-25 요청 4 |
 | 좌우 화살표 | lucide `ChevronLeft`/`ChevronRight` + `IconButton` (2절 스크롤 항목) | 2026-09-25 요청 15 |
 | 스크롤 영역 | shadcn ScrollArea (2절) | 2026-09-25 요청 15 |

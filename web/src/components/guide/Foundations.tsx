@@ -1,4 +1,4 @@
-// 기초 페이지와 첫 화면의 견본 블록. 값은 docs/design/component-guide.md §2 (원본은 web/src/app/globals.css).
+// 기초 페이지와 첫 화면의 견본 블록. 값의 원본은 루트 DESIGN.md §2 (코드는 web/src/app/globals.css, 명세는 docs/design/component-guide.md §2).
 // 다크 값은 테마 전환 없이 hex 를 직접 칠해 보인다 — 토큰은 prefers-color-scheme 로만 바뀐다(§1-5).
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import Link from "next/link";
@@ -8,13 +8,16 @@ import {
 import { GUIDE_PAGES } from "./nav";
 
 const TOKENS = [
-  { name: "--background", tw: "bg-background", light: "#f5f5f4", dark: "#0c0a09", use: "페이지 바탕, 입력칸(.field), 보기 전환 틀" },
-  { name: "--foreground", tw: "text-foreground", light: "#1c1917", dark: "#f5f5f4", use: "본문 글자" },
-  { name: "--surface", tw: "bg-surface", light: "#ffffff", dark: "#1c1917", use: "카드, 하단 내비, 아바타 겹침 경계(ring-surface)" },
-  { name: "--line", tw: "border-line", light: "#e7e5e4", dark: "#292524", use: "카드·헤더·내비 경계선, 중립 배지 바탕" },
-  { name: "--muted", tw: "text-muted", light: "#78716c", dark: "#a8a29e", use: "보조 글자, 비활성 메뉴, 점선 테두리" },
-  { name: "--accent", tw: "text-accent bg-accent", light: "#2563eb", dark: "#3b82f6", use: "활성 메뉴, 오늘·선택, 입력 포커스" },
-  { name: "--warn", tw: "text-warn bg-warn", light: "#dc2626", dark: "#f87171", use: "오류 글자, 대기 배지, 거절 상태, 퇴근 기록 없음" },
+  { name: "--background", tw: "bg-background", light: "#f6f8f8", dark: "#0b1213", use: "페이지 바탕, 입력칸(.field), 보기 전환 틀" },
+  { name: "--foreground", tw: "text-foreground", light: "#0f2a2a", dark: "#e8f1f0", use: "본문 글자" },
+  { name: "--surface", tw: "bg-surface", light: "#ffffff", dark: "#132022", use: "카드, 하단 내비, 아바타 겹침 경계(ring-surface)" },
+  { name: "--line", tw: "border-line", light: "#e2eaea", dark: "#1f3134", use: "카드·헤더·내비 경계선, 중립 배지 바탕" },
+  { name: "--muted", tw: "text-muted", light: "#5b6f6f", dark: "#86a19f", use: "보조 글자, 비활성 메뉴, 점선 테두리" },
+  { name: "--accent", tw: "text-accent bg-accent", light: "#0f766e", dark: "#2dd4bf", use: "활성 메뉴, 오늘·선택, 입력 포커스, 강조 버튼 바탕" },
+  { name: "--on-accent", tw: "text-on-accent bg-on-accent", light: "#ffffff", dark: "#05201d", use: "강조 버튼 글자, 출근 알림 카드 안 반전 버튼" },
+  { name: "--warn", tw: "text-warn bg-warn", light: "#b91c1c", dark: "#f87171", use: "오류 글자, 내비 배지, 거절 상태, 퇴근 기록 없음" },
+  { name: "--ok", tw: "text-ok bg-ok", light: "#166534", dark: "#4ade80", use: "승인 배지, 근무 중 점" },
+  { name: "--caution", tw: "text-caution bg-caution", light: "#92400e", dark: "#fbbf24", use: "대기 배지, 요청 대기 아이콘" },
 ];
 
 function Swatch({ hex, label }: { hex: string; label: string }) {
@@ -29,7 +32,7 @@ function Swatch({ hex, label }: { hex: string; label: string }) {
   );
 }
 
-/** 첫 화면용 요약 — 토큰 7개, 라이트·다크 나란히 */
+/** 첫 화면용 요약 — 색 토큰 전부, 라이트·다크 나란히 */
 export function TokenSummary() {
   return (
     <div className="my-6 rounded-2xl border border-line bg-surface p-4">

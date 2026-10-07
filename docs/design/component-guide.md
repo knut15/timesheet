@@ -30,7 +30,7 @@
    - 새 화면은 여기 있는 컴포넌트를 조립해서 만든다. 헤더·내비·아바타를 화면마다 새로 그리지 않는다 → [timesheet-ui 스킬](../../.claude/skills/timesheet-ui/SKILL.md) 머리말
    - 미리보기는 `web/src/components/` 의 실제 컴포넌트를 그대로 렌더한다. 코드 탭은 그 예시의 원본이다
    - 가이드와 코드가 다르면 코드가 맞다
-3. **기초 토큰 요약** — 색 토큰 7개 견본(라이트·다크 나란히, §2-1 표의 값) + `기초 전체 보기 →` 링크(`/guide/foundations`)
+3. **기초 토큰 요약** — 색 토큰 10개 견본(라이트·다크 나란히, §2-1 표의 값) + `기초 전체 보기 →` 링크(`/guide/foundations`)
 4. **컴포넌트 목록** — §1-3 의 묶음 순서대로 카드 격자. 카드 한 장 = 이름 + 한 줄 설명 + 작은 미리보기(선택). 누르면 해당 페이지
 
 ### 1-3. 목차(사이드바)와 페이지 순서
@@ -95,27 +95,27 @@ shadcn Avatar 페이지와 같은 순서다. "설치" 는 timesheet 에서 **파
 
 ### 2-1. 색 토큰
 
-원본: `web/src/app/globals.css`. `@theme inline` 으로 Tailwind 색 이름(`bg-surface`, `text-muted`, `border-line` …)이 된다. 다크는 `@media (prefers-color-scheme: dark)`.
+값의 원본은 루트 [DESIGN.md](../../DESIGN.md) §2, 코드는 `web/src/app/globals.css`. `@theme inline` 으로 Tailwind 색 이름(`bg-surface`, `text-muted`, `border-line` …)이 된다. 다크는 `@media (prefers-color-scheme: dark)`.
 
 | 토큰 | Tailwind | 라이트 | 다크 | 쓰는 곳 |
 |---|---|---|---|---|
-| `--background` | `bg-background` | `#f5f5f4` | `#0c0a09` | 페이지 바탕, 입력칸(`.field`), 보기 전환 틀 |
-| `--foreground` | `text-foreground` | `#1c1917` | `#f5f5f4` | 본문 글자 |
-| `--surface` | `bg-surface` | `#ffffff` | `#1c1917` | 카드, 하단 내비, 아바타 겹침 경계(`ring-surface`) |
-| `--line` | `border-line` | `#e7e5e4` | `#292524` | 카드·헤더·내비 경계선, 중립 배지 바탕 |
-| `--muted` | `text-muted` | `#78716c` | `#a8a29e` | 보조 글자, 비활성 메뉴, 점선 테두리 |
-| `--accent` | `text-accent` `bg-accent` | `#2563eb` | `#3b82f6` | 활성 메뉴, 오늘·선택, 입력 포커스 |
-| `--warn` | `text-warn` `bg-warn` | `#dc2626` | `#f87171` | 오류 글자, 대기 배지, 거절 상태, 퇴근 기록 없음 |
+| `--background` | `bg-background` | `#f6f8f8` | `#0b1213` | 페이지 바탕, 입력칸(`.field`), 보기 전환 틀 |
+| `--foreground` | `text-foreground` | `#0f2a2a` | `#e8f1f0` | 본문 글자 |
+| `--surface` | `bg-surface` | `#ffffff` | `#132022` | 카드, 하단 내비, 아바타 겹침 경계(`ring-surface`) |
+| `--line` | `border-line` | `#e2eaea` | `#1f3134` | 카드·헤더·내비 경계선, 중립 배지 바탕 |
+| `--muted` | `text-muted` | `#5b6f6f` | `#86a19f` | 보조 글자, 비활성 메뉴, 점선 테두리 |
+| `--accent` | `text-accent` `bg-accent` | `#0f766e` | `#2dd4bf` | 활성 메뉴, 오늘·선택, 입력 포커스, 강조 버튼 바탕 |
+| `--on-accent` | `text-on-accent` `bg-on-accent` | `#ffffff` | `#05201d` | 강조 버튼 글자, 출근 알림 카드 안 반전 버튼 |
+| `--warn` | `text-warn` `bg-warn` | `#b91c1c` | `#f87171` | 오류 글자, 내비 배지(글자 `text-background`), 거절 상태, 퇴근 기록 없음 |
+| `--ok` | `text-ok` `bg-ok` | `#166534` | `#4ade80` | `StatusPill` 승인, 근무 중 점 |
+| `--caution` | `text-caution` `bg-caution` | `#92400e` | `#fbbf24` | `StatusPill` 대기, 요청 대기 아이콘 `Hourglass` |
 
-토큰 밖에서 쓰는 색 (새 토큰 없이 Tailwind 색을 직접 쓴다):
+토큰 밖에서 쓰는 색 — 이것 말고는 없다 (`web/src/lib/design-tokens.test.mjs` 가 막는다):
 
 | 색 | 쓰는 곳 | 근거 |
 |---|---|---|
 | 아바타 8색 `#2563eb` `#7c3aed` `#db2777` `#dc2626` `#c2410c` `#15803d` `#0f766e` `#4338ca` | `Avatar` 배경 (`shell.tsx` `AVATAR_COLORS`) | 흰 글자 대비 4.5:1 이상 — [스킬 §3](../../.claude/skills/timesheet-ui/SKILL.md#3-멤버-아바타--avatar) |
-| `amber-500/15` 바탕 + `amber-600` / `dark:amber-400` 글자 | `StatusPill` 대기 상태 | `ui.tsx` `STATUS` |
-| `green-500/15` 바탕 + `green-700` / `dark:green-400` 글자 | `StatusPill` 승인 | 같음 |
-| `green-600` / `dark:green-400` | 근무 중 점 `OpenDot` | [달력 명세 §8](calendar.md#8-다크-모드--새-토큰-없음) |
-| `amber-700` / `dark:amber-400` | 요청 대기 아이콘 `Hourglass` | 같음 |
+| `bg-white` | 출근 알림 토글 손잡이 | 켜짐(accent)·꺼짐(line) 두 바탕 위에서 같은 손잡이 |
 
 견본 표시: 칸마다 색 사각형 + 토큰 이름 + hex. 라이트·다크 두 열. 다크 견본은 hex 를 직접 칠한다(§1-5).
 
@@ -146,8 +146,8 @@ shadcn Avatar 페이지와 같은 순서다. "설치" 는 timesheet 에서 **파
 | 카드 안쪽 | `p-5` (20px) | `Card` 기본. 달력 격자만 `px-2 py-3` |
 | 카드 사이 | `space-y-4` (16px) | `PayView` |
 | 본문 폭 | 멤버 `max-w-md`(448px) · 마스터 `max-w-3xl`(768px) | [스킬 §1](../../.claude/skills/timesheet-ui/SKILL.md#1-헤더--appheader) |
-| 모서리 | `rounded-2xl`(16px) 카드 · `rounded-xl`(12px) 입력칸·보기 전환 틀 · `rounded-lg`(8px) 달력 칸·전환 버튼 · `rounded-full` 아바타·배지·아이콘 버튼 | |
-| 누르는 높이 | 아이콘 버튼 40×40, 보기 전환 40, 내비 항목 64, 달력 칸 52/60 | 터치 영역 40px 이상 |
+| 모서리 | `rounded-2xl`(14px) 카드 · `rounded-xl`(10px) 버튼·입력칸·보기 전환 틀 · `rounded-lg`(8px) 달력 칸·전환 버튼 · `rounded-full` 아바타·배지·아이콘 버튼 | |
+| 누르는 높이 | 아이콘 버튼 44×44, 보기 전환 40, 내비 항목 64, 달력 칸 52/60 | 터치 영역 44px 이상이 기준(DESIGN.md §6). 보기 전환·달력 칸은 폭·높이 한계로 예외 |
 
 ### 2-4. 아이콘
 
@@ -341,7 +341,7 @@ BottomNav  <nav aria-label="주요 메뉴", fixed bottom-0, bg-surface/95, 안�
 **구성**
 
 ```
-IconButton  <button type="button" aria-label={label} title={label}, 40×40 rounded-full>
+IconButton  <button type="button" aria-label={label} title={label}, 44×44 rounded-full>
 └─ Icon 20px aria-hidden
 ```
 
@@ -493,10 +493,10 @@ AvatarStack  <span aria-hidden flex>
 
 | `status` | 글자 | 색 |
 |---|---|---|
-| `pending` | 승인 대기 | amber |
-| `requested` | 동료 수락 대기 | amber |
-| `accepted` | 승인 대기 | amber |
-| `approved` | 승인 | green |
+| `pending` | 승인 대기 | caution |
+| `requested` | 동료 수락 대기 | caution |
+| `accepted` | 승인 대기 | caution |
+| `approved` | 승인 | ok |
 | `rejected` | 거절 | warn |
 | `declined` | 동료 거절 | warn |
 | `canceled` | 취소 | line/muted |

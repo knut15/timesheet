@@ -4,13 +4,14 @@
 
 ## 1. 문서는 전부 `docs/` 에 둔다
 
-- 새 문서는 `docs/` 아래에 쓴다. 루트에는 `README.md` 와 이 파일만 둔다.
+- 새 문서는 `docs/` 아래에 쓴다. 루트에는 `README.md`·`DESIGN.md`·이 파일만 둔다. `DESIGN.md` 는 디자인 도구·에이전트가 루트에서 찾는 관례라 예외로 둔다 (사용자 결정 2026-10-07).
 - 문서를 만들면 **`docs/README.md` 목차에 링크를 건다.** 목차에 없는 문서는 없는 문서로 본다.
 - 요구사항은 `docs/prd/` 에 기능 하나당 문서 하나로 쓴다. 기능이 늘면 번호를 이어 붙인다 (`05-...md`).
 - 문서끼리는 상대 경로 링크로 잇는다.
 
 | 문서 | 내용 |
 |---|---|
+| [DESIGN.md](DESIGN.md) | 디자인 기준 원본 — 색 토큰·모양·글꼴·움직임·접근성 점검표 |
 | [docs/README.md](docs/README.md) | 문서 목차 |
 | [docs/prd/README.md](docs/prd/README.md) | PRD 개요와 기능 문서 링크 |
 | [docs/deploy.md](docs/deploy.md) | 배포 방법과 주소 |
@@ -46,7 +47,7 @@
 |---|---|
 | [timesheet-auth](.claude/skills/timesheet-auth/SKILL.md) | 로그인·쿠키 세션·CSRF |
 | [timesheet-requests](.claude/skills/timesheet-requests/SKILL.md) | 기록 수정 요청·휴가·대타 |
-| [timesheet-ui](.claude/skills/timesheet-ui/SKILL.md) | 헤더·하단 내비·아바타 |
+| [timesheet-ui](.claude/skills/timesheet-ui/SKILL.md) | 헤더·하단 내비·아바타. 색·모양·움직임 기준은 [DESIGN.md](DESIGN.md) |
 
 작업 진행 기록과 반영(배포·README·푸시)은 전역 스킬 `work-history` 를 따른다.
 
