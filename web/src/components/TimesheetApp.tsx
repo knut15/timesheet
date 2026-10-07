@@ -190,9 +190,9 @@ function ClockPanel({ shifts, membership, onChange }: { shifts: Shift[]; members
             aria-label="출근 알림"
             onClick={toggleAlerts}
             disabled={lat === null}
-            className={`relative h-7 w-12 shrink-0 rounded-full transition disabled:opacity-40 ${device.alertsOn ? "bg-accent" : "bg-line"}`}
+            className={`relative h-7 w-12 shrink-0 rounded-full disabled:opacity-40 ${device.alertsOn ? "bg-accent" : "bg-line"}`}
           >
-            <span className={`absolute top-1 h-5 w-5 rounded-full bg-white transition-[left] duration-150 ease-[var(--ease-out)] ${device.alertsOn ? "left-6" : "left-1"}`} />
+            <span className={`absolute left-1 top-1 h-5 w-5 rounded-full bg-white transition-transform duration-150 ease-[var(--ease-out)] ${device.alertsOn ? "translate-x-5" : ""}`} />
           </button>
         </div>
         {lat === null && <p className="mt-3 text-sm text-warn">사장님이 매장 위치를 아직 정하지 않았어요.</p>}

@@ -64,9 +64,10 @@
 | 대상 | 값 | 어디 |
 |---|---|---|
 | 곡선 | `--ease-out: cubic-bezier(0.23, 1, 0.32, 1)` 하나 | `globals.css` `:root` |
-| 버튼·하단 내비 링크 누름 | `:active` 에서 `scale(0.97)`, transform 120ms | `globals.css` `@layer base` — `button`·`[role=button]`·`nav a` 전체. 목록 행·카드 같은 블록 링크는 빼서 스크롤 중 행이 출렁이지 않게 |
-| 색·배경 전환 | 바뀌는 속성만 150ms | 같은 규칙. 요소에 `transition-colors` 를 따로 주면 누름 전환이 덮이니 주지 않는다 |
-| 드문 등장 — 오류 문구(`ErrorText`), 저장 완료, 온보딩 카드 | `.appear`: 투명도 0→1 + 위로 4px, 200ms | `globals.css` `@layer components` |
+| 버튼·하단 주요 메뉴 누름 | `:active` 에서 `scale(0.97)`, transform 120ms `--ease-out` | `globals.css` `@layer base` — `button`·`[role=button]`·`nav[aria-label="주요 메뉴"] a`. 목록 행·카드·가이드 목차 같은 목록 링크는 빼서 스크롤 중 출렁이지 않게 |
+| 색·배경 전환 | 바뀌는 속성만 150ms `ease` | 같은 규칙. 누름 대상(버튼·주요 메뉴)에 Tailwind `transition`·`transition-colors` 를 따로 주면 이 규칙이 덮이니 주지 않는다 (테스트가 `transition` 을 막는다) |
+| 토글 손잡이 | `left` 가 아니라 `translate-x` 로, transform 150ms `--ease-out` | `TimesheetApp.tsx` 출근 알림. 레이아웃 속성(`left`·`width` …)은 전환하지 않는다 (테스트가 막는다) |
+| 드문 등장 — 오류 문구(`ErrorText`), 저장 완료, 온보딩 카드 | `.appear`: 투명도 0→1 + 위로 4px, 200ms. 여러 개가 함께 나오면 50ms 간격(`[animation-delay:50ms]`) | `globals.css` `@layer components` |
 | 모션 줄이기 | 누름 축소 끔, `.appear` 는 투명도만 | `@media (prefers-reduced-motion: reduce)` |
 
 하지 않는 것: 탭 전환 애니메이션, 숫자 카운트업, 스크롤 연출, `ease-in`, `transition-all`(테스트가 막는다), 애니메이션 라이브러리.

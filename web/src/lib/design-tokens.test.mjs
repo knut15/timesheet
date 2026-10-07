@@ -87,3 +87,26 @@ test("취소 배지는 대비가 맞는 bg-line/60 을 쓴다", () => {
   // bg-line 그대로면 라이트에서 muted 글자 대비 4.35
   assert.deepEqual(scanTsx(/bg-line text-muted/), []);
 });
+
+// 애니메이션 리뷰(2026-10-08) — Emil Kowalski 기준
+test("레이아웃 속성(left·top·width·height)을 전환하지 않는다", () => {
+  assert.deepEqual(scanTsx(/transition-\[(left|top|right|bottom|width|height|margin|padding)/), []);
+});
+
+test("요소에 Tailwind transition 을 따로 주지 않는다 — globals.css 의 누름·색 전환을 덮는다", () => {
+  assert.deepEqual(scanTsx(/className=.*\btransition(?![-\w])/), []);
+});
+
+test("온보딩 카드 두 장은 50ms 간격으로 등장한다", () => {
+  assert.deepEqual(scanTsx(/appear \[animation-delay:50ms\]/).length, 1);
+});
+
+test("누름 축소는 버튼과 하단 주요 메뉴에만 — 가이드 목차 같은 목록 링크는 빼다", () => {
+  assert.ok(css.includes('nav[aria-label="주요 메뉴"] a[href]'));
+  assert.ok(!/(^|[\s,])nav a\[href\]/m.test(css), "nav a[href] 전체에 걸려 있다");
+});
+
+test("색 전환은 ease, 누름(transform)만 --ease-out", () => {
+  for (const p of ["color", "background-color", "border-color"]) assert.ok(css.includes(`${p} 150ms ease,`) || css.includes(`${p} 150ms ease;`), p);
+  assert.ok(css.includes("transform 120ms var(--ease-out)"));
+});

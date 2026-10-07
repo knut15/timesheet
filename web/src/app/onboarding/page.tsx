@@ -56,7 +56,7 @@ export default function OnboardingPage() {
         </form>
       </Card>
 
-      <Card className="appear">
+      <Card className="appear [animation-delay:50ms]">
         <h2 className="font-semibold">사장님이에요</h2>
         <p className="mt-1 text-sm text-muted">매장을 만들고 알바생을 초대하세요.</p>
         <form

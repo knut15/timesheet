@@ -69,19 +69,22 @@
    * 누름 반응 (DESIGN.md 움직임). 누르는 즉시 살짝 줄어 손에 반응이 온다.
    * 색 전환도 여기서 같이 건다 — 요소에 transition-colors 를 따로 주면 transform 전환이 덮인다
    */
-  /* 대상은 버튼과 하단 내비 링크만 — 목록 행·카드 같은 블록 링크까지 줄면 스크롤할 때 행이 출렁인다 */
+  /*
+   * 대상은 버튼과 하단 주요 메뉴 링크만 — 목록 행·카드·가이드 목차 같은 목록 링크까지 줄면 스크롤할 때 출렁인다.
+   * 곡선: 누름(transform)은 --ease-out, 색 변화는 ease
+   */
   button:not(:disabled),
   [role="button"],
-  nav a[href] {
+  nav[aria-label="주요 메뉴"] a[href] {
     transition:
       transform 120ms var(--ease-out),
-      color 150ms var(--ease-out),
-      background-color 150ms var(--ease-out),
-      border-color 150ms var(--ease-out);
+      color 150ms ease,
+      background-color 150ms ease,
+      border-color 150ms ease;
   }
   button:not(:disabled):active,
   [role="button"]:active,
-  nav a[href]:active {
+  nav[aria-label="주요 메뉴"] a[href]:active {
     transform: scale(0.97);
   }
 }
@@ -148,7 +151,7 @@ body {
   }
   button:not(:disabled):active,
   [role="button"]:active,
-  nav a[href]:active {
+  nav[aria-label="주요 메뉴"] a[href]:active {
     transform: none;
   }
 }
