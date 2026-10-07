@@ -6,3 +6,6 @@ dist/
 .vercel
 
 .autofix/
+
+# 브레인스토밍 브라우저 시안
+.superpowers/

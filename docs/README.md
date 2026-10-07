@@ -22,6 +22,7 @@
 - [디자인 문서](design/README.md)
   - [근무 달력 화면 명세](design/calendar.md)
   - [컴포넌트 가이드 명세](design/component-guide.md) — 페이지는 웹 `/guide`
+- [디자인 새로 잡기 설계](superpowers/specs/2026-10-07-design-refresh-design.md) (2026-10-07) — 라이트 청록·다크 민트, 토큰 교체, CSS 움직임
 
 ## API
 
