@@ -65,6 +65,24 @@
   label {
     touch-action: manipulation;
   }
+  /*
+   * 누름 반응 (DESIGN.md 움직임). 누르는 즉시 살짝 줄어 손에 반응이 온다.
+   * 색 전환도 여기서 같이 건다 — 요소에 transition-colors 를 따로 주면 transform 전환이 덮인다
+   */
+  button:not(:disabled),
+  a[href],
+  [role="button"] {
+    transition:
+      transform 120ms var(--ease-out),
+      color 150ms var(--ease-out),
+      background-color 150ms var(--ease-out),
+      border-color 150ms var(--ease-out);
+  }
+  button:not(:disabled):active,
+  a[href]:active,
+  [role="button"]:active {
+    transform: scale(0.97);
+  }
 }
 
 body {
@@ -75,6 +93,11 @@ body {
 }
 
 @layer components {
+  /* 드물게 보는 것(오류 문구·저장 완료·온보딩 카드)만 한 번 등장한다. 탭 전환처럼 자주 보는 것에는 쓰지 않는다 */
+  .appear {
+    animation: appear 200ms var(--ease-out) both;
+  }
+
   /*
    * 입력칸 공통. 높이를 44px 로 못 박아 input·select·date 가 한 줄에서 같은 높이가 되게 하고,
    * min-w-0 으로 두 칸 격자 안에서 줄어들 수 있게 한다 (2026-09-25 모바일 요청 화면 겹침·높이 차이).
@@ -102,5 +125,29 @@ body {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235b6f6f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
+  }
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* 모션 줄이기: 이동·크기 변화는 끄고 투명도만 남긴다 */
+@media (prefers-reduced-motion: reduce) {
+  .appear {
+    animation-name: fade;
+  }
+  button:not(:disabled):active,
+  a[href]:active,
+  [role="button"]:active {
+    transform: none;
   }
 }

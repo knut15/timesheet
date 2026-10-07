@@ -82,7 +82,7 @@ export function BottomNav({ items, active, width = "max-w-3xl" }: { items: NavIt
         {items.map((item) => {
           const on = item.key === active;
           const Icon = item.icon;
-          const className = `relative flex h-16 w-full flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors ${on ? "text-accent" : "text-muted hover:text-foreground"}`;
+          const className = `relative flex h-16 w-full flex-col items-center justify-center gap-1 text-[11px] font-medium ${on ? "text-accent" : "text-muted hover:text-foreground"}`;
           const body = (
             <>
               {on && <span aria-hidden className="absolute inset-x-6 top-0 h-0.5 rounded-full bg-accent" />}

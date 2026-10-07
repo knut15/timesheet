@@ -87,7 +87,7 @@ export function Spinner() {
 }
 
 export function ErrorText({ children }: { children: React.ReactNode }) {
-  return children ? <p className="text-sm text-warn">{children}</p> : null;
+  return children ? <p className="appear text-sm text-warn">{children}</p> : null;
 }
 
 export const dayLabel = (t: number | Date) => new Date(t).toLocaleDateString("ko-KR", { month: "numeric", day: "numeric" });

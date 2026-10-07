@@ -139,7 +139,7 @@ function StoreForm({ store, onSaved }: { store: Store; onSaved: () => void }) {
         </div>
       </Card>
       <ErrorText>{error}</ErrorText>
-      {msg && !error && <p className="text-sm text-accent">{msg}</p>}
+      {msg && !error && <p className="appear text-sm text-accent">{msg}</p>}
       <button onClick={() => save(form)} className="w-full rounded-xl bg-accent py-3 font-semibold text-on-accent">저장</button>
     </div>
   );
