@@ -65,7 +65,7 @@ export default function DashboardPage() {
                   <span className="flex min-w-0 items-center gap-2 font-medium">
                     <span className="relative">
                       <Avatar name={member.nickname} seed={member.userId} size="sm" />
-                      <span aria-hidden className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-surface bg-green-500" />
+                      <span aria-hidden className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-surface bg-ok" />
                     </span>
                     <span className="truncate">{member.nickname}</span>
                   </span>

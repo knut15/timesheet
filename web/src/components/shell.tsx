@@ -82,14 +82,14 @@ export function BottomNav({ items, active, width = "max-w-3xl" }: { items: NavIt
         {items.map((item) => {
           const on = item.key === active;
           const Icon = item.icon;
-          const className = `relative flex h-16 w-full flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors ${on ? "text-accent" : "text-muted hover:text-foreground"}`;
+          const className = `relative flex h-16 w-full flex-col items-center justify-center gap-1 text-[11px] font-medium ${on ? "text-accent" : "text-muted hover:text-foreground"}`;
           const body = (
             <>
               {on && <span aria-hidden className="absolute inset-x-6 top-0 h-0.5 rounded-full bg-accent" />}
               <span className="relative">
                 <Icon size={22} strokeWidth={on ? 2.4 : 1.8} aria-hidden />
                 {!!item.badge && (
-                  <span className="absolute -right-2.5 -top-1.5 min-w-4 rounded-full bg-warn px-1 text-center text-[10px] font-bold leading-4 text-white">
+                  <span className="absolute -right-2.5 -top-1.5 min-w-4 rounded-full bg-warn px-1 text-center text-[10px] font-bold leading-4 text-background">
                     {item.badge > 9 ? "9+" : item.badge}
                   </span>
                 )}
@@ -116,7 +116,7 @@ export function BottomNav({ items, active, width = "max-w-3xl" }: { items: NavIt
 /** 헤더 오른쪽에 두는 아이콘 버튼. 이름은 aria-label 로. */
 export function IconButton({ icon: Icon, label, onClick }: { icon: LucideIcon; label: string; onClick: () => void }) {
   return (
-    <button type="button" onClick={onClick} aria-label={label} title={label} className="inline-flex h-10 w-10 items-center justify-center rounded-full text-muted hover:bg-line/60 hover:text-foreground">
+    <button type="button" onClick={onClick} aria-label={label} title={label} className="inline-flex h-11 w-11 items-center justify-center rounded-full text-muted hover:bg-line/60 hover:text-foreground">
       <Icon size={20} aria-hidden />
     </button>
   );

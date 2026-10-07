@@ -87,23 +87,23 @@ export function Spinner() {
 }
 
 export function ErrorText({ children }: { children: React.ReactNode }) {
-  return children ? <p className="text-sm text-warn">{children}</p> : null;
+  return children ? <p className="appear text-sm text-warn">{children}</p> : null;
 }
 
 export const dayLabel = (t: number | Date) => new Date(t).toLocaleDateString("ko-KR", { month: "numeric", day: "numeric" });
 
 /** 요청 상태 표시. 수정 요청·휴가·대타가 같이 쓴다. docs/prd/08·09 */
 const STATUS: Record<string, { label: string; tone: string }> = {
-  pending: { label: "승인 대기", tone: "bg-amber-500/15 text-amber-600 dark:text-amber-400" },
-  requested: { label: "동료 수락 대기", tone: "bg-amber-500/15 text-amber-600 dark:text-amber-400" },
-  accepted: { label: "승인 대기", tone: "bg-amber-500/15 text-amber-600 dark:text-amber-400" },
-  approved: { label: "승인", tone: "bg-green-500/15 text-green-700 dark:text-green-400" },
+  pending: { label: "승인 대기", tone: "bg-caution/15 text-caution" },
+  requested: { label: "동료 수락 대기", tone: "bg-caution/15 text-caution" },
+  accepted: { label: "승인 대기", tone: "bg-caution/15 text-caution" },
+  approved: { label: "승인", tone: "bg-ok/15 text-ok" },
   rejected: { label: "거절", tone: "bg-warn/15 text-warn" },
   declined: { label: "동료 거절", tone: "bg-warn/15 text-warn" },
-  canceled: { label: "취소", tone: "bg-line text-muted" },
+  canceled: { label: "취소", tone: "bg-line/60 text-muted" },
 };
 
 export function StatusPill({ status }: { status: string }) {
-  const s = STATUS[status] ?? { label: status, tone: "bg-line text-muted" };
+  const s = STATUS[status] ?? { label: status, tone: "bg-line/60 text-muted" };
   return <span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ${s.tone}`}>{s.label}</span>;
 }

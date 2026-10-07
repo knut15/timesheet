@@ -281,7 +281,7 @@ function CorrectionForm({ form, onDone, onCancel }: { form: Form; onDone: () => 
       <Field label="사유"><input required maxLength={200} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="예: 퇴근을 깜빡했어요" className="field" /></Field>
       <ErrorText>{error}</ErrorText>
       <div className="flex gap-2">
-        <button className="flex-1 rounded-xl bg-accent py-2.5 text-sm font-semibold text-white">요청 보내기</button>
+        <button className="flex-1 rounded-xl bg-accent py-2.5 text-sm font-semibold text-on-accent">요청 보내기</button>
         <button type="button" onClick={onCancel} className="flex-1 rounded-xl border border-line py-2.5 text-sm">취소</button>
       </div>
     </form>

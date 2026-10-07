@@ -57,7 +57,7 @@ export function MonthGrid({ year, month, todayKey, selectedKey, onSelect, busy =
                   <span aria-hidden className="flex items-center gap-0.5 pt-1">
                     {shown.open === "today" && <OpenDot />}
                     {shown.open === "stale" && <TriangleAlert size={10} className="text-warn" />}
-                    {shown.pending && <Hourglass size={10} className="text-amber-700 dark:text-amber-400" />}
+                    {shown.pending && <Hourglass size={10} className="text-caution" />}
                   </span>
                 </span>
                 <span aria-hidden className="flex min-w-0 flex-1 flex-col items-center justify-center overflow-hidden">
@@ -75,5 +75,5 @@ export function MonthGrid({ year, month, todayKey, selectedKey, onSelect, busy =
 
 /** 근무 중 표시. 칸·범례·상세가 같은 모양을 쓴다 */
 export function OpenDot() {
-  return <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-green-600 dark:bg-green-400" />;
+  return <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-ok" />;
 }

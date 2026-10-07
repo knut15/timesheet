@@ -38,7 +38,7 @@ export default function OnboardingPage() {
         <p className="mt-1 text-sm text-muted">어떻게 시작할까요?</p>
       </div>
 
-      <Card>
+      <Card className="appear">
         <h2 className="font-semibold">알바생이에요</h2>
         <p className="mt-1 text-sm text-muted">사장님께 받은 초대 코드를 입력하세요.</p>
         <form
@@ -52,11 +52,11 @@ export default function OnboardingPage() {
             <input required value={code} onChange={(e) => setCode(e.target.value)} placeholder="예: K7PX3MWA" autoCapitalize="characters" className="field font-mono tracking-widest uppercase" />
           </Field>
           {error?.which === "code" && <ErrorText>{error.msg}</ErrorText>}
-          <button disabled={busy} className="w-full rounded-xl bg-accent py-3 font-semibold text-white disabled:opacity-50">코드 등록</button>
+          <button disabled={busy} className="w-full rounded-xl bg-accent py-3 font-semibold text-on-accent disabled:opacity-50">코드 등록</button>
         </form>
       </Card>
 
-      <Card>
+      <Card className="appear [animation-delay:50ms]">
         <h2 className="font-semibold">사장님이에요</h2>
         <p className="mt-1 text-sm text-muted">매장을 만들고 알바생을 초대하세요.</p>
         <form

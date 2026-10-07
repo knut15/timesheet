@@ -19,9 +19,12 @@
 
 ## 디자인
 
+- [DESIGN.md](../DESIGN.md) — 디자인 기준 원본 (색 토큰·모양·글꼴·움직임·접근성)
 - [디자인 문서](design/README.md)
   - [근무 달력 화면 명세](design/calendar.md)
   - [컴포넌트 가이드 명세](design/component-guide.md) — 페이지는 웹 `/guide`
+- [디자인 새로 잡기 설계](superpowers/specs/2026-10-07-design-refresh-design.md) (2026-10-07) — 라이트 청록·다크 민트, 토큰 교체, CSS 움직임
+  - [구현 계획](superpowers/plans/2026-10-07-design-refresh.md) — 태스크 6개
 
 ## API
 
@@ -50,6 +53,7 @@
 
 - [작업 히스토리](history/) — 날짜별 결정·실패·수정 기록
   - [2026-09-25](history/2026-09-25.md)
+  - [2026-10-07](history/2026-10-07.md) — 디자인 새로 잡기
 
 ## 에이전트 팀
 

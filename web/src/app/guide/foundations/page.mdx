@@ -2,7 +2,7 @@ export const metadata = { title: "기초" };
 
 # 기초
 
-색·글자·간격·모서리·아이콘·스크롤. 원본은 `web/src/app/globals.css` 와 각 컴포넌트다.
+색·글자·간격·모서리·움직임·아이콘·스크롤. 기준의 원본은 루트 `DESIGN.md`, 코드는 `web/src/app/globals.css` 와 각 컴포넌트다.
 
 ## 색 토큰
 
@@ -12,16 +12,13 @@ export const metadata = { title: "기초" };
 
 ### 토큰 밖에서 쓰는 색
 
-새 토큰 없이 Tailwind 색을 직접 쓴다.
+이것 말고는 없다 — `web/src/lib/design-tokens.test.mjs` 가 막는다.
 
 <SimpleTable
   head={["색", "쓰는 곳", "근거"]}
   rows={[
     ["아바타 8색 `#2563eb` `#7c3aed` `#db2777` `#dc2626` `#c2410c` `#15803d` `#0f766e` `#4338ca`", "`Avatar` 배경 (`shell.tsx` `AVATAR_COLORS`)", "흰 글자 대비 4.5:1 이상"],
-    ["`amber-500/15` 바탕 + `amber-600` / `dark:amber-400` 글자", "`StatusPill` 대기 상태", "`ui.tsx` `STATUS`"],
-    ["`green-500/15` 바탕 + `green-700` / `dark:green-400` 글자", "`StatusPill` 승인", "`ui.tsx` `STATUS`"],
-    ["`green-600` / `dark:green-400`", "근무 중 점 `OpenDot`", "달력 명세 §8"],
-    ["`amber-700` / `dark:amber-400`", "요청 대기 아이콘 `Hourglass`", "달력 명세 §8"],
+    ["`bg-white`", "출근 알림 토글 손잡이", "켜짐·꺼짐 두 바탕 위에서 같은 손잡이"],
   ]}
 />
 
@@ -45,10 +42,18 @@ export const metadata = { title: "기초" };
     ["카드 안쪽", "`p-5` (20px)", "`Card` 기본. 달력 격자만 `px-2 py-3`"],
     ["카드 사이", "`space-y-4` (16px)", "`PayView`"],
     ["본문 폭", "멤버 `max-w-md`(448px) · 마스터 `max-w-3xl`(768px)", "스킬 §1"],
-    ["모서리", "`rounded-2xl`(16px) 카드 · `rounded-xl`(12px) 입력칸·보기 전환 틀 · `rounded-lg`(8px) 달력 칸·전환 버튼 · `rounded-full` 아바타·배지·아이콘 버튼", ""],
-    ["누르는 높이", "아이콘 버튼 40×40, 보기 전환 40, 내비 항목 64, 달력 칸 52/60", "터치 영역 40px 이상"],
+    ["모서리", "`rounded-2xl`(14px) 카드 · `rounded-xl`(10px) 버튼·입력칸·보기 전환 틀 · `rounded-lg`(8px) 달력 칸·전환 버튼 · `rounded-full` 아바타·배지·아이콘 버튼", ""],
+    ["누르는 높이", "아이콘 버튼 44×44, 보기 전환 40, 내비 항목 64, 달력 칸 52/60", "터치 영역 44px 이상이 기준. 보기 전환·달력 칸은 폭·높이 한계로 예외"],
   ]}
 />
+
+## 움직임
+
+- 곡선은 `--ease-out` (`cubic-bezier(0.23, 1, 0.32, 1)`) 하나. `ease-in`·`transition-all` 은 쓰지 않는다.
+- 버튼과 하단 주요 메뉴는 누르는 동안 `scale(0.97)` (120ms `--ease-out`), 색 변화는 150ms `ease`. `globals.css` 가 전체에 건다 — 목록 행·카드·목차 링크는 빼서 스크롤 중 출렁이지 않게 한다. 누름 대상에 Tailwind `transition` 을 따로 주면 이 규칙이 덮인다.
+- 레이아웃 속성(`left`·`width` …)은 전환하지 않는다 — 토글 손잡이도 `translate-x` 로 움직인다.
+- 오류 문구·저장 완료·온보딩 카드처럼 드물게 보는 것만 `.appear` 로 200ms 등장, 여러 개면 50ms 간격. 탭 전환처럼 자주 보는 것은 움직이지 않는다.
+- 모션 줄이기 설정이면 이동·크기 변화는 끄고 투명도만 남긴다.
 
 ## 아이콘
 

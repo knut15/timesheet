@@ -70,7 +70,7 @@ function LogoCard({ store, onSaved }: { store: Store; onSaved: () => void }) {
       </div>
       <ErrorText>{error}</ErrorText>
       <div className="flex gap-2">
-        <label className={`flex-1 cursor-pointer rounded-xl bg-accent py-3 text-center font-semibold text-white ${busy ? "pointer-events-none opacity-50" : ""}`}>
+        <label className={`flex-1 cursor-pointer rounded-xl bg-accent py-3 text-center font-semibold text-on-accent ${busy ? "pointer-events-none opacity-50" : ""}`}>
           {store.logoUrl ? "로고 바꾸기" : "로고 올리기"}
           <input
             type="file"
@@ -139,8 +139,8 @@ function StoreForm({ store, onSaved }: { store: Store; onSaved: () => void }) {
         </div>
       </Card>
       <ErrorText>{error}</ErrorText>
-      {msg && !error && <p className="text-sm text-accent">{msg}</p>}
-      <button onClick={() => save(form)} className="w-full rounded-xl bg-accent py-3 font-semibold text-white">저장</button>
+      {msg && !error && <p className="appear text-sm text-accent">{msg}</p>}
+      <button onClick={() => save(form)} className="w-full rounded-xl bg-accent py-3 font-semibold text-on-accent">저장</button>
     </div>
   );
 }
