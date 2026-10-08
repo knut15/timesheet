@@ -10,7 +10,7 @@ import { GUIDE_PAGES } from "./nav";
 const TOKENS = [
   { name: "--background", tw: "bg-background", light: "#f6f8f8", dark: "#0b1213", use: "페이지 바탕, 입력칸(.field), 보기 전환 틀" },
   { name: "--foreground", tw: "text-foreground", light: "#0f2a2a", dark: "#e8f1f0", use: "본문 글자" },
-  { name: "--surface", tw: "bg-surface", light: "#ffffff", dark: "#132022", use: "카드, 하단 내비, 아바타 겹침 경계(ring-surface)" },
+  { name: "--surface", tw: "bg-surface", light: "#ffffff", dark: "#132022", use: "카드, 헤더, 하단 내비, 아바타 겹침 경계(ring-surface)" },
   { name: "--line", tw: "border-line", light: "#e2eaea", dark: "#1f3134", use: "카드·헤더·내비 경계선, 중립 배지 바탕" },
   { name: "--muted", tw: "text-muted", light: "#5b6f6f", dark: "#86a19f", use: "보조 글자, 비활성 메뉴, 점선 테두리" },
   { name: "--accent", tw: "text-accent bg-accent", light: "#0f766e", dark: "#2dd4bf", use: "활성 메뉴, 오늘·선택, 입력 포커스, 강조 버튼 바탕" },

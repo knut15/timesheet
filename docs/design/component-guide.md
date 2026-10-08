@@ -101,7 +101,7 @@ shadcn Avatar 페이지와 같은 순서다. "설치" 는 timesheet 에서 **파
 |---|---|---|---|---|
 | `--background` | `bg-background` | `#f6f8f8` | `#0b1213` | 페이지 바탕, 입력칸(`.field`), 보기 전환 틀 |
 | `--foreground` | `text-foreground` | `#0f2a2a` | `#e8f1f0` | 본문 글자 |
-| `--surface` | `bg-surface` | `#ffffff` | `#132022` | 카드, 하단 내비, 아바타 겹침 경계(`ring-surface`) |
+| `--surface` | `bg-surface` | `#ffffff` | `#132022` | 카드, 헤더, 하단 내비, 아바타 겹침 경계(`ring-surface`) |
 | `--line` | `border-line` | `#e2eaea` | `#1f3134` | 카드·헤더·내비 경계선, 중립 배지 바탕 |
 | `--muted` | `text-muted` | `#5b6f6f` | `#86a19f` | 보조 글자, 비활성 메뉴, 점선 테두리 |
 | `--accent` | `text-accent` `bg-accent` | `#0f766e` | `#2dd4bf` | 활성 메뉴, 오늘·선택, 입력 포커스, 강조 버튼 바탕 |
@@ -212,8 +212,8 @@ import { AppHeader } from "@/components/shell";
 **구성**
 
 ```
-AppHeader  <header sticky top-0, border-b, bg-background/90 blur>
-└─ 폭 틀  <div mx-auto {width} px-5 py-3>
+AppHeader  <header sticky top-0, border-b, bg-surface/95 blur>
+└─ 폭 틀  <div mx-auto {width} h-16 px-5>
    ├─ 글자 묶음
    │  ├─ eyebrow  <p text-xs text-muted, 한 줄 자름>
    │  └─ title    <h1 text-xl font-bold, 한 줄 자름>

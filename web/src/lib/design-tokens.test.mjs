@@ -110,3 +110,12 @@ test("색 전환은 ease, 누름(transform)만 --ease-out", () => {
   for (const p of ["color", "background-color", "border-color"]) assert.ok(css.includes(`${p} 150ms ease,`) || css.includes(`${p} 150ms ease;`), p);
   assert.ok(css.includes("transform 120ms var(--ease-out)"));
 });
+
+// 2026-10-08 사용자 요청 "헤더 디자인도 푸터처럼" — 바탕색과 높이 64px 을 푸터와 맞춘다
+test("헤더는 푸터와 같은 바탕(bg-surface/95)과 높이(h-16)", () => {
+  const shell = readFileSync(new URL("../components/shell.tsx", import.meta.url), "utf8");
+  const header = shell.slice(shell.indexOf("<header"), shell.indexOf("</header>"));
+  assert.match(header, /<header className="[^"]*\bbg-surface\/95\b/);
+  assert.match(header, /<div className={`[^`]*\bh-16\b/);
+  assert.doesNotMatch(header, /bg-background\/90|\bpy-3\b/);
+});

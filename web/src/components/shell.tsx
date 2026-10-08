@@ -52,8 +52,8 @@ export function Avatar({ name, seed, size = "md", label }: { name: string; seed:
  */
 export function AppHeader({ eyebrow, title, me, actions, width = "max-w-3xl", logoUrl, logoAlt = "" }: { eyebrow: string; title: string; me: { id: string; nickname: string }; actions?: React.ReactNode; width?: string; logoUrl?: string | null; logoAlt?: string }) {
   return (
-    <header className="sticky top-0 z-20 border-b border-line bg-background/90 backdrop-blur">
-      <div className={`mx-auto flex ${width} items-center justify-between gap-3 px-5 py-3`}>
+    <header className="sticky top-0 z-20 border-b border-line bg-surface/95 backdrop-blur">
+      <div className={`mx-auto flex ${width} h-16 items-center justify-between gap-3 px-5`}>
         <div className="min-w-0">
           <p className="flex min-w-0 items-center gap-1.5 text-xs font-medium text-muted">
             {/* 로고가 매장 이름 글자를 대신하므로 alt 에 매장 이름을 둔다 (2026-09-25 사용자 요청: 로고 옆 이름 글자 제거) */}
