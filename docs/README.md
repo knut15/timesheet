@@ -42,6 +42,7 @@
 
 - [정상 목록](autofix/allowlist.json) — 감지에서 에러로 세지 않을 신호와 근거
 - [감지 보고서](autofix/reports/) — `autofix detect` 가 날짜별로 쓴다
+- 밤 작업: `node ~/Workspace/autofix/bin/autofix.mjs run` — 개발 서버를 끈 뒤 실행. 별도 worktree 의 `autofix/<날짜>` 브랜치에 고친 커밋과 `<날짜>-run.md` 보고서를 남긴다
 - 주의: 시드는 로컬 API(4200)에 직접 요청한다. 이미 떠 있는 API(4200)가 운영 DB 를 보고 있으면 막지 못한다.
 
 ## 운영
