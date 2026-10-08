@@ -119,3 +119,14 @@ test("헤더는 푸터와 같은 바탕(bg-surface/95)과 높이(h-16)", () => {
   assert.match(header, /<div className={`[^`]*\bh-16\b/);
   assert.doesNotMatch(header, /bg-background\/90|\bpy-3\b/);
 });
+
+// 2026-10-08 사용자 요청 "헤더도 width 100%로" — 헤더를 본문 폭 틀(max-w-*) 밖에 두어 푸터처럼 화면 끝까지 닿게 한다
+test("헤더 바탕은 화면 폭 전체 — 폭 제한은 main 과 헤더 안쪽에만", () => {
+  for (const f of ["../components/TimesheetApp.tsx", "../app/admin/layout.tsx"]) {
+    const src = readFileSync(new URL(f, import.meta.url), "utf8");
+    const lines = src.split("\n");
+    const at = lines.findIndex((l) => l.includes("<AppHeader"));
+    assert.doesNotMatch(lines[at - 1], /max-w-/, `${f}: AppHeader 를 감싼 틀에 max-w`);
+    assert.match(lines.find((l) => l.includes("<main")), /mx-auto w-full max-w-(md|3xl)/, `${f}: main 에 폭 제한 없음`);
+  }
+});

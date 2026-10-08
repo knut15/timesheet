@@ -237,6 +237,7 @@ AppHeader  <header sticky top-0, border-b, bg-surface/95 blur>
 - 화면마다 `<header>` 를 새로 만들지 않는다.
 - `me.id` 에 이름을 넣지 않는다 — 아바타 색이 화면마다 달라진다.
 - `width` 를 본문 폭과 다르게 주지 않는다.
+- `AppHeader` 를 `max-w-*` 틀 안에 넣지 않는다 — 바탕이 화면 끝까지 닿아야 한다. 폭 제한은 `main` 에 준다 (2026-10-08)
 
 **API 레퍼런스**
 

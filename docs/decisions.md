@@ -48,3 +48,4 @@
 | 2026-10-07 | 브랜치 전략: 작업 브랜치는 release 에서 분기 → release 위로 리베이스 → release 에 스쿼시 머지. main 은 release 를 fast-forward(스쿼시 안 함) = 운영 배포 | [브랜치 전략](branching.md) |
 | 2026-10-07 | 디자인 새로 잡기: 라이트 청록·다크 민트(강조색 계열 통일), 토큰 값 교체, 움직임은 CSS 만, 라이트 상태 색 한 단계 진하게, `DESIGN.md` 를 루트에 | [DESIGN.md](../DESIGN.md) §1·§2·§5, [설계](superpowers/specs/2026-10-07-design-refresh-design.md) |
 | 2026-10-08 | 헤더를 푸터처럼: 바탕 `bg-surface/95`, 높이 64px(`h-16`) 고정 | [timesheet-ui](../.claude/skills/timesheet-ui/SKILL.md) §1, [가이드 명세](design/component-guide.md) AppHeader |
+| 2026-10-08 | 헤더 바탕은 화면 폭 전체(푸터처럼) — `AppHeader` 를 폭 틀 밖에, 폭 제한은 `main` 에 | [timesheet-ui](../.claude/skills/timesheet-ui/SKILL.md) §1, [가이드 명세](design/component-guide.md) AppHeader |

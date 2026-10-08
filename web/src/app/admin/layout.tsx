@@ -34,7 +34,7 @@ function AdminShell({ me, children }: { me: Me; children: React.ReactNode }) {
   const title = NAV.find((n) => n.key === active)!.label;
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col">
+    <div className="flex w-full flex-1 flex-col">
       <AppHeader
         eyebrow={me.membership!.store.logoUrl ? "사장님" : `${me.membership!.store.name} · 사장님`}
         title={title}
@@ -43,7 +43,7 @@ function AdminShell({ me, children }: { me: Me; children: React.ReactNode }) {
         logoAlt={me.membership!.store.name}
         actions={<IconButton icon={LogOut} label="로그아웃" onClick={() => logout()} />}
       />
-      <main className="flex-1 px-5 pb-28 pt-5">{children}</main>
+      <main className="mx-auto w-full max-w-3xl flex-1 px-5 pb-28 pt-5">{children}</main>
       <BottomNav items={NAV.map((n) => (n.key === "/admin/requests" ? { ...n, badge: dash.data?.pendingRequests } : n))} active={active} />
     </div>
   );

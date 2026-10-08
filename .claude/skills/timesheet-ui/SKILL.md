@@ -48,7 +48,7 @@ description: >
 | 오른쪽 | 내 아바타(항상). 그 앞에 `actions` — 마스터는 로그아웃 `IconButton` |
 
 - `sticky top-0`, 푸터와 같은 `bg-surface/95` + blur, 높이 `h-16`(64px) 고정. 본문 위로 스크롤되어도 제목이 남는다 (2026-10-08 사용자 요청 "헤더 디자인도 푸터처럼")
-- `width` 는 본문 폭과 같게: 멤버 `max-w-md`, 마스터 `max-w-3xl`
+- `width` 는 본문 폭과 같게: 멤버 `max-w-md`, 마스터 `max-w-3xl`. 헤더 자체는 폭 틀 밖에 두어 바탕이 푸터처럼 화면 끝까지 닿는다 — 폭 제한은 `main`(`mx-auto w-full max-w-*`)과 헤더 안쪽 `width` 에만 (2026-10-08 사용자 요청 "헤더도 width 100%로")
 
 ## 2. 푸터 — `BottomNav`
 
