@@ -31,10 +31,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // 로그인 확인 전 — 헤더·본문·하단 내비를 불러온 뒤와 같은 크기로 채운다
   if (!me?.membership)
     return (
-      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col">
+      <div className="flex w-full flex-1 flex-col">
         <HeaderSkeleton />
         {subPage(pathname) && <SubHeader backHref={subPage(pathname)!.back.href} backLabel={subPage(pathname)!.back.label} />}
-        <main className="flex-1 px-5 pb-28 pt-5"><AdminPageSkeleton pathname={pathname} /></main>
+        <main className="mx-auto w-full max-w-3xl flex-1 px-5 pb-28 pt-5"><AdminPageSkeleton pathname={pathname} /></main>
         <BottomNavSkeleton count={NAV.length} />
       </div>
     );
@@ -53,7 +53,7 @@ function AdminShell({ me, children }: { me: Me; children: React.ReactNode }) {
   const title = sub?.title ?? NAV.find((n) => n.key === active)!.label;
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col">
+    <div className="flex w-full flex-1 flex-col">
       <AppHeader
         eyebrow={me.membership!.store.logoUrl ? "사장님" : `${me.membership!.store.name} · 사장님`}
         title={title}
@@ -64,7 +64,7 @@ function AdminShell({ me, children }: { me: Me; children: React.ReactNode }) {
         actions={<IconButton icon={LogOut} label="로그아웃" onClick={() => logout()} />}
       />
       {sub && <SubHeader backHref={sub.back.href} backLabel={sub.back.label} />}
-      <main className="flex-1 px-5 pb-28 pt-5">{children}</main>
+      <main className="mx-auto w-full max-w-3xl flex-1 px-5 pb-28 pt-5">{children}</main>
       <BottomNav items={NAV.map((n) => (n.key === "/admin/requests" ? { ...n, badge: dash.data?.pendingRequests } : n))} active={active} />
     </div>
   );

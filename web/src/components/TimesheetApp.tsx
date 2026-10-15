@@ -39,7 +39,7 @@ function MemberSkeleton() {
   return (
     <div className="mx-auto flex w-full max-w-md flex-1 flex-col">
       <HeaderSkeleton width="max-w-md" />
-      <main className="flex-1 px-5 pb-28 pt-4">
+      <main className="mx-auto w-full max-w-md flex-1 px-5 pb-28 pt-4">
         <div className="space-y-4">
           <ClockCardSkeleton />
           <TodayDashboardSkeleton />
@@ -112,7 +112,7 @@ function MemberHome({ me, membership }: { me: Me; membership: MyMembership }) {
   }, []);
 
   return (
-    <div className="mx-auto flex w-full max-w-md flex-1 flex-col">
+    <div className="flex w-full flex-1 flex-col">
       <AppHeader
         eyebrow={membership.store.logoUrl ? "" : membership.store.name}
         logoUrl={membership.store.logoUrl}
@@ -121,7 +121,7 @@ function MemberHome({ me, membership }: { me: Me; membership: MyMembership }) {
         me={me.user}
         width="max-w-md"
       />
-      <main className="flex-1 px-5 pb-28 pt-4">
+      <main className="mx-auto w-full max-w-md flex-1 px-5 pb-28 pt-4">
         {tab === "clock" && (
           <ClockPanel
             shifts={shifts}
@@ -241,9 +241,9 @@ function ClockPanel({
   return (
     <div className="space-y-4">
       {geo.inside && !open && !doneToday && (
-        <div role="alert" className="rounded-2xl bg-accent p-5 text-white">
+        <div role="alert" className="rounded-2xl bg-accent p-5 text-on-accent">
           <p className="font-semibold">매장 {GEOFENCE_RADIUS_M}m 안이에요. 출근 체크하세요.</p>
-          <button disabled={busy} onClick={() => punch("in")} className="mt-3 w-full rounded-xl bg-white py-3 font-bold text-accent">
+          <button disabled={busy} onClick={() => punch("in")} className="mt-3 w-full rounded-xl bg-on-accent py-3 font-bold text-accent">
             지금 출근
           </button>
         </div>
@@ -270,9 +270,9 @@ function ClockPanel({
             aria-label="출근 알림"
             onClick={toggleAlerts}
             disabled={lat === null}
-            className={`relative h-7 w-12 shrink-0 rounded-full transition disabled:opacity-40 ${device.alertsOn ? "bg-accent" : "bg-line"}`}
+            className={`relative h-7 w-12 shrink-0 rounded-full disabled:opacity-40 ${device.alertsOn ? "bg-accent" : "bg-line"}`}
           >
-            <span className={`absolute top-1 h-5 w-5 rounded-full bg-white transition-all ${device.alertsOn ? "left-6" : "left-1"}`} />
+            <span className={`absolute left-1 top-1 h-5 w-5 rounded-full bg-white transition-transform duration-150 ease-[var(--ease-out)] ${device.alertsOn ? "translate-x-5" : ""}`} />
           </button>
         }
       >

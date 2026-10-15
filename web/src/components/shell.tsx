@@ -56,8 +56,8 @@ export type Crumb = { label: string; href: string };
 /** crumbs 가 있으면 제목 앞에 "멤버 › 근무 기록" 처럼 상위 화면 링크를 붙인다 (2026-09-25 사용자 요청) */
 export function AppHeader({ eyebrow, title, me, actions, width = "max-w-3xl", logoUrl, logoAlt = "", crumbs }: { eyebrow: string; title: string; me: { id: string; nickname: string }; actions?: React.ReactNode; width?: string; logoUrl?: string | null; logoAlt?: string; crumbs?: Crumb[] }) {
   return (
-    <header className="sticky top-0 z-20 border-b border-line bg-background/90 backdrop-blur">
-      <div className={`mx-auto flex ${width} items-center justify-between gap-3 px-5 py-3`}>
+    <header className="sticky top-0 z-20 border-b border-line bg-surface/95 backdrop-blur">
+      <div className={`mx-auto flex ${width} h-16 items-center justify-between gap-3 px-5`}>
         <div className="min-w-0">
           {/* 줄 높이 h-5 고정 — 로고(20px)가 있어도 없어도 헤더 높이가 같다(스켈레톤과도 같게) */}
           <p className="flex h-5 min-w-0 items-center gap-1.5 text-xs font-medium text-muted">
@@ -103,14 +103,14 @@ export function BottomNav({ items, active, width = "max-w-3xl" }: { items: NavIt
         {items.map((item) => {
           const on = item.key === active;
           const Icon = item.icon;
-          const className = `relative flex h-16 w-full flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors ${on ? "text-accent" : "text-muted hover:text-foreground"}`;
+          const className = `relative flex h-16 w-full flex-col items-center justify-center gap-1 text-[11px] font-medium ${on ? "text-accent" : "text-muted hover:text-foreground"}`;
           const body = (
             <>
               {on && <span aria-hidden className="absolute inset-x-6 top-0 h-0.5 rounded-full bg-accent" />}
               <span className="relative">
                 <Icon size={22} strokeWidth={on ? 2.4 : 1.8} aria-hidden />
                 {!!item.badge && (
-                  <span className="absolute -right-2.5 -top-1.5 min-w-4 rounded-full bg-warn px-1 text-center text-[10px] font-bold leading-4 text-white">
+                  <span className="absolute -right-2.5 -top-1.5 min-w-4 rounded-full bg-warn px-1 text-center text-[10px] font-bold leading-4 text-background">
                     {item.badge > 9 ? "9+" : item.badge}
                   </span>
                 )}
@@ -137,17 +137,17 @@ export function BottomNav({ items, active, width = "max-w-3xl" }: { items: NavIt
 /** 헤더 오른쪽에 두는 아이콘 버튼. 이름은 aria-label 로. */
 export function IconButton({ icon: Icon, label, onClick }: { icon: LucideIcon; label: string; onClick: () => void }) {
   return (
-    <button type="button" onClick={onClick} aria-label={label} title={label} className="inline-flex h-10 w-10 items-center justify-center rounded-full text-muted hover:bg-line/60 hover:text-foreground">
+    <button type="button" onClick={onClick} aria-label={label} title={label} className="inline-flex h-11 w-11 items-center justify-center rounded-full text-muted hover:bg-line/60 hover:text-foreground">
       <Icon size={20} aria-hidden />
     </button>
   );
 }
 
-/** 로그인 확인 전 헤더 자리 — AppHeader 와 같은 높이(py-3 + 글자 두 줄 16+28 = 아바타 40 보다 큼). */
+/** 로그인 확인 전 헤더 자리 — AppHeader 와 같은 높이 64px(h-16)·같은 바탕(bg-surface/95). */
 export function HeaderSkeleton({ width = "max-w-3xl" }: { width?: string }) {
   return (
-    <div aria-hidden className="sticky top-0 z-20 border-b border-line bg-background/90">
-      <div className={`mx-auto flex ${width} items-center justify-between gap-3 px-5 py-3`}>
+    <div aria-hidden className="sticky top-0 z-20 border-b border-line bg-surface/95">
+      <div className={`mx-auto flex ${width} h-16 items-center justify-between gap-3 px-5`}>
         <div className="space-y-0">
           <div className="flex h-5 items-center"><Bone className="h-3 w-20" /></div>
           <div className="flex h-7 items-center"><Bone className="h-5 w-16" /></div>

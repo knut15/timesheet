@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -20,6 +20,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "타임시트",
   description: "파트타임 출퇴근 기록과 급여 계산",
+};
+
+// viewport-fit=cover: 하단 내비가 env(safe-area-inset-bottom) 으로 홈 바를 피하게 한다 (없으면 env() 가 0). 확대는 막지 않는다
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -75,7 +75,7 @@ export function ClockCard({
           {pill(<CircleCheck aria-hidden size={14} className="text-accent" />, "오늘 퇴근함")}
           {desc(`${time(state.lastEnd)} 퇴근`)}
           {/* 다시 출근은 없다 — 내일 0시(날짜가 바뀌면 before)까지 막는다 (2026-09-25 사용자 결정) */}
-          <button disabled className={`${BUTTON} bg-line text-muted`}>
+          <button disabled className={`${BUTTON} bg-line/60 text-muted`}>
             출근
           </button>
           <p className="mt-2 text-xs text-muted">오늘 근무를 마쳤어요. 내일부터 다시 출근할 수 있어요.</p>
@@ -98,7 +98,7 @@ export function ClockCard({
       body = (
         <>
           {pill(<CircleDashed aria-hidden size={14} className="text-muted" />, "출근 전")}
-          <button disabled={busy} onClick={() => onPunch("in")} className={`${BUTTON} bg-accent text-white`}>
+          <button disabled={busy} onClick={() => onPunch("in")} className={`${BUTTON} bg-accent text-on-accent`}>
             출근
           </button>
         </>
@@ -266,7 +266,7 @@ export function TodayDashboard({
           <h2 className="text-sm font-semibold">처리할 것</h2>
           <div className="mt-1">
             {incoming > 0 && <TodoRow icon={<ArrowLeftRight aria-hidden size={16} className="text-foreground" />} label="받은 대타 요청" count={incoming} onClick={onOpenRequests} />}
-            {pending > 0 && <TodoRow icon={<Hourglass aria-hidden size={16} className="text-amber-700 dark:text-amber-400" />} label="내 대기 요청" count={pending} onClick={onOpenRequests} />}
+            {pending > 0 && <TodoRow icon={<Hourglass aria-hidden size={16} className="text-caution" />} label="내 대기 요청" count={pending} onClick={onOpenRequests} />}
           </div>
         </section>
       )}

@@ -39,7 +39,7 @@ export default function OnboardingPage() {
         <p className="mt-1 text-sm text-muted">어떻게 시작할까요?</p>
       </div>
 
-      <Card>
+      <Card className="appear">
         <h2 className="font-semibold">알바생이에요</h2>
         <p className="mt-1 text-sm text-muted">사장님께 받은 초대 코드를 입력하세요.</p>
         <form
@@ -57,7 +57,7 @@ export default function OnboardingPage() {
         </form>
       </Card>
 
-      <Card>
+      <Card className="appear [animation-delay:50ms]">
         <h2 className="font-semibold">사장님이에요</h2>
         <p className="mt-1 text-sm text-muted">매장을 만들고 알바생을 초대하세요.</p>
         <form
