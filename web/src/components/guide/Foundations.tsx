@@ -1,5 +1,5 @@
 // 기초 페이지와 첫 화면의 견본 블록. 값의 원본은 루트 DESIGN.md §2 (코드는 web/src/app/globals.css, 명세는 docs/design/component-guide.md §2).
-// 다크 값은 테마 전환 없이 hex 를 직접 칠해 보인다 — 토큰은 prefers-color-scheme 로만 바뀐다(§1-5).
+// 다크 값은 테마 전환 없이 hex 를 직접 칠해 보인다 — 앱은 항상 라이트이고 다크 값은 .dark 블록에만 있다(2026-10-15).
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import Link from "next/link";
 import {

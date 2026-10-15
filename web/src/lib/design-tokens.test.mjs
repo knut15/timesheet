@@ -5,11 +5,13 @@ import { readFileSync, readdirSync } from "node:fs";
 
 const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 
-/** :root(라이트) 또는 다크 @media 안 :root 의 `--이름: #hex` 를 모은다. */
+/** :root(라이트) 또는 .dark 블록(다크)의 `--이름: #hex` 를 모은다. */
 function readTokens(mode) {
-  const dark = css.indexOf("@media (prefers-color-scheme: dark)");
+  // 다크 값은 .dark 클래스 블록에 둔다 (2026-10-15 항상 라이트 — 값은 나중을 위해 남겨 둔다)
+  const dark = css.indexOf(".dark {");
   const scope = mode === "dark" ? css.slice(dark) : css.slice(0, dark);
-  const block = scope.slice(scope.indexOf(":root"), scope.indexOf("}", scope.indexOf(":root")));
+  const open = mode === "dark" ? ".dark {" : ":root";
+  const block = scope.slice(scope.indexOf(open), scope.indexOf("}", scope.indexOf(open)));
   return Object.fromEntries([...block.matchAll(/--([a-z-]+):\s*(#[0-9a-f]{6})/gi)].map((m) => [m[1], m[2].toLowerCase()]));
 }
 
@@ -157,4 +159,11 @@ test("GSAP 을 쓰는 모션 코드는 prefers-reduced-motion 을 본다", () =>
 // 2026-10-15 사용자 결정 — 일러스트는 사람 그림 없이 lucide 조합
 test("일러스트는 lucide 로만 — 이미지 일러스트 파일을 쓰지 않는다", () => {
   assert.deepEqual(scanTsx(/src="[^"]*\b(peep|doodle|illust)[^"]*\.svg"/), []);
+});
+
+// 2026-10-15 사용자 결정 "컬러도 시안처럼 라이트로" — 기기가 다크여도 라이트
+test("항상 라이트 — 다크는 기기 설정이 아니라 .dark 클래스에서만", () => {
+  assert.ok(!css.includes("prefers-color-scheme"), "prefers-color-scheme 이 남아 있다");
+  assert.match(css, /:root \{\s*\/\*[^*]*\*\/\s*color-scheme: light;|color-scheme: light;/);
+  assert.match(css, /@custom-variant dark \(&:where\(\.dark, \.dark \*\)\);/);
 });
