@@ -7,7 +7,7 @@ const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8")
 
 /** :root(라이트) 또는 .dark 블록(다크)의 `--이름: #hex` 를 모은다. */
 function readTokens(mode) {
-  // 다크 값은 .dark 클래스 블록에 둔다 (2026-10-15 항상 라이트 — 값은 나중을 위해 남겨 둔다)
+  // 다크 값은 .dark 클래스 블록에 둔다 (2026-10-15 항상 다크 — <html class="dark">)
   const dark = css.indexOf(".dark {");
   const scope = mode === "dark" ? css.slice(dark) : css.slice(0, dark);
   const open = mode === "dark" ? ".dark {" : ":root";
@@ -161,9 +161,11 @@ test("일러스트는 lucide 로만 — 이미지 일러스트 파일을 쓰지 
   assert.deepEqual(scanTsx(/src="[^"]*\b(peep|doodle|illust)[^"]*\.svg"/), []);
 });
 
-// 2026-10-15 사용자 결정 "컬러도 시안처럼 라이트로" — 기기가 다크여도 라이트
-test("항상 라이트 — 다크는 기기 설정이 아니라 .dark 클래스에서만", () => {
+// 2026-10-15 사용자 결정 "그냥 다크모드로하자" → "항상 다크" — 기기가 라이트여도 다크
+test("항상 다크 — <html> 에 dark 클래스, 다크는 기기 설정이 아니라 .dark 클래스에서만", () => {
   assert.ok(!css.includes("prefers-color-scheme"), "prefers-color-scheme 이 남아 있다");
-  assert.match(css, /:root \{\s*\/\*[^*]*\*\/\s*color-scheme: light;|color-scheme: light;/);
   assert.match(css, /@custom-variant dark \(&:where\(\.dark, \.dark \*\)\);/);
+  assert.match(css, /\.dark \{\s*color-scheme: dark;/);
+  const layout = readFileSync(new URL("../app/layout.tsx", import.meta.url), "utf8");
+  assert.match(layout, /className=\{`dark /);
 });
