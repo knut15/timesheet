@@ -64,7 +64,8 @@ function scanTsx(re) {
   const root = new URL("../", import.meta.url);
   const hits = [];
   for (const f of readdirSync(root, { recursive: true })) {
-    if (!f.endsWith(".tsx")) continue;
+    // shadcn 레지스트리 원본(components/ui/*)은 그대로 둔다 (timesheet-ui 스킬 §0) — 검사 대상이 아니다
+    if (!f.endsWith(".tsx") || f.startsWith("components/ui/")) continue;
     readFileSync(new URL(f, root), "utf8").split("\n").forEach((line, i) => {
       if (re.test(line)) hits.push(`${f}:${i + 1} ${line.trim()}`);
     });

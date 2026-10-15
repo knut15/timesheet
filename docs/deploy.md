@@ -78,3 +78,8 @@ curl -s -o /dev/null -w "%{http_code}\n" https://timesheet-brown-ten.vercel.app/
 
 - 로그인 제한(1분 5회)은 함수 인스턴스 메모리에 센다. 인스턴스가 여럿이면 느슨해진다. 엄격히 하려면 공유 저장소(Redis 등)가 필요하다.
 - 폐기·만료된 리프레시 토큰 행을 지우는 주기 작업이 아직 없다.
+
+## 업로드 한도 (2026-09-25)
+
+무료 요금제는 하루 파일 업로드 5000개가 한도다(`api-upload-free`, "try again in 24 hours"). prebuilt 배포는 파일을 하나씩 올려 금방 찬다.
+배포 명령에 **`--archive=tgz`** 를 붙여 묶음 하나로 올린다 — 웹: `vercel deploy --prebuilt --prod --yes --archive=tgz`, API: `vercel deploy --prod --yes --archive=tgz`.

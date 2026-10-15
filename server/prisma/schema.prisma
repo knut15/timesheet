@@ -15,14 +15,15 @@ model User {
   passwordHash String   @map("password_hash")
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
 
-  membership    Membership?
-  refreshTokens RefreshToken[]
-  shifts        Shift[]
-  invitesUsed   Invite[]       @relation("InviteUsedBy")
-  corrections   ShiftCorrection[]
-  leaves        Leave[]
-  subsRequested Substitution[] @relation("SubRequester")
-  subsCovering  Substitution[] @relation("SubSubstitute")
+  membership         Membership?
+  refreshTokens      RefreshToken[]
+  shifts             Shift[]
+  invitesUsed        Invite[]            @relation("InviteUsedBy")
+  corrections        ShiftCorrection[]
+  leaves             Leave[]
+  subsRequested      Substitution[]      @relation("SubRequester")
+  subsCovering       Substitution[]      @relation("SubSubstitute")
+  scheduleExceptions ScheduleException[]
 
   @@map("users")
 }
@@ -59,23 +60,24 @@ model RefreshToken {
 
 // docs/prd/06-store-invite.md
 model Store {
-  id        String   @id @default(uuid()) @db.Uuid
-  name      String
-  lat       Float?
-  lng       Float?
-  fivePlus  Boolean  @default(true) @map("five_plus")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  id            String    @id @default(uuid()) @db.Uuid
+  name          String
+  lat           Float?
+  lng           Float?
+  fivePlus      Boolean   @default(true) @map("five_plus")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
   // 매장 로고 (docs/prd/11). 매장당 하나, 1MB 이하라 별도 파일 저장소 없이 둔다
   logo          Bytes?    @db.ByteA
   logoType      String?   @map("logo_type")
   logoUpdatedAt DateTime? @map("logo_updated_at") @db.Timestamptz
 
-  memberships   Membership[]
-  invites       Invite[]
-  shifts        Shift[]
-  corrections   ShiftCorrection[]
-  leaves        Leave[]
-  substitutions Substitution[]
+  memberships        Membership[]
+  invites            Invite[]
+  shifts             Shift[]
+  corrections        ShiftCorrection[]
+  leaves             Leave[]
+  substitutions      Substitution[]
+  scheduleExceptions ScheduleException[]
 
   @@map("stores")
 }
@@ -93,6 +95,10 @@ model Membership {
   hourlyWage      Int      @default(10320) @map("hourly_wage")
   weeklyHours     Float    @default(20) @map("weekly_hours")
   workDaysPerWeek Int      @default(5) @map("work_days_per_week")
+  // 근무 시간표 — 요일(0=일~6=토)과 출근·퇴근 "HH:MM". 비어 있으면 시간표 없음 (docs/prd/13)
+  scheduleDays    Int[]    @default([]) @map("schedule_days")
+  scheduleStart   String?  @map("schedule_start")
+  scheduleEnd     String?  @map("schedule_end")
   joinedAt        DateTime @default(now()) @map("joined_at") @db.Timestamptz
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -228,4 +234,27 @@ model Substitution {
   @@index([storeId, status])
   @@index([requesterId, date])
   @@map("substitutions")
+}
+
+enum ScheduleExceptionKind {
+  off
+  work
+}
+
+// 날짜별 근무 변경 — 기본 시간표는 두고 그날 하루만. 한 멤버·한 날짜에 하나 (docs/prd/13)
+model ScheduleException {
+  id        String                @id @default(uuid()) @db.Uuid
+  storeId   String                @map("store_id") @db.Uuid
+  userId    String                @map("user_id") @db.Uuid
+  date      DateTime              @db.Date
+  kind      ScheduleExceptionKind
+  start     String?
+  end       String?
+  createdAt DateTime              @default(now()) @map("created_at") @db.Timestamptz
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@map("schedule_exceptions")
 }

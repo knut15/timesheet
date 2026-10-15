@@ -90,7 +90,7 @@ export function computeWeek(weekStart: Date, shifts: Shift[], settings: PaySetti
   for (const a of absences) {
     const t = parseDay(a.date).getTime();
     if (t < weekStart.getTime() || t >= weekEndMs || byDay.has(a.date)) continue;
-    // 같은 날 여러 건이면 유급이 이긴다
+    // 같은 날 여러 건이면 유급이 우선한다
     if (excused.get(a.date) !== "paid_leave") excused.set(a.date, a.kind);
   }
   const excusedDays = excused.size;

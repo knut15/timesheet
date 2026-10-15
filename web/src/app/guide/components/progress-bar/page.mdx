@@ -1,0 +1,70 @@
+export const metadata = { title: "Progress Bar" };
+
+# Progress Bar
+
+값이 목표의 어디쯤인지 보이는 가로 막대. 오늘 근무 카드의 "이번 주 근무 시간" 이 쓴다. 숫자는 옆 글자가 말하고, 막대는 보조다.
+
+<ComponentPreview name="progress-bar/basic" width="max-w-md" />
+
+<FileLocation path="web/src/components/ui.tsx" importLine={`import { ProgressBar } from "@/components/ui";`} />
+
+## 사용법
+
+```tsx
+<ProgressBar value={840} max={1200} label="이번 주 근무 시간" valueText="14시간 / 20시간" />
+```
+
+## 구성
+
+```
+ProgressBar  <div role="progressbar" h-2 w-full overflow-hidden rounded-full bg-line>
+│            aria-label={label} aria-valuemin={0} aria-valuemax={max}
+│            aria-valuenow={min(value, max)} aria-valuetext={valueText}
+└─ 채움  <div h-full rounded-full bg-accent style={{ width: pct% }}>
+   pct = max > 0 ? min(100, value / max × 100) : 0
+```
+
+## 빈 값
+
+값이 0 이면 채움 없이 빈 칸만.
+
+<ComponentPreview name="progress-bar/empty" width="max-w-md" />
+
+## 넘침
+
+`max` 를 넘으면 막대는 가득 차고 더 그리지 않는다. 실제 값(`25시간 28분 / 20시간`)은 `valueText` 가 말한다.
+
+<ComponentPreview name="progress-bar/overflow" width="max-w-md" />
+
+## 접근성
+
+<SimpleTable
+  head={["항목", "값"]}
+  rows={[
+    ["역할", "`role=\"progressbar\"` + `aria-label` + `aria-valuemin/max/now` + `aria-valuetext`"],
+    ["읽는 글자", "스크린리더는 숫자 대신 `valueText` 를 읽는다 — 예: `14시간 / 20시간`"],
+    ["넘친 값", "`aria-valuenow` 는 `max` 를 넘지 않게 자른다(ARIA 규칙). 넘친 실제 값은 `valueText` 에 넣는다"],
+    ["색", "채움 `accent` 와 빈 칸 `line` 의 대비 4.12(라이트·다크). 빈 칸과 카드 바탕 대비는 낮지만 값은 옆 글자가 말한다"],
+  ]}
+/>
+
+## 사용 규칙
+
+<DocLink path="docs/design/member-today.md" hash="5-4-progressbar-webscomponentsuitsx">오늘 근무 대시보드 명세 §5-4</DocLink>(구성·접근성), <DocLink path="docs/design/member-today.md" hash="8-다크-모드와-색--새-토큰-없음">§8 색</DocLink>.
+
+## 하지 말 것
+
+- `<progress>` 로 바꾸지 않는다 — 브라우저마다 모양이 다르고 다크 모드 색을 토큰으로 맞추기 어렵다.
+- 움직임(transition)을 넣지 않는다 — 1분마다 조금씩 바뀌는 값이다.
+- `valueText` 를 비우거나 숫자만 넣지 않는다 — 스크린리더가 읽는 유일한 값 글자다.
+
+## API 레퍼런스
+
+<PropsTable
+  rows={[
+    { prop: "value", type: "number", required: true, description: "현재 값" },
+    { prop: "max", type: "number", required: true, description: "0 이하이면 빈 막대" },
+    { prop: "label", type: "string", required: true, description: "`aria-label`" },
+    { prop: "valueText", type: "string", required: true, description: "`aria-valuetext` — 스크린리더는 숫자 대신 이 글자를 읽는다" },
+  ]}
+/>

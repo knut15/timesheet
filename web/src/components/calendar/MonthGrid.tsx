@@ -2,7 +2,7 @@
 // 월 격자 — 월요일 시작, 날짜 칸은 버튼. 멤버·마스터 달력이 같이 쓴다. docs/design/calendar.md §3·§7
 import { Hourglass, TriangleAlert } from "lucide-react";
 import { monthCells } from "@/lib/calendar";
-import { Card } from "../ui";
+import { Bone, Card } from "../ui";
 
 export type Marks = { open?: "today" | "stale"; pending?: boolean; dashed?: boolean };
 
@@ -15,7 +15,7 @@ export function MonthGrid({ year, month, todayKey, selectedKey, onSelect, busy =
   todayKey: string;
   selectedKey: string | null;
   onSelect: (key: string) => void;
-  busy?: boolean; // aria-busy, 칸 내용 숨김
+  busy?: boolean; // aria-busy, 칸 내용·표시 대신 막대
   cellHeight: 56 | 64; // 멤버 56, 마스터 64
   cell: (key: string) => { label: string; marks: Marks; body: React.ReactNode }; // body = 2·3줄
   footer?: React.ReactNode; // 범례·빈 달 문구
@@ -23,6 +23,7 @@ export function MonthGrid({ year, month, todayKey, selectedKey, onSelect, busy =
   return (
     <Card className="px-2 py-3">
       <div role="group" aria-label={`${year}년 ${month + 1}월 달력`} aria-busy={busy}>
+        {busy && <span className="sr-only" role="status">불러오는 중</span>}
         <div aria-hidden className="grid grid-cols-7">
           {WEEK.map((w) => (
             <span key={w} className="flex h-6 items-center justify-center text-[11px] text-muted">{w}</span>
@@ -61,7 +62,7 @@ export function MonthGrid({ year, month, todayKey, selectedKey, onSelect, busy =
                   </span>
                 </span>
                 <span aria-hidden className="flex min-w-0 flex-1 flex-col items-center justify-center overflow-hidden">
-                  {!busy && body}
+                  {busy ? <Bone className="h-2.5 w-6" /> : body}
                 </span>
               </button>
             );

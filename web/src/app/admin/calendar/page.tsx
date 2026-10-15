@@ -8,10 +8,11 @@ import { CalendarLegend } from "@/components/calendar/CalendarLegend";
 import { MonthGrid } from "@/components/calendar/MonthGrid";
 import { useSelectedDay } from "@/components/calendar/useSelectedDay";
 import { Avatar } from "@/components/shell";
-import { Card, date, ErrorText, hm, keyed, MonthPicker, StatusPill, time, useMonthCursor, useNow } from "@/components/ui";
+import { Card, date, ErrorText, hm, keyed, Loading, MonthPicker, StatusPill, time, useMonthCursor, useNow } from "@/components/ui";
 import { ABSENCE_LABEL, compactHours, correctionDay, dateLabel, dayAriaLabel, masterDays, type MasterDay } from "@/lib/calendar";
 import { dayKey, parseDay, shiftMinutes, type Shift } from "@/lib/pay";
 import { useApi } from "@/lib/useApi";
+import { CalendarSummaryBone, DayRowsSkeleton, LegendBone } from "../_skeletons";
 
 export default function CalendarPage() {
   const [cursor, setCursor] = useMonthCursor();
@@ -81,10 +82,14 @@ export default function CalendarPage() {
     <div className="space-y-4">
       <div>
         <MonthPicker cursor={cursor} onChange={setCursor} />
-        {(loading || monthPeople.size > 0) && (
-          <p className="mt-1 px-1 text-sm text-muted">
-            {loading ? "불러오는 중…" : `${todayKey.startsWith(month) ? "이번 달" : `${cursor.month + 1}월`} ${monthPeople.size}명 · ${Math.round(monthMinutes / 60)}시간`}
-          </p>
+        {loading ? (
+          <CalendarSummaryBone />
+        ) : (
+          monthPeople.size > 0 && (
+            <p className="mt-1 px-1 text-sm text-muted">
+              {`${todayKey.startsWith(month) ? "이번 달" : `${cursor.month + 1}월`} ${monthPeople.size}명 · ${Math.round(monthMinutes / 60)}시간`}
+            </p>
+          )
         )}
       </div>
       <MonthGrid
@@ -98,7 +103,7 @@ export default function CalendarPage() {
         cell={cell}
         footer={
           loading ? (
-            <p className="text-[11px] text-muted">불러오는 중…</p>
+            <LegendBone />
           ) : (
             <>
               {empty}
@@ -130,7 +135,12 @@ function DayDetail({ dayKeyValue: key, summary, data, pending, now }: { dayKeyVa
 
   let body: React.ReactNode;
   if (!key) body = <p className="px-1 text-sm text-muted">날짜를 누르면 그날 근무가 나와요.</p>;
-  else if (!data) body = <p className="px-1 text-sm text-muted">불러오는 중…</p>;
+  else if (!data)
+    body = (
+      <Loading>
+        <DayRowsSkeleton />
+      </Loading>
+    );
   else {
     const rows = dayRows(key, data, pending);
     body =
