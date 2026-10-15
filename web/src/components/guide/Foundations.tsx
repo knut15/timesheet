@@ -8,12 +8,12 @@ import {
 import { GUIDE_PAGES } from "./nav";
 
 const TOKENS = [
-  { name: "--background", tw: "bg-background", light: "#f6f8f8", dark: "#0b1213", use: "페이지 바탕, 입력칸(.field), 보기 전환 틀" },
-  { name: "--foreground", tw: "text-foreground", light: "#0f2a2a", dark: "#e8f1f0", use: "본문 글자" },
-  { name: "--surface", tw: "bg-surface", light: "#ffffff", dark: "#132022", use: "카드, 헤더, 하단 내비, 아바타 겹침 경계(ring-surface)" },
-  { name: "--line", tw: "border-line", light: "#e2eaea", dark: "#1f3134", use: "카드·헤더·내비 경계선, 중립 배지 바탕" },
-  { name: "--muted", tw: "text-muted", light: "#5b6f6f", dark: "#86a19f", use: "보조 글자, 비활성 메뉴, 점선 테두리" },
-  { name: "--accent", tw: "text-accent bg-accent", light: "#0f766e", dark: "#2dd4bf", use: "활성 메뉴, 오늘·선택, 입력 포커스, 강조 버튼 바탕" },
+  { name: "--background", tw: "bg-background", light: "#fafafa", dark: "#09090b", use: "페이지 바탕, 하단 내비 활성 칩, 주 버튼(BTN.primary) 글자" },
+  { name: "--foreground", tw: "text-foreground", light: "#18181b", dark: "#fafafa", use: "본문 글자, 하단 내비 활성 글자, 주 버튼(BTN.primary) 바탕" },
+  { name: "--surface", tw: "bg-surface", light: "#ffffff", dark: "#18181b", use: "카드, 헤더, 하단 내비, 입력칸(.field), 선 버튼, 아바타 겹침 경계(ring-surface)" },
+  { name: "--line", tw: "border-line", light: "#e4e4e7", dark: "#27272a", use: "카드·헤더·내비·버튼 경계선, 중립 배지 바탕, 보기 전환 틀(60%)" },
+  { name: "--muted", tw: "text-muted", light: "#6b6b74", dark: "#a1a1aa", use: "보조 글자, 비활성 메뉴, 구역 머리(SectionLabel), 점선 테두리, 장면 소품" },
+  { name: "--accent", tw: "text-accent bg-accent", light: "#0f766e", dark: "#2dd4bf", use: "오늘·선택, 입력 포커스(테두리 + 15% 고리), 시계·큰 급여 숫자, 장면 원(10% 바탕), 강조 버튼 바탕" },
   { name: "--on-accent", tw: "text-on-accent bg-on-accent", light: "#ffffff", dark: "#05201d", use: "강조 버튼 글자, 출근 알림 카드 안 반전 버튼" },
   { name: "--warn", tw: "text-warn bg-warn", light: "#b91c1c", dark: "#f87171", use: "오류 글자, 내비 배지, 거절 상태, 퇴근 기록 없음" },
   { name: "--ok", tw: "text-ok bg-ok", light: "#166534", dark: "#4ade80", use: "승인 배지, 근무 중 점" },
@@ -89,12 +89,16 @@ export function ColorTokens() {
 const TYPE = [
   { size: "9px", cls: "text-[9px]", use: "Avatar xs 이니셜, +N" },
   { size: "10px", cls: "text-[10px]", use: "내비 배지 숫자, 달력 칸 휴가 글자" },
-  { size: "11px", cls: "text-[11px]", use: "내비 이름, 요일 줄, 범례, 달력 칸 시간" },
-  { size: "12px", cls: "text-xs", use: "헤더 위 작은 줄, StatusPill, Avatar sm" },
-  { size: "14px", cls: "text-sm", use: "Field 이름, 보조 설명, ErrorText, 보기 전환" },
+  { size: "11px", cls: "text-[11px]", use: "내비 이름, StatusPill, 요일 줄, 범례, 달력 칸 시간" },
+  { size: "12px", cls: "text-xs", use: "Field 이름(font-semibold), SectionLabel, 작은 버튼(BTN.small), Avatar sm" },
+  { size: "14px", cls: "text-sm", use: "보조 설명, ErrorText, 보기 전환, 선 버튼(BTN.secondary)" },
+  { size: "15px", cls: "text-[15px]", use: "헤더 매장 이름(font-medium), 주 버튼(BTN.primary)" },
   { size: "16px", cls: "text-base", use: "입력칸 .field (iOS 확대 방지 크기)" },
-  { size: "20px", cls: "text-xl", use: "헤더 제목(font-bold tracking-tight), Avatar lg" },
-  { size: "30px", cls: "text-3xl", use: "급여 총액(font-bold)" },
+  { size: "18px", cls: "text-lg", use: "헤더 화면 이름(font-bold tracking-tight)" },
+  { size: "20px", cls: "text-xl", use: "Avatar lg" },
+  { size: "28px", cls: "text-[28px]", use: "대시보드 인건비(font-semibold text-accent, NUM)" },
+  { size: "30px", cls: "text-[30px]", use: "급여 총액(font-semibold text-accent, NUM)" },
+  { size: "40px", cls: "text-[40px]", use: "출퇴근 시계(font-semibold text-accent, NUM)" },
 ];
 
 /** 글자 크기 표. 견본은 그 클래스로 실제로 그린다 */

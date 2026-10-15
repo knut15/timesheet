@@ -28,3 +28,45 @@ test("WS-6 시급 입력 — 천 단위 쉼표 표기, 숫자만 읽기", () => 
   assert.equal(digitsOf("12,0a00"), 12000);
   assert.equal(digitsOf(""), 0);
 });
+
+// 내 정보 주간 리듬 카드 — 다음 근무 (2026-10-15)
+import { dayPlan, nextShift, untilText } from "./schedule.ts";
+const MWF = { days: [1, 3, 5], start: "10:00", end: "15:00" };
+// 2026-10-15 은 목요일
+const at = (d, h, m = 0) => new Date(2026, 9, d, h, m);
+
+test("다음 근무 — 쉬는 목요일 낮이면 금요일 10:00", () => {
+  const r = nextShift(MWF, [], at(15, 13, 48));
+  assert.equal(r.state, "next");
+  assert.equal(r.at.getTime(), at(16, 10).getTime());
+  assert.equal(untilText(r.at - at(15, 13, 48)), "20시간 12분");
+});
+
+test("다음 근무 — 근무하는 날 근무 중이면 working 과 끝나는 시각", () => {
+  const r = nextShift(MWF, [], at(16, 11));
+  assert.deepEqual(r, { state: "working", end: at(16, 15) });
+});
+
+test("다음 근무 — 오늘 근무가 끝났으면 다음 근무일", () => {
+  const r = nextShift(MWF, [], at(16, 15, 0));
+  assert.equal(r.at.getTime(), at(19, 10).getTime()); // 월요일
+});
+
+test("날짜별 변경이 시간표보다 먼저 — 금요일 쉼이면 월요일, 토요일 근무면 토요일", () => {
+  const off = [{ date: "2026-10-16", kind: "off", start: null, end: null }];
+  assert.equal(nextShift(MWF, off, at(15, 13)).at.getTime(), at(19, 10).getTime());
+  const sat = [...off, { date: "2026-10-17", kind: "work", start: "12:00", end: "18:00" }];
+  const r = nextShift(MWF, sat, at(15, 13));
+  assert.equal(r.at.getTime(), at(17, 12).getTime());
+  assert.deepEqual(dayPlan(MWF, sat, at(17, 0)), { start: "12:00", end: "18:00" });
+});
+
+test("시간표도 변경도 없으면 null", () => {
+  assert.equal(nextShift(null, [], at(15, 13)), null);
+});
+
+test("남은 시간 글자", () => {
+  assert.equal(untilText(90 * 60_000), "1시간 30분");
+  assert.equal(untilText(26 * 3_600_000), "1일 2시간");
+  assert.equal(untilText(5 * 60_000), "5분");
+});

@@ -1,13 +1,14 @@
 "use client";
 // 멤버의 요청 탭 — 휴가 신청, 대타 요청, 받은 대타 수락·거절, 내 요청 목록. docs/prd/08·09
 // 흐름 규칙은 .claude/skills/timesheet-requests/SKILL.md
-import { ACT_CANCEL, ACT_SAVE, BLOCK_PRIMARY, BLOCK_SECONDARY } from "@/components/buttons";
-import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { ArrowLeftRight, ClipboardList, Coffee, Plane, Sofa } from "lucide-react";
 import { parseDay } from "@/lib/pay";
 import { api, errorCode, type Colleague, type MyRequests } from "@/api/client";
+import { EmptyState } from "../illust";
+import { Enter } from "../motion";
 import { Avatar } from "../shell";
-import { Bone, Card, date, ErrorText, Field, Loading, StatusPill, time } from "../ui";
+import { Bone, BTN, Card, date, ErrorText, Field, Loading, NUM, SectionLabel, StatusPill, time } from "../ui";
 
 const MESSAGES: Record<string, string> = {
   LEAVE_OVERLAP: "이미 신청한 휴가와 날짜가 겹쳐요.",
@@ -21,11 +22,12 @@ const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60_00
 export function RequestsPanel({ requests, failed = false, colleagues, onChange }: { requests: MyRequests | null; failed?: boolean; colleagues: Colleague[]; onChange: () => void }) {
   const incoming = (requests?.substitutionsIn ?? []).filter((s) => s.status === "requested");
   return (
-    <div className="space-y-4">
+    // 카드가 차례로 나타나고, 요청 목록을 다 읽으면 다시
+    <Enter className="space-y-3" replay={!!requests}>
       {incoming.length > 0 && (
         <Card>
-          <h2 className="font-semibold">받은 대타 요청</h2>
-          <ul className="mt-3 space-y-3">
+          <SectionLabel icon={ArrowLeftRight} right={incoming.length}>받은 대타 요청</SectionLabel>
+          <ul className="mt-1 divide-y divide-dashed divide-line">
             {incoming.map((s) => (
               <IncomingSub key={s.id} sub={s} onChange={onChange} />
             ))}
@@ -36,7 +38,7 @@ export function RequestsPanel({ requests, failed = false, colleagues, onChange }
       <SubstitutionForm colleagues={colleagues} onDone={onChange} />
       {/* 읽기 전(null)이면 목록 자리. 읽기에 실패하면 예전처럼 목록을 숨긴다 */}
       {requests || failed ? <MyList requests={requests} onChange={onChange} /> : <MyListSkeleton />}
-    </div>
+    </Enter>
   );
 }
 
@@ -48,18 +50,18 @@ function IncomingSub({ sub, onChange }: { sub: MyRequests["substitutionsIn"][num
     onChange();
   };
   return (
-    <li className="rounded-xl bg-background p-3">
-      <div className="flex items-center gap-2">
+    <li className="py-3">
+      <div className="flex items-center gap-2.5">
         <Avatar name={sub.requesterNickname} seed={sub.requesterId} size="sm" />
         <p className="text-sm">
-          <strong>{sub.requesterNickname}</strong>님이 <strong>{date(parseDay(sub.date))}</strong> 대타를 부탁했어요
+          <strong className="font-semibold">{sub.requesterNickname}</strong>님이 <strong className={`font-semibold ${NUM}`}>{date(parseDay(sub.date))}</strong> 대타를 부탁했어요
         </p>
       </div>
-      <p className="mt-1 text-sm text-muted">{sub.reason}</p>
+      <p className="mt-1.5 text-[13px] text-muted">{sub.reason}</p>
       <ErrorText>{error}</ErrorText>
       <div className="mt-3 flex gap-2">
-        <button onClick={() => act("accept")} className={cn(ACT_SAVE, "h-10")}>수락</button>
-        <button onClick={() => act("decline")} className={cn(ACT_CANCEL, "h-10")}>거절</button>
+        <button type="button" onClick={() => act("accept")} className={`${BTN.primary} flex-1`}>수락</button>
+        <button type="button" onClick={() => act("decline")} className={`${BTN.secondary} flex-1`}>거절</button>
       </div>
       <p className="mt-2 text-xs text-muted">수락하면 사장님이 승인해야 확정돼요.</p>
     </li>
@@ -83,8 +85,8 @@ function LeaveForm({ onDone }: { onDone: () => void }) {
   };
   return (
     <Card>
-      <h2 className="font-semibold">휴가 신청</h2>
-      <p className="mt-1 text-sm text-muted">유급·무급은 사장님이 승인하면서 정해요.</p>
+      <SectionLabel icon={Plane}>휴가 신청</SectionLabel>
+      <p className="mt-1.5 text-[13px] leading-relaxed text-muted">유급·무급은 사장님이 승인하면서 정해요.</p>
       <form onSubmit={submit} className="mt-3 space-y-3">
         <div className="grid grid-cols-2 gap-2">
           <Field label="시작일"><input type="date" required value={start} onChange={(e) => setStart(e.target.value)} className="field" /></Field>
@@ -93,7 +95,7 @@ function LeaveForm({ onDone }: { onDone: () => void }) {
         <Field label="사유"><input required maxLength={200} value={reason} onChange={(e) => setReason(e.target.value)} className="field" /></Field>
         <ErrorText>{error}</ErrorText>
         {sent && !error && <p className="text-sm text-accent">신청했어요. 사장님 승인을 기다려요.</p>}
-        <button className={BLOCK_PRIMARY}>신청</button>
+        <button className={`${BTN.primary} w-full`}>신청</button>
       </form>
     </Card>
   );
@@ -117,8 +119,8 @@ function SubstitutionForm({ colleagues, onDone }: { colleagues: Colleague[]; onD
   };
   return (
     <Card>
-      <h2 className="font-semibold">대타 요청</h2>
-      <p className="mt-1 text-sm text-muted">동료가 수락하고 사장님이 승인하면 그날은 결근으로 세지 않아요.</p>
+      <SectionLabel icon={ArrowLeftRight}>대타 요청</SectionLabel>
+      <p className="mt-1.5 text-[13px] leading-relaxed text-muted">동료가 수락하고 사장님이 승인하면 그날은 결근으로 세지 않아요.</p>
       <form onSubmit={submit} className="mt-3 space-y-3">
         <div className="grid grid-cols-2 gap-2">
           <Field label="날짜"><input type="date" required value={day} onChange={(e) => setDay(e.target.value)} className="field" /></Field>
@@ -134,26 +136,26 @@ function SubstitutionForm({ colleagues, onDone }: { colleagues: Colleague[]; onD
         <Field label="사유"><input required maxLength={200} value={reason} onChange={(e) => setReason(e.target.value)} className="field" /></Field>
         <ErrorText>{error}</ErrorText>
         {sent && !error && <p className="text-sm text-accent">요청했어요. 동료의 수락을 기다려요.</p>}
-        <button className={BLOCK_SECONDARY}>요청</button>
+        <button className={`${BTN.secondary} w-full`}>요청</button>
       </form>
     </Card>
   );
 }
 
-/** 내 요청 목록을 읽는 동안 — 같은 Card·행 틀에 3행. 행마다 종류(text-xs)·내용(text-sm)·상태 알약 */
+/** 내 요청 목록을 읽는 동안 — MyList 와 같은 Card·행 틀(py-2.5)에 3행. 행마다 종류(text-xs)·내용(13px) 줄 자리 막대와 상태 배지(h-5) 자리 */
 function MyListSkeleton() {
   return (
     <Loading>
-      <Card className="p-0">
-        <h2 className="px-5 pt-5 font-semibold">내 요청</h2>
-        <ul className="mt-2 divide-y divide-line">
+      <Card>
+        <SectionLabel icon={ClipboardList} right={<Bone className="inline-block h-3 w-3 align-middle" />}>내 요청</SectionLabel>
+        <ul className="mt-1 divide-y divide-dashed divide-line">
           {[0, 1, 2].map((i) => (
-            <li key={i} className="flex items-start justify-between gap-3 px-5 py-3">
-              <div>
-                <div className="flex h-4 items-center"><Bone className="h-3 w-14" /></div>
-                <div className="flex h-5 items-center"><Bone className="h-4 w-40" /></div>
+            <li key={i} className="flex items-start justify-between gap-3 py-2.5">
+              <div className="min-w-0">
+                <div className="text-xs"><Bone className="inline-block h-3 w-14 align-middle" /></div>
+                <div className="mt-px text-[13px]"><Bone className="inline-block h-3.5 w-40 align-middle" /></div>
               </div>
-              <Bone className="h-5 w-16 rounded-full" />
+              <Bone className="h-5 w-14 rounded-md" />
             </li>
           ))}
         </ul>
@@ -203,30 +205,35 @@ function MyList({ requests, onChange }: { requests: MyRequests | null; onChange:
   ].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
   return (
-    <Card className="p-0">
-      <h2 className="px-5 pt-5 font-semibold">내 요청</h2>
+    <Card>
+      <SectionLabel icon={ClipboardList} right={rows.length}>내 요청</SectionLabel>
       <ErrorText>{error}</ErrorText>
       {rows.length === 0 ? (
-        <p className="px-5 py-4 text-sm text-muted">아직 요청이 없어요.</p>
+        // 화면의 주 빈 상태라 장면 일러스트를 둔다
+        <EmptyState icon={Sofa} accents={[{ icon: Coffee, at: "br" }]} title="아직 요청이 없어요.">
+          기록이 틀렸거나 쉬어야 하는 날이 있으면 위에서 요청하세요.
+        </EmptyState>
       ) : (
-        <ul className="mt-2 divide-y divide-line">
+        <ul className="mt-1 divide-y divide-dashed divide-line">
           {rows.map((r) => (
-            <li key={r.key} className="flex items-start justify-between gap-3 px-5 py-3">
+            <li key={r.key} className="flex items-start justify-between gap-3 py-2.5">
               <div className="min-w-0">
                 <p className="text-xs text-muted">{r.kind}</p>
-                <p className="text-sm">{r.text}</p>
+                <p className={`mt-px text-[13px] font-medium ${NUM}`}>{r.text}</p>
                 {r.note && <p className="mt-0.5 text-xs text-muted">사장님: {r.note}</p>}
               </div>
-              <div className="flex shrink-0 flex-col items-end gap-1">
+              <div className="flex shrink-0 flex-col items-end gap-1.5">
                 <StatusPill status={r.status} />
                 {r.cancel && (
+                  // 목록 안 보조 동작이라 작은 버튼(h-8)
                   <button
+                    type="button"
                     onClick={async () => {
                       const { error } = await r.cancel!();
                       if (error) setError(msg(error));
                       onChange();
                     }}
-                    className="text-xs text-muted underline"
+                    className={BTN.small}
                   >
                     취소
                   </button>

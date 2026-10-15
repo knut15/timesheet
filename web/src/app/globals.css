@@ -5,12 +5,12 @@
 :root {
   /* 스크롤바·폼 컨트롤을 OS 테마에 맞춘다 — 없으면 다크 모드에서도 흰 스크롤바가 그려진다 */
   color-scheme: light dark;
-  /* 값은 루트 DESIGN.md 의 색 토큰 표가 원본이다 (2026-10-07 라이트 청록·다크 민트) */
-  --background: #f6f8f8;
-  --foreground: #0f2a2a;
+  /* 값은 루트 DESIGN.md 의 색 토큰 표가 원본이다 (2026-10-07 청록·민트 강조, 2026-10-15 B 시안 — 중립색은 청록 기운 없는 회색) */
+  --background: #fafafa;
+  --foreground: #18181b;
   --surface: #ffffff;
-  --line: #e2eaea;
-  --muted: #5b6f6f;
+  --line: #e4e4e7;
+  --muted: #6b6b74;
   --accent: #0f766e;
   --on-accent: #ffffff;
   --warn: #b91c1c;
@@ -31,9 +31,10 @@
   --color-warn: var(--warn);
   --color-ok: var(--ok);
   --color-caution: var(--caution);
-  /* 모서리: 버튼·입력칸 rounded-xl = 10px, 카드 rounded-2xl = 14px */
-  --radius-xl: 10px;
-  --radius-2xl: 14px;
+  /* 모서리 (2026-10-15 B 시안 — 가는 선·작은 모서리): 버튼·입력칸 rounded-xl = 6px, 카드 rounded-2xl = 8px, 배지·달력 칸 rounded-md = 4px */
+  --radius-xl: 6px;
+  --radius-2xl: 8px;
+  --radius-md: 4px;
   /* shadcn 컴포넌트가 쓰는 이름을 우리 토큰에 잇는다 (scroll-area 의 bg-border, ring-ring) */
   --color-border: var(--line);
   --color-ring: var(--accent);
@@ -54,11 +55,11 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0b1213;
-    --foreground: #e8f1f0;
-    --surface: #132022;
-    --line: #1f3134;
-    --muted: #86a19f;
+    --background: #09090b;
+    --foreground: #fafafa;
+    --surface: #18181b;
+    --line: #27272a;
+    --muted: #a1a1aa;
     --accent: #2dd4bf;
     --on-accent: #05201d;
     --warn: #f87171;
@@ -120,7 +121,8 @@ body {
    * min-w-0 으로 두 칸 격자 안에서 줄어들 수 있게 한다 (2026-09-25 모바일 요청 화면 겹침·높이 차이).
    */
   .field {
-    @apply h-11 w-full min-w-0 rounded-xl border border-line bg-background px-3 text-base text-foreground outline-none focus:border-accent;
+    /* 포커스: 강조색 테두리 + 옅은 바깥 고리 (2026-10-15 B 시안) */
+    @apply h-11 w-full min-w-0 rounded-xl border border-line bg-surface px-3 text-base text-foreground outline-none focus:border-accent focus:ring-3 focus:ring-accent/15;
   }
   /* iOS Safari 의 날짜 칸은 기본 모양이 최소 폭을 갖고 가운데 정렬이라 좁은 칸에서 옆 칸을 덮는다 — 기본 모양을 끈다 */
   input[type="date"].field,
@@ -139,7 +141,7 @@ body {
     appearance: none;
     -webkit-appearance: none;
     padding-right: 2.25rem;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235b6f6f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b6b74' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
   }

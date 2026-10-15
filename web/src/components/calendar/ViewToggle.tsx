@@ -1,5 +1,6 @@
 "use client";
 // 멤버 기록 탭의 달력·목록 전환. docs/design/calendar.md §2
+// 모양은 2026-10-15 B 시안: 회색 바탕 세그먼트, 선택 칸만 흰 바탕 + 굵은 글자
 import { CalendarDays, List } from "lucide-react";
 
 const VIEWS = [
@@ -9,7 +10,7 @@ const VIEWS = [
 
 export function ViewToggle({ value, onChange }: { value: "calendar" | "list"; onChange: (v: "calendar" | "list") => void }) {
   return (
-    <div role="group" aria-label="보기" className="flex rounded-xl border border-line bg-background p-1">
+    <div role="group" aria-label="보기" className="grid grid-flow-col auto-cols-fr rounded-xl bg-line/60 p-0.5">
       {VIEWS.map(({ value: v, label, icon: Icon }) => {
         const on = v === value;
         return (
@@ -18,9 +19,9 @@ export function ViewToggle({ value, onChange }: { value: "calendar" | "list"; on
             type="button"
             aria-pressed={on}
             onClick={() => onChange(v)}
-            className={`flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg text-sm font-medium ${on ? "bg-surface text-foreground shadow-sm" : "text-muted"}`}
+            className={`flex h-10 items-center justify-center gap-1.5 rounded-md text-[13px] ${on ? "bg-surface font-semibold text-foreground shadow-sm" : "font-medium text-muted hover:text-foreground"}`}
           >
-            <Icon size={16} strokeWidth={on ? 2.4 : 2} aria-hidden />
+            <Icon size={15} strokeWidth={on ? 2.2 : 1.8} aria-hidden />
             {label}
           </button>
         );

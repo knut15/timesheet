@@ -6,12 +6,12 @@ import { OpenDot } from "./MonthGrid";
 export function CalendarLegend({ role }: { role: "member" | "master" }) {
   return (
     <div className="space-y-1 text-[11px] text-muted">
-      <ul className="flex flex-wrap items-center gap-x-3 gap-y-1">
+      <ul className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
         <li className="flex items-center gap-1"><OpenDot /> 근무 중</li>
-        <li className="flex items-center gap-1"><TriangleAlert size={10} aria-hidden className="text-warn" /> 퇴근 기록 없음</li>
-        <li className="flex items-center gap-1"><Hourglass size={10} aria-hidden className="text-caution" /> 요청 대기</li>
+        <li className="flex items-center gap-1"><TriangleAlert size={12} aria-hidden className="text-warn" /> 퇴근 기록 없음</li>
+        <li className="flex items-center gap-1"><Hourglass size={12} aria-hidden className="text-caution" /> 요청 대기</li>
         <li className="flex items-center gap-1">
-          <span aria-hidden className="inline-block h-2.5 w-3 rounded-sm border border-dashed border-muted" />
+          <span aria-hidden className="inline-block h-2.5 w-3 rounded-[2px] border border-dashed border-muted" />
           {role === "member" ? "휴가·대타" : "쉰 사람 있음"}
         </li>
       </ul>

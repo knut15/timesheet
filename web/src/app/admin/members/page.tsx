@@ -4,13 +4,14 @@ import Link from "next/link";
 import { useState } from "react";
 import { ChevronRight, Plus, TicketPlus } from "lucide-react";
 import { api, type Member, type Schedule } from "@/api/client";
+import { Enter } from "@/components/motion";
 import { Avatar } from "@/components/shell";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Card, date, ErrorText, Field, Loading, useNow, won } from "@/components/ui";
+import { BTN, Card, date, ErrorText, Field, Loading, NUM, SectionLabel, useNow, won } from "@/components/ui";
+import { cn } from "@/lib/utils";
 import { dayKey, MINIMUM_WAGE, parseDay } from "@/lib/pay";
 import { DAY_NAMES, digitsOf, scheduleProblem, scheduleTerms, scheduleText, TIME_OPTIONS, WEEK_ORDER, withCommas } from "@/lib/schedule";
 import { useApi } from "@/lib/useApi";
-import { ACT_CANCEL, ACT_SAVE, BTN_ACCENT, BTN_WARN } from "../_buttons";
 import { ExceptionRowsSkeleton, MembersSkeleton } from "../_skeletons";
 
 export default function MembersPage() {
@@ -18,33 +19,34 @@ export default function MembersPage() {
   if (!data) return <MembersSkeleton />;
   const members = data.filter((m) => m.role === "member");
   return (
-    <div className="space-y-3">
+    <Enter className="space-y-3">
       <InviteEntry />
       {members.length === 0 ? (
         <Card>
           <p className="text-sm text-muted">
-            아직 멤버가 없어요. <Link href="/admin/invites" className="text-accent">초대 코드를 발급</Link>해 보세요.
+            아직 멤버가 없어요. <Link href="/admin/invites" className="font-medium text-accent">초대 코드를 발급</Link>해 보세요.
           </p>
         </Card>
       ) : (
-        <ul className="space-y-3">
+        // 넓은 화면에서는 두 줄로
+        <ul className="grid items-start gap-3 sm:grid-cols-2">
           {members.map((m) => (
             <MemberRow key={m.userId} member={m} onChange={reload} />
           ))}
         </ul>
       )}
-    </div>
+    </Enter>
   );
 }
 
 /** 초대 화면 진입 줄. 초대는 하단 내비에서 빠지고 멤버 화면 안으로 들어왔다 (docs/design/calendar.md §1) */
 function InviteEntry() {
   return (
-    <Link href="/admin/invites" className="flex h-14 items-center gap-3 rounded-2xl border border-line bg-surface px-5 hover:bg-background">
-      <TicketPlus size={20} aria-hidden className="text-accent" />
+    <Link href="/admin/invites" className="flex h-14 items-center gap-2.5 rounded-2xl border border-line bg-surface px-4 hover:bg-background">
+      <TicketPlus size={20} strokeWidth={1.75} aria-hidden className="text-muted" />
       <span className="flex-1 font-semibold">초대 코드</span>
-      <span className="text-sm text-muted">발급·관리</span>
-      <ChevronRight size={16} aria-hidden className="text-muted" />
+      <span className="text-[13px] text-muted">발급·관리</span>
+      <ChevronRight size={15} aria-hidden className="text-muted" />
     </Link>
   );
 }
@@ -88,30 +90,33 @@ function MemberRow({ member, onChange }: { member: Member; onChange: () => void 
 
   return (
     <li>
-      <Card>
-        <div className="flex items-center justify-between gap-3">
-          <Avatar name={member.nickname} seed={member.userId} />
-          <div className="min-w-0 flex-1">
-            <Link href={`/admin/members/${member.userId}`} className="font-semibold hover:underline">{member.nickname}</Link>
-            <p className="truncate text-sm text-muted">{member.email}</p>
+      {/* 구역 둘 — 위는 사람·조건, 아래는 날짜별 변경 (B 시안 9) */}
+      <Card className="divide-y divide-line p-0">
+        <div className="px-4 py-3.5">
+          <div className="flex items-center gap-2.5">
+            <Avatar name={member.nickname} seed={member.userId} />
+            <div className="min-w-0 flex-1">
+              <Link href={`/admin/members/${member.userId}`} className="font-semibold underline-offset-2 hover:underline">{member.nickname}</Link>
+              <p className="truncate text-xs text-muted">{member.email}</p>
+            </div>
+            <Link href={`/admin/members/${member.userId}`} className={`${BTN.small} shrink-0`}>근무 기록</Link>
           </div>
-          <Link href={`/admin/members/${member.userId}`} className={BTN_ACCENT}>근무 기록</Link>
-        </div>
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-sm">
-          <p className="tabular-nums">
+          {/* 근무 시간표 줄 — 시급 · 요일·시각 · 주 시간 · 일수 */}
+          <p className={`mt-2.5 text-xs text-muted ${NUM}`}>
             {won(member.hourlyWage)} · {member.schedule ? `${scheduleText(member.schedule)} · ` : ""}주 {member.weeklyHours}시간 · {member.workDaysPerWeek}일
-            {!member.schedule && <span className="text-muted"> · 시간표 없음</span>}
+            {!member.schedule && " · 시간표 없음"}
           </p>
-          <div className="flex gap-2">
-            <button onClick={open} className={BTN_ACCENT}>조건 수정</button>
-            <button onClick={remove} className={BTN_WARN}>퇴사처리</button>
+          <div className="mt-2.5 flex gap-1.5">
+            <button onClick={open} className={BTN.small}>조건 수정</button>
+            <button onClick={remove} className={BTN.danger}>퇴사처리</button>
           </div>
         </div>
         {/* 조건 수정은 모달로 (2026-09-25 사용자 요청) — shadcn Dialog */}
         <Dialog open={editing} onOpenChange={setEditing}>
-          <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto bg-surface p-5 sm:max-w-md">
+          {/* 원본(components/ui/dialog.tsx)은 두고 바깥에서 B 모양만 — 카드와 같은 8px 모서리·1px 선 */}
+          <DialogContent className="max-h-[calc(100dvh-2rem)] gap-4 overflow-y-auto rounded-2xl bg-surface p-5 ring-line sm:max-w-md">
             <DialogHeader>
-              <DialogTitle className="text-lg font-semibold">{member.nickname} 조건 수정</DialogTitle>
+              <DialogTitle className="text-lg font-bold tracking-tight">{member.nickname} 조건 수정</DialogTitle>
             </DialogHeader>
             <div className="space-y-3">
               <Field label="시급(원)">
@@ -119,12 +124,13 @@ function MemberRow({ member, onChange }: { member: Member; onChange: () => void 
                   inputMode="numeric"
                   value={withCommas(form.hourlyWage)}
                   onChange={(e) => setForm({ ...form, hourlyWage: digitsOf(e.target.value) })}
-                  className="field tabular-nums"
+                  className={`field ${NUM}`}
                 />
               </Field>
               {form.hourlyWage < MINIMUM_WAGE && <p className="text-sm text-warn">2026년 최저임금({won(MINIMUM_WAGE)})보다 낮아요.</p>}
               <fieldset>
-                <legend className="mb-1.5 text-sm text-muted">근무 요일</legend>
+                {/* Field 이름과 같은 작은 회색 글자 */}
+                <legend className="mb-1.5 text-xs font-semibold text-muted">근무 요일</legend>
                 <div className="grid grid-cols-7 gap-1">
                   {WEEK_ORDER.map((d) => {
                     const on = form.schedule.days.includes(d);
@@ -134,7 +140,7 @@ function MemberRow({ member, onChange }: { member: Member; onChange: () => void 
                         type="button"
                         aria-pressed={on}
                         onClick={() => toggleDay(d)}
-                        className={`h-11 rounded-xl border text-sm font-semibold ${on ? "border-foreground bg-foreground text-surface" : "border-line text-muted hover:text-foreground"}`}
+                        className={`h-11 rounded-xl border text-[13px] font-semibold ${on ? "border-foreground bg-foreground text-background" : "border-line bg-surface text-muted hover:text-foreground"}`}
                       >
                         {DAY_NAMES[d]}
                       </button>
@@ -154,14 +160,14 @@ function MemberRow({ member, onChange }: { member: Member; onChange: () => void 
                   </select>
                 </Field>
               </div>
-              <p className="text-sm tabular-nums text-muted">
+              <p className={`text-[13px] text-muted ${NUM}`}>
                 {form.schedule.days.length > 0 && !problem ? `주 ${terms.weeklyHours}시간 · ${terms.workDaysPerWeek}일 (시간표로 계산)` : problem}
               </p>
               <ErrorText>{error}</ErrorText>
             </div>
             <DialogFooter className="-mx-5 -mb-5 flex-row border-line bg-transparent px-5 py-4">
-              <button onClick={() => setEditing(false)} className={ACT_CANCEL}>취소</button>
-              <button onClick={save} className={ACT_SAVE}>저장</button>
+              <button onClick={() => setEditing(false)} className={`${BTN.secondary} flex-1`}>취소</button>
+              <button onClick={save} className={`${BTN.primary} flex-1`}>저장</button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -170,6 +176,9 @@ function MemberRow({ member, onChange }: { member: Member; onChange: () => void 
     </li>
   );
 }
+
+/** 날짜별 변경 한 줄 — 점선으로 나눈다 (B 시안 .list-row). 스켈레톤(_skeletons.tsx ExceptionRowsSkeleton)도 같은 높이 */
+const EXCEPTION_ROW = "flex items-center gap-2.5 border-b border-dashed border-line py-2.5 text-[13px] last:border-b-0";
 
 /** 날짜별 근무 변경 — 기본 시간표는 두고 그날 하루만 쉼·시각 변경. docs/prd/13 */
 function ScheduleExceptions({ userId }: { userId: string }) {
@@ -196,8 +205,8 @@ function ScheduleExceptions({ userId }: { userId: string }) {
   };
 
   return (
-    <div className="mt-4 border-t border-line pt-3 text-sm">
-      <p className="font-semibold">날짜별 변경</p>
+    <div className="px-4 py-3.5">
+      <SectionLabel as="p">날짜별 변경</SectionLabel>
       {loadError ? (
         <ErrorText>불러오지 못했어요.</ErrorText>
       ) : !data ? (
@@ -206,13 +215,13 @@ function ScheduleExceptions({ userId }: { userId: string }) {
         </Loading>
       ) : (
         data.length > 0 && (
-          <ul className="mt-1">
+          <ul className="mt-0.5">
             {data.map((e) => (
-              <li key={e.id} className="flex min-h-11 items-center justify-between gap-2">
-                <span className="tabular-nums">
+              <li key={e.id} className={EXCEPTION_ROW}>
+                <span className={`min-w-0 flex-1 ${NUM}`}>
                   {date(parseDay(e.date))} <span className="text-muted">·</span> {e.kind === "off" ? "쉼" : `${e.start}~${e.end} 근무`}
                 </span>
-                <button onClick={() => remove(e.id)} className={BTN_WARN}>삭제</button>
+                <button onClick={() => remove(e.id)} className={`${BTN.danger} shrink-0`}>삭제</button>
               </li>
             ))}
           </ul>
@@ -248,13 +257,14 @@ function ScheduleExceptions({ userId }: { userId: string }) {
           <p className="text-xs text-muted">같은 날짜에 다시 등록하면 덮어써요.</p>
           <ErrorText>{error}</ErrorText>
           <div className="flex gap-2">
-            <button onClick={() => setAdding(false)} className={ACT_CANCEL}>취소</button>
-            <button onClick={add} className={ACT_SAVE}>등록</button>
+            <button onClick={() => setAdding(false)} className={`${BTN.secondary} flex-1`}>취소</button>
+            <button onClick={add} className={`${BTN.primary} flex-1`}>등록</button>
           </div>
         </div>
       ) : (
-        <button onClick={() => setAdding(true)} className={`${BTN_ACCENT} mt-2 w-full gap-1`}>
-          <Plus size={16} aria-hidden />
+        // 추가는 점선 버튼 (B 시안 9 — 36px)
+        <button onClick={() => setAdding(true)} className={cn(BTN.dashed, "mt-1.5 h-9 w-full gap-1 text-xs")}>
+          <Plus size={14} aria-hidden />
           날짜별 변경 추가
         </button>
       )}

@@ -1,0 +1,111 @@
+export const metadata = { title: "Work Terms Charts" };
+
+# Work Terms Charts
+
+내 정보 탭 근무 조건 카드의 그림 셋. 주간 리듬 카드(`WeekRhythm`), 주 시간 게이지(`WeeklyHoursGauge`), 근무일 점(`WorkDayDots`)이다. 숫자만 늘어놓던 근무 조건을 그림으로 보여 준다 (2026-10-15 사용자 요청 "이 데이터는 그래프로 그려줘"). 주간 리듬 카드는 "근무 시간표가 재미 없다, 더 창의적으로" 요청에 사용자가 고른 모양이다. [Recharts](https://recharts.org) 3.10.1 은 주 시간 게이지에만 쓴다.
+
+<ComponentPreview name="work-terms-charts/basic" width="max-w-md" />
+
+<FileLocation path="web/src/components/member/WorkTermsCharts.tsx" importLine={`import { WeekRhythm, WeeklyHoursGauge, WorkDayDots } from "@/components/member/WorkTermsCharts";`} />
+
+## 사용법
+
+```tsx
+<WeekRhythm schedule={schedule} exceptions={exceptions} now={now} />
+<WeeklyHoursGauge hours={20} />
+<WorkDayDots schedule={schedule} count={5} />
+```
+
+`Schedule`·`DayException` 타입과 `scheduleText`·`dayPlan`·`nextShift`·`untilText` 는 `@/lib/schedule`. 구역 이름과 값 글자(`근무 시간표` · `월·화·수·목·금 10:00~14:00`)는 부르는 쪽이 그래프 위에 둔다 — 아래 예시가 쓰는 틀은 다음 파일이다. 예시의 기준 시각은 2026년 10월 15일(목) 13:48 로 고정한다.
+
+<SourceCode name="work-terms-charts/terms" />
+
+## 구성
+
+```
+WeekRhythm  <div>
+├─ 위 줄  <p role="status" text-[13px]>  nextShift() 결과에 따라 셋 중 하나
+│  ├─ 근무 중   초록 점 + "지금 근무 시간이에요 · 14:00 까지"
+│  ├─ 다음 근무 CalendarClock + "다음 근무까지 1일 19시간 (토 09:00)" — 남은 시간 text-accent NUM
+│  └─ 없음     "정해진 근무가 없어요" (14일 안에 근무가 없을 때)
+└─ <ol grid-cols-7 gap-1>  이번 주 월~일 카드 × 7, 각 <li aria-label="목요일 (오늘) 10:00~14:00 근무 4시간">
+   ├─ 근무일  rounded-xl border-accent/25 bg-accent/10 — 요일 · Sun 16px text-accent · "10-14" · "4h" (10px NUM)
+   ├─ 쉬는 날  border-dashed border-line — 요일 · Sofa 16px text-muted · "쉼"
+   ├─ 오늘  ring-2 ring-accent + 요일 글자 font-bold text-accent, aria-current="date"
+   └─ 지난 요일  opacity-55
+   그날 근무는 dayPlan() — 날짜별 근무 변경(DayException)이 시간표보다 먼저다
+   처음 그릴 때 카드가 왼쪽부터 0.04초 간격으로 6px 올라오며 나타난다(0.3초). 모션 줄이기면 투명도만
+WeeklyHoursGauge  <figure>
+├─ figcaption sr-only  "1주 소정근로시간 20시간 — 주휴수당 기준 15시간 이상, 법정 40시간"
+└─ <div aria-hidden h-[52px] text-muted>  막대 하나 0~max(40, hours)
+   ├─ 눈금 0h · 15h · 40h, 기준선 점선 "주휴 15h" · "법정 40h"
+   └─ Bar  text-accent, 높이 12, 뒤 트랙 currentColor 15%
+WorkDayDots  <div role="img" aria-label="1주 소정근로일수 5일 (월·화·수·목·금)">
+└─ 월~일 × 점 14px rounded-full  근무일 border-accent bg-accent / 아님 border-muted/40
+   └─ 요일 글자 11px text-muted (schedule 이 있을 때만)
+```
+
+- 색은 토큰만 쓴다. 근무일 카드는 `accent` 10% 바탕, 게이지 막대는 `text-accent` 의 `currentColor`, 축·기준선·트랙은 `text-muted` 에 투명도. SVG 속성에는 `var()` 를 쓰지 않는다.
+- 한 사람의 값이라 범례가 없다. 구역 이름이 그래프 제목이다.
+- 게이지 막대가 자라는 움직임은 0.4초 `ease-out`(Recharts 기본 1.5초를 줄였다). 모션 줄이기면 끈다.
+- 툴팁은 카드 모양(`rounded-xl border-line bg-surface`), 글자는 본문색에 고정폭 숫자.
+
+## 주 15시간 미만
+
+화·목·토 09:00~13:30, 주 13.5시간. 게이지 막대가 주휴 15h 기준선 앞에서 멈춘다. 목 13:48 은 오늘 근무가 끝난 뒤라 위 줄은 `다음 근무까지 1일 19시간 (토 09:00)` 이다.
+
+<ComponentPreview name="work-terms-charts/under-15" width="max-w-md" />
+
+## 날짜별 근무 변경
+
+월~금 시간표에 금(10/16) 쉼, 일(10/18) 11:00~15:00 근무를 더했다. 기준 시각은 목 15:00. 금 카드는 `쉼`, 일 카드는 `11-15` 로 바뀌고, 다음 근무는 금이 아니라 `2일 20시간 (일 11:00)` 뒤다.
+
+<ComponentPreview name="work-terms-charts/exceptions" width="max-w-md" />
+
+## 시간표 없음
+
+사장님이 시간표를 정하지 않은 멤버. 주간 리듬은 7일 모두 `쉼` 이고 위 줄은 `정해진 근무가 없어요`. 근무일 점은 일수만큼 앞에서부터 채운다(요일 글자 없음).
+
+<ComponentPreview name="work-terms-charts/no-schedule" width="max-w-md" />
+
+## 접근성
+
+- 주간 리듬 카드는 요일마다 `aria-label`(`목요일 (오늘) 10:00~14:00 근무 4시간`)을 읽고, 카드 안 글자·아이콘은 `aria-hidden` 이다. 위 줄은 `role="status"`.
+- 게이지 그림은 `aria-hidden` 이다. 스크린리더는 `figcaption`(sr-only)과 근무일 점의 `aria-label` 을 읽는다.
+- 같은 값이 그래프 위 글자로도 보인다. 그래프만으로 값을 알리지 않는다.
+
+## 하지 말 것
+
+- 카드·막대·점에 토큰 밖 색(`#0f766e` 를 직접 쓰기, Tailwind `teal-*`)을 쓰지 않는다 — 다크 모드에서 바뀌지 않는다.
+- 범례를 붙이지 않는다.
+- 그래프에서 금액을 계산하지 않는다. 값은 멤버십 조건과 날짜별 변경 그대로다.
+- 예시에서 `now` 를 `Date.now()` 로 두지 않는다.
+
+## API 레퍼런스
+
+### WeekRhythm
+
+<PropsTable
+  rows={[
+    { prop: "schedule", type: "Schedule | null ({ days: number[]; start: string; end: string })", required: true, description: "`days` 는 0(일)~6(토), 시각은 `HH:MM`(30분 단위). 없으면 날짜별 변경만 본다" },
+    { prop: "exceptions", type: 'DayException[] ({ date: "YYYY-MM-DD"; kind: "off" | "work"; start: string | null; end: string | null })', required: true, description: "날짜별 근무 변경. 시간표보다 먼저다" },
+    { prop: "now", type: "number", required: true, description: "기준 시각(ms). 이번 주·오늘·다음 근무를 정한다" },
+  ]}
+/>
+
+### WeeklyHoursGauge
+
+<PropsTable
+  rows={[
+    { prop: "hours", type: "number", required: true, description: "1주 소정근로시간. 40 이 넘으면 축 끝이 그 값으로 늘어난다" },
+  ]}
+/>
+
+### WorkDayDots
+
+<PropsTable
+  rows={[
+    { prop: "schedule", type: "Schedule | null", required: true, description: "있으면 그 요일을 채우고 요일 글자를 단다" },
+    { prop: "count", type: "number", required: true, description: "1주 소정근로일수. `schedule` 이 없을 때 앞에서부터 이만큼 채운다" },
+  ]}
+/>

@@ -2,15 +2,19 @@
 // 대시보드 — 지금 누가 일하는지, 이번 달 인건비가 얼마인지. docs/prd/07-admin.md
 import Link from "next/link";
 import { useMemo } from "react";
+import { Bell, Coins, Hourglass, Timer, TriangleAlert, Wallet } from "lucide-react";
 import { api, type Member } from "@/api/client";
 import { holidayStatus } from "@/components/PayView";
+import { CountUp, Enter } from "@/components/motion";
 import { Avatar } from "@/components/shell";
-import { Card, dayLabel, hm, MonthPicker, time, toShift, useMonthCursor, useNow, won } from "@/components/ui";
+import { Card, dayLabel, hm, MonthPicker, NUM, SectionLabel, time, toShift, useMonthCursor, useNow, won } from "@/components/ui";
 import { computeMonth, computeWeeks, dayKey, MINIMUM_WAGE, shiftMinutes, startOfWeek, type PaySettings } from "@/lib/pay";
 import { useApi } from "@/lib/useApi";
 import { DashboardSkeleton } from "./_skeletons";
 
 const LONG_OPEN_MIN = 12 * 60;
+/** 카드 안 목록 행 — 점선으로 나눈다 (B 시안 .list-row) */
+const ROW = "flex items-center gap-2.5 border-b border-dashed border-line py-2.5 text-[13px] last:border-b-0";
 
 export default function DashboardPage() {
   const [cursor, setCursor] = useMonthCursor();
@@ -50,83 +54,88 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Card>
-          <div className="flex items-baseline justify-between">
-            <h2 className="font-semibold">지금 근무 중</h2>
-            <p className="text-sm text-muted">오늘 {cameToday}/{rows.length}명 출근{onLeaveToday.length > 0 && ` · 휴가·대타 ${onLeaveToday.length}명`}</p>
-          </div>
-          {working.length === 0 ? (
-            <p className="mt-3 text-sm text-muted">근무 중인 사람이 없어요</p>
-          ) : (
-            <ul className="mt-3 space-y-2">
-              {working.map(({ member, shift }) => (
-                <li key={shift.id} className="flex items-center justify-between gap-3 text-sm">
-                  <span className="flex min-w-0 items-center gap-2 font-medium">
-                    <span className="relative">
-                      <Avatar name={member.nickname} seed={member.userId} size="sm" />
-                      <span aria-hidden className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-surface bg-ok" />
-                    </span>
-                    <span className="truncate">{member.nickname}</span>
-                  </span>
-                  <span className="tabular-nums text-muted">{time(shift.start)} 출근 · {hm(shiftMinutes(shift, now))}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
-        <Card>
-          <MonthPicker cursor={cursor} onChange={setCursor} />
-          <p className="mt-2 text-sm text-muted">인건비 (예상, 세전)</p>
-          <p className="mt-1 text-3xl font-bold tabular-nums">{won(total.total)}</p>
-          <p className="mt-2 text-xs text-muted tabular-nums">기본급 {won(total.base)} · 주휴 {won(total.holiday)} · 휴가 {won(total.leave)} · 연장 가산 {won(total.ot)}</p>
-        </Card>
-      </div>
-
-      {alerts.length > 0 && (
-        <Card className="border-warn/40">
-          <h2 className="font-semibold text-warn">확인 필요</h2>
-          <ul className="mt-3 space-y-2 text-sm">
-            {alerts.map((a, i) => (
-              <li key={i}>
-                {a.member ? (
-                  <><Link href={`/admin/members/${a.member.userId}`} className="font-medium underline-offset-2 hover:underline">{a.member.nickname}</Link> · {a.text}</>
-                ) : (
-                  <Link href={a.href!} className="font-medium underline-offset-2 hover:underline">{a.text}</Link>
-                )}
+    // 달을 바꿔 새 data 가 오면 카드가 다시 차례로 나타난다
+    <Enter className="grid gap-3 sm:grid-cols-2" replay={data}>
+      <Card>
+        <SectionLabel icon={Timer} right={`${cameToday}/${rows.length}명 출근${onLeaveToday.length > 0 ? ` · 휴가·대타 ${onLeaveToday.length}명` : ""}`}>지금 근무 중</SectionLabel>
+        {working.length === 0 ? (
+          <p className="mt-3 text-sm text-muted">근무 중인 사람이 없어요</p>
+        ) : (
+          <ul className="mt-1">
+            {working.map(({ member, shift }) => (
+              <li key={shift.id} className={ROW}>
+                <Avatar name={member.nickname} seed={member.userId} size="sm" />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-semibold">{member.nickname}</span>
+                  <span className={`block text-xs text-muted ${NUM}`}>{time(shift.start)} 출근 · {hm(shiftMinutes(shift, now))}</span>
+                </span>
+                {/* 근무 중 표시 — 옆 글자 "출근" 이 같은 뜻이라 장식 */}
+                <span aria-hidden className="h-[7px] w-[7px] shrink-0 rounded-full bg-ok ring-3 ring-ok/15" />
               </li>
             ))}
+          </ul>
+        )}
+      </Card>
+
+      <Card>
+        <MonthPicker cursor={cursor} onChange={setCursor} />
+        <div className="mt-3">
+          <SectionLabel icon={Wallet}>{cursor.month + 1}월 인건비 (예상, 세전)</SectionLabel>
+        </div>
+        {/* 포인트 컬러 — 큰 금액만 강조색 (2026-10-15 사용자 지시) */}
+        <CountUp value={total.total} format={won} className={`mt-1.5 block text-[28px] font-semibold leading-tight text-accent ${NUM}`} />
+        <p className={`mt-1 text-xs text-muted ${NUM}`}>기본급 {won(total.base)} · 주휴 {won(total.holiday)} · 휴가 {won(total.leave)} · 연장 가산 {won(total.ot)}</p>
+      </Card>
+
+      {alerts.length > 0 && (
+        <Card className="sm:col-span-2">
+          <SectionLabel icon={Bell} right={alerts.length}>확인 필요</SectionLabel>
+          <ul className="mt-2 grid gap-1.5 rounded-xl border-l-3 border-caution bg-caution/10 px-3 py-2.5 text-[13px]">
+            {alerts.map((a, i) => {
+              const Icon = a.member ? TriangleAlert : Hourglass;
+              return (
+                <li key={i} className="flex items-start gap-2">
+                  <Icon size={14} aria-hidden className={`mt-0.5 shrink-0 ${a.member ? "text-warn" : "text-caution"}`} />
+                  <span className="min-w-0">
+                    {a.member ? (
+                      <><Link href={`/admin/members/${a.member.userId}`} className="font-semibold underline-offset-2 hover:underline">{a.member.nickname}</Link> · {a.text}</>
+                    ) : (
+                      <Link href={a.href!} className="font-semibold underline-offset-2 hover:underline">{a.text}</Link>
+                    )}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </Card>
       )}
 
-      <Card className="p-0">
-        <h2 className="px-5 pt-5 font-semibold">멤버별 {cursor.month + 1}월</h2>
+      <Card className="sm:col-span-2">
+        <SectionLabel icon={Coins}>멤버별 {cursor.month + 1}월</SectionLabel>
         {rows.length === 0 ? (
-          <p className="px-5 py-4 text-sm text-muted">
-            아직 멤버가 없어요. <Link href="/admin/invites" className="text-accent">초대 코드를 발급</Link>해 보세요.
+          <p className="mt-3 text-sm text-muted">
+            아직 멤버가 없어요. <Link href="/admin/invites" className="font-medium text-accent">초대 코드를 발급</Link>해 보세요.
           </p>
         ) : (
-          <ul className="mt-2 divide-y divide-line">
+          <ul className="mt-1">
             {rows.map((r) => (
-              <li key={r.member.userId}>
-                <Link href={`/admin/members/${r.member.userId}`} className="flex items-center justify-between gap-3 px-5 py-4 hover:bg-background">
-                  <Avatar name={r.member.nickname} seed={r.member.userId} />
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium">{r.member.nickname}</p>
-                    <p className="text-xs text-muted">
-                      {hm(r.month.workedMinutes)} · 이번 주 주휴 {r.thisWeek ? holidayStatus(r.thisWeek, r.settings, now) : "기록 없음"}
+              <li key={r.member.userId} className="border-b border-dashed border-line last:border-b-0">
+                <Link href={`/admin/members/${r.member.userId}`} className="-mx-2 flex items-center gap-2.5 rounded-xl px-2 py-2.5 text-[13px] hover:bg-background">
+                  <Avatar name={r.member.nickname} seed={r.member.userId} size="sm" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-semibold">{r.member.nickname}</span>
+                    <span className="block text-xs text-muted">
+                      <span className={NUM}>{hm(r.month.workedMinutes)}</span> · 이번 주 주휴 {r.thisWeek ? holidayStatus(r.thisWeek, r.settings, now) : "기록 없음"}
                       {r.month.overtimeMinutes > 0 && ` · 연장 ${hm(r.month.overtimeMinutes)}`}
-                    </p>
-                  </div>
-                  <p className="shrink-0 font-semibold tabular-nums">{won(r.month.total)}</p>
+                    </span>
+                  </span>
+                  <span className={`shrink-0 font-semibold ${NUM}`}>{won(r.month.total)}</span>
                 </Link>
               </li>
             ))}
           </ul>
         )}
       </Card>
-    </div>
+    </Enter>
   );
 }

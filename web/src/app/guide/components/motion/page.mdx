@@ -1,0 +1,110 @@
+export const metadata = { title: "Motion" };
+
+# Motion
+
+GSAP 로 만든 모션 4종. 화면 진입(`Enter`), 숫자 변화(`CountUp`), 글자 바뀜(`SwapText`), 완료 순간(`useAppear`)에만 쓴다. 모션 줄이기 설정이면 모두 이동 없이 투명도만 바꾼다.
+
+<ComponentPreview name="motion/enter" width="max-w-md" />
+
+<FileLocation path="web/src/components/motion.tsx" importLine={`import { CountUp, Enter, SwapText, useAppear } from "@/components/motion";`} />
+
+## 사용법
+
+```tsx
+<Enter className="space-y-4">
+  <Card>…</Card>
+  <Card>…</Card>
+</Enter>
+```
+
+## 구성
+
+<SimpleTable
+  head={["이름", "움직임", "모션 줄이기"]}
+  rows={[
+    ["`Enter`", "바로 아래 자식들이 8px 아래에서 올라오며 차례로 나타난다. 0.32초, 0.06초 간격. 끝나면 인라인 스타일을 지운다", "투명도만 0.2초"],
+    ["`CountUp`", "이전 값(처음은 0)에서 새 값까지 0.6초. React 가 그린 글자 노드의 값만 바꾼다", "움직이지 않고 새 값을 바로"],
+    ["`SwapText`", "새 글자가 아래(100%)에서 올라오며 나타난다. 0.22초. 처음 그릴 때는 움직이지 않는다", "투명도만 0.2초"],
+    ["`useAppear`", "ref 를 붙인 요소가 마운트될 때 10px 아래에서 올라온다. 0.35초", "투명도만 0.2초"],
+  ]}
+/>
+
+곡선은 모두 `EASE`(`power2.out`) — 빠르게 출발해 천천히 멈춘다. 그리기 전에 시작 상태를 잡아(`useLayoutEffect`) 처음 한 장면이 깜빡이지 않는다.
+
+## 화면 진입 — Enter
+
+맨 위 미리보기. 화면을 처음 열 때 본문 묶음을 감싼다. 불러오기가 끝나 내용이 바뀌면 `replay` 에 바뀌는 값을 넘겨 다시 한다.
+
+## 숫자 변화 — CountUp
+
+급여·근무 시간처럼 바뀌는 숫자. `format` 이 화면에 그릴 글자를 만든다. 서버 렌더와 스크린리더는 처음부터 최종 값을 받는다.
+
+<ComponentPreview name="motion/count-up" />
+
+## 글자 바뀜 — SwapText
+
+출퇴근 상태(`근무 중` → `퇴근함`)처럼 한 자리의 글자가 바뀔 때.
+
+<ComponentPreview name="motion/swap-text" />
+
+## 완료 순간 — useAppear
+
+저장 알림·완료 상자처럼 드물게 나타나는 것. 돌려받은 `ref` 를 그 요소에 붙인다.
+
+<ComponentPreview name="motion/use-appear" />
+
+## 사용 규칙
+
+언제 움직이고 언제 멈추는지는 기초 페이지 "움직임" 절. 기준의 원본은 루트 <DocLink path="DESIGN.md">DESIGN.md</DocLink>. 버튼 누름(`scale(0.97)`)과 오류 문구 `.appear` 는 GSAP 가 아니라 `globals.css` 가 맡는다.
+
+## 하지 말 것
+
+- 탭 전환·목록 스크롤처럼 하루 수십 번 보는 곳에 걸지 않는다.
+- 화면 코드에서 `gsap` 을 직접 부르지 않는다. 새 모션이 필요하면 `motion.tsx` 에 추가를 요청한다 — 모션 줄이기 처리가 한 곳에 모여 있다.
+- `Enter` 안에 자식을 하나만 두면 차례 등장이 없다. 차례로 나올 묶음을 바로 아래 자식으로 둔다.
+- `CountUp` 의 `format` 안에서 반올림 외의 계산을 하지 않는다. 금액 계산은 `lib/pay.ts` 가 한다.
+
+## API 레퍼런스
+
+### Enter
+
+<PropsTable
+  rows={[
+    { prop: "children", type: "React.ReactNode", required: true, description: "바로 아래 자식마다 차례로 나타난다" },
+    { prop: "className", type: "string", description: "감싸는 `div` 의 클래스" },
+    { prop: "replay", type: "unknown", description: "값이 바뀌면 다시 한다" },
+  ]}
+/>
+
+### CountUp
+
+<PropsTable
+  rows={[
+    { prop: "value", type: "number", required: true, description: "보일 값" },
+    { prop: "format", type: "(n: number) => string", required: true, description: "숫자를 글자로. 움직이는 동안은 반올림한 정수가 들어온다" },
+    { prop: "className", type: "string", description: "`span` 의 클래스. 숫자면 `NUM` 을 같이 준다" },
+  ]}
+/>
+
+### SwapText
+
+<PropsTable
+  rows={[
+    { prop: "text", type: "string", required: true, description: "보일 글자. 바뀔 때만 움직인다" },
+    { prop: "className", type: "string", description: "바깥 `span`(`inline-flex overflow-hidden`)의 클래스" },
+  ]}
+/>
+
+### useAppear()
+
+타입 인자로 요소 종류를 준다(`useAppear<HTMLDivElement>()`). ref 객체를 돌려준다. 그 ref 를 붙인 요소가 마운트될 때 한 번 움직인다.
+
+### 그 밖의 export
+
+<SimpleTable
+  head={["이름", "값"]}
+  rows={[
+    ["`EASE`", "`\"power2.out\"` — 모션 곡선"],
+    ["`reducedMotion()`", "모션 줄이기 설정이면 `true`. 서버에서는 `false`"],
+  ]}
+/>

@@ -1,5 +1,5 @@
 "use client";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
 import { IconButton } from "./shell";
 import { Skeleton } from "./ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -49,8 +49,30 @@ export function useNow(intervalMs: number) {
   return now;
 }
 
+// 숫자 글꼴·버튼 모양은 서버 컴포넌트에서도 문자열로 쓰도록 "use client" 없는 styles.ts 에 둔다
+import { BTN, NUM } from "./styles";
+export { BTN, NUM };
+
+/** 카드. 구역을 나눌 때는 className="divide-y divide-line p-0" 으로 두고 안에 <div className="px-4 py-3.5"> 를 쌓는다 */
 export function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <section className={`rounded-2xl border border-line bg-surface p-5 ${className}`}>{children}</section>;
+  return <section className={`rounded-2xl border border-line bg-surface p-4 ${className}`}>{children}</section>;
+}
+
+/**
+ * 카드 구역 머리 — 작은 회색 글자, 앞에 lucide 아이콘(15px), 원하면 번호("01"), 오른쪽에 요약 값.
+ * 제목 수준은 as 로 (기본 h2).
+ */
+export function SectionLabel({ icon: Icon, index, children, right, as: Tag = "h2" }: { icon?: LucideIcon; index?: string; children: React.ReactNode; right?: React.ReactNode; as?: "h2" | "h3" | "p" }) {
+  return (
+    <div className="flex items-center justify-between gap-2 text-xs font-semibold text-muted">
+      <Tag className="flex min-w-0 items-center gap-1.5 text-xs font-semibold">
+        {Icon && <Icon size={15} strokeWidth={1.75} aria-hidden className="shrink-0" />}
+        {index && <span className={`${NUM} text-muted/70`}>{index}</span>}
+        <span className="truncate">{children}</span>
+      </Tag>
+      {right !== undefined && <span className={`shrink-0 ${NUM}`}>{right}</span>}
+    </div>
+  );
 }
 
 export function MonthPicker({ cursor, onChange }: { cursor: { year: number; month: number }; onChange: (c: { year: number; month: number }) => void }) {
@@ -60,9 +82,9 @@ export function MonthPicker({ cursor, onChange }: { cursor: { year: number; mont
   };
   return (
     <div className="flex items-center justify-between">
-      <IconButton icon={ChevronLeft} label="이전 달" onClick={() => move(-1)} />
-      <p className="font-semibold">{cursor.year}년 {cursor.month + 1}월</p>
-      <IconButton icon={ChevronRight} label="다음 달" onClick={() => move(1)} />
+      <IconButton variant="outline" icon={ChevronLeft} label="이전 달" onClick={() => move(-1)} />
+      <p className={`font-semibold ${NUM}`}>{cursor.year}년 {cursor.month + 1}월</p>
+      <IconButton variant="outline" icon={ChevronRight} label="다음 달" onClick={() => move(1)} />
     </div>
   );
 }
@@ -78,8 +100,8 @@ export function Field({ label, children }: { label: string; children: React.Reac
   return (
     // min-w-0: 격자 칸 안에서 줄어들 수 있게. 안쪽은 span — label 안에는 글자 수준 요소만 둔다
     <label className="block min-w-0 text-sm">
-      <span className="text-muted">{label}</span>
-      <span className="mt-1 block">{children}</span>
+      <span className="text-xs font-semibold text-muted">{label}</span>
+      <span className="mt-1.5 block">{children}</span>
     </label>
   );
 }
@@ -107,7 +129,7 @@ const STATUS: Record<string, { label: string; tone: string }> = {
 
 export function StatusPill({ status }: { status: string }) {
   const s = STATUS[status] ?? { label: status, tone: "bg-line/60 text-muted" };
-  return <span className={`whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ${s.tone}`}>{s.label}</span>;
+  return <span className={`inline-flex h-5 items-center whitespace-nowrap rounded-md px-1.5 text-[11px] font-semibold ${s.tone}`}>{s.label}</span>;
 }
 
 /** 진행 막대. 넘친 값은 가득 채우고 실제 값은 valueText 가 말한다. docs/design/member-today.md §5-4 */

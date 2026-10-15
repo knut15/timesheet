@@ -2,7 +2,7 @@ export const metadata = { title: "Avatar" };
 
 # Avatar
 
-멤버 아바타. 사진 없이 이름 이니셜과 사용자 id 로 고정된 배경색.
+멤버 아바타. 사진 없이 이름 이니셜과 사용자 id 로 고정된 배경색. 모양은 둥근 사각형이다.
 
 <ComponentPreview name="avatar/basic" />
 
@@ -17,7 +17,7 @@ export const metadata = { title: "Avatar" };
 ## 구성
 
 ```
-Avatar  <span rounded-full, 흰 글자, 배경 = AVATAR_COLORS[hash(seed) % 8]>
+Avatar  <span 둥근 사각형(크기별 모서리), 흰 글자, 배경 = AVATAR_COLORS[hash(seed) % 8]>
 └─ initials(name)
    role="img" + aria-label (label 있을 때) / aria-hidden (없을 때)
 ```
@@ -30,7 +30,7 @@ Avatar  <span rounded-full, 흰 글자, 배경 = AVATAR_COLORS[hash(seed) % 8]>
 
 ## Sizes
 
-xs 18 · sm 32 · md 40 · lg 64.
+xs 18 · sm 32 · md 40 · lg 64. 모서리는 크기에 맞춰 4 · 6 · 8 · 12px.
 
 <ComponentPreview name="avatar/sizes" />
 
@@ -64,7 +64,7 @@ xs 18 · sm 32 · md 40 · lg 64.
   rows={[
     { prop: "name", type: "string", required: true, description: "이니셜의 원본" },
     { prop: "seed", type: "string", required: true, description: "색을 정하는 값. 사용자 id" },
-    { prop: "size", type: '"xs" | "sm" | "md" | "lg"', default: '"md"', description: "18 / 32 / 40 / 64px, 글자 9px / 12 / 14 / 20" },
+    { prop: "size", type: '"xs" | "sm" | "md" | "lg"', default: '"md"', description: "18 / 32 / 40 / 64px, 글자 9px / 12 / 14 / 20, 모서리 4px / 6 / 8 / 12" },
     { prop: "label", type: "string", description: "있으면 `role=\"img\"` + `aria-label`, 없으면 `aria-hidden`" },
   ]}
 />

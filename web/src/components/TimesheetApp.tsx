@@ -1,7 +1,7 @@
 "use client";
 // 멤버(알바생) 화면. 기록과 급여 조건은 서버에서 읽는다. docs/prd/01~04, 06, 08, 09
 import { useEffect, useMemo, useState } from "react";
-import { api, errorCode, type Absence, type Me, type MyMembership, type MyRequests } from "@/api/client";
+import { api, errorCode, type Absence, type Me, type MyMembership, type MyRequests, type ScheduleException } from "@/api/client";
 import { useArea } from "@/auth/hooks";
 import { logout } from "@/auth/session";
 import { GEOFENCE_RADIUS_M } from "@/lib/geo";
@@ -11,13 +11,16 @@ import { setDeviceSettings, useDeviceSettings } from "@/lib/storage";
 import { todayState, toMinute } from "@/lib/today";
 import { useApi } from "@/lib/useApi";
 import { requestAlertPermissions, useGeofence } from "@/lib/useGeofence";
-import { CalendarDays, ClipboardList, Clock, UserRound, Wallet } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { BellRing, CalendarDays, ClipboardList, Clock, MapPin, NotebookText, UserRound, Wallet } from "lucide-react";
 import { RecordsPanel } from "./member/RecordsPanel";
+import { WeekRhythm, WeeklyHoursGauge, WorkDayDots } from "./member/WorkTermsCharts";
 import { RequestsPanel } from "./member/RequestsPanel";
-import { PayView, PayViewSkeleton } from "./PayView";
+import { Enter } from "./motion";
+import { DotRow, PayView, PayViewSkeleton } from "./PayView";
 import { ClockCard, ClockCardSkeleton, TodayDashboard, TodayDashboardSkeleton, type ClockState } from "./TodayDashboard";
 import { AppHeader, Avatar, BottomNav, BottomNavSkeleton, HeaderSkeleton, type NavItem } from "./shell";
-import { Bone, Card, date, keyed, Loading, MonthPicker, monthRange, time, toShift, useMonthCursor, useNow, won } from "./ui";
+import { Bone, BTN, Card, date, keyed, Loading, MonthPicker, monthRange, NUM, SectionLabel, time, toShift, useMonthCursor, useNow, won } from "./ui";
 
 type Tab = "clock" | "records" | "requests" | "pay" | "me";
 const TABS = [
@@ -40,11 +43,11 @@ function MemberSkeleton() {
     <div className="mx-auto flex w-full max-w-md flex-1 flex-col">
       <HeaderSkeleton width="max-w-md" />
       <main className="mx-auto w-full max-w-md flex-1 px-5 pb-28 pt-4">
-        <div className="space-y-4">
+        <div className="space-y-3">
           <ClockCardSkeleton />
           <TodayDashboardSkeleton />
           <Loading>
-            <AlertCardFrame toggle={<Bone className="h-7 w-12 shrink-0 rounded-full" />} />
+            <AlertCardFrame toggle={<span className={SWITCH_HIT}><Bone className="h-5 w-9 rounded-md" /></span>} />
           </Loading>
         </div>
       </main>
@@ -53,18 +56,24 @@ function MemberSkeleton() {
   );
 }
 
-/** 매장 근처 출근 알림 카드의 윗부분 — 제목·설명은 고정 글자, 오른쪽은 스위치 */
+/** 스위치 그림은 36×20, 누르는 자리는 44px 로 넓힌다 (DESIGN.md §6) */
+const SWITCH_HIT = "-mr-1 flex h-11 w-11 shrink-0 items-center justify-center";
+
+/** 매장 근처 출근 알림 카드 — 윗구역은 고정 글자 + 오른쪽 스위치, 아래 구역(children)은 있을 때만 */
 function AlertCardFrame({ toggle, children }: { toggle: React.ReactNode; children?: React.ReactNode }) {
   return (
-    <Card>
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h2 className="font-semibold">매장 근처 출근 알림</h2>
-          <p className="text-sm text-muted">{GEOFENCE_RADIUS_M}m 안에 들어오면 알리고, 1분 뒤 한 번 더 알려요</p>
+    <Card className="divide-y divide-line p-0">
+      <div className="flex items-center justify-between gap-3 px-4 py-3">
+        <div className="min-w-0">
+          <h2 className="flex items-center gap-1.5 text-sm font-semibold">
+            <BellRing size={15} strokeWidth={1.75} aria-hidden className="shrink-0 text-muted" />
+            매장 근처 출근 알림
+          </h2>
+          <p className="mt-0.5 text-xs leading-relaxed text-muted"><span className={NUM}>{GEOFENCE_RADIUS_M}m</span> 안에 들어오면 알리고, 1분 뒤 한 번 더 알려요</p>
         </div>
         {toggle}
       </div>
-      {children}
+      {children && <div className="px-4 py-3">{children}</div>}
     </Card>
   );
 }
@@ -137,7 +146,7 @@ function MemberHome({ me, membership }: { me: Me; membership: MyMembership }) {
           />
         )}
         {tab === "records" && (
-          <div className="space-y-4">
+          <div className="space-y-3">
             <MonthPicker cursor={cursor} onChange={setCursor} />
             <RecordsPanel
               shifts={shifts}
@@ -154,7 +163,7 @@ function MemberHome({ me, membership }: { me: Me; membership: MyMembership }) {
         )}
         {tab === "requests" && <RequestsPanel requests={reqRes.data} failed={!!reqRes.error} colleagues={colleagues.data ?? []} onChange={reloadAll} />}
         {tab === "pay" && (
-          <div className="space-y-4">
+          <div className="space-y-3">
             <MonthPicker cursor={cursor} onChange={setCursor} />
             {/* 읽기에 실패하면 예전처럼 PayView 를 그린다 — 실패한 동안 막대가 멈춰 있지 않게 */}
             <PayTab shifts={shifts} absences={absences} settings={settings} year={cursor.year} month={cursor.month} loading={recordsLoading && !recordsFailed} />
@@ -239,11 +248,15 @@ function ClockPanel({
         : "대기 중";
 
   return (
-    <div className="space-y-4">
+    // 카드가 차례로 나타나고, 기록을 다 읽으면(status 가 바뀌면) 다시
+    <Enter className="space-y-3" replay={status}>
       {geo.inside && !open && !doneToday && (
-        <div role="alert" className="rounded-2xl bg-accent p-5 text-on-accent">
-          <p className="font-semibold">매장 {GEOFENCE_RADIUS_M}m 안이에요. 출근 체크하세요.</p>
-          <button disabled={busy} onClick={() => punch("in")} className="mt-3 w-full rounded-xl bg-on-accent py-3 font-bold text-accent">
+        <div role="alert" className="rounded-2xl border border-accent/30 bg-accent/10 p-4">
+          <p className="flex items-start gap-2 text-sm font-semibold">
+            <MapPin size={16} aria-hidden className="mt-0.5 shrink-0 text-accent" />
+            <span>매장 <span className={NUM}>{GEOFENCE_RADIUS_M}m</span> 안이에요. 출근 체크하세요.</span>
+          </p>
+          <button type="button" disabled={busy} onClick={() => punch("in")} className={cn(BTN.primary, "mt-3 w-full bg-accent text-on-accent")}>
             지금 출근
           </button>
         </div>
@@ -265,51 +278,56 @@ function ClockPanel({
       <AlertCardFrame
         toggle={
           <button
+            type="button"
             role="switch"
             aria-checked={device.alertsOn}
             aria-label="출근 알림"
             onClick={toggleAlerts}
             disabled={lat === null}
-            className={`relative h-7 w-12 shrink-0 rounded-full disabled:opacity-40 ${device.alertsOn ? "bg-accent" : "bg-line"}`}
+            className={`${SWITCH_HIT} disabled:opacity-40`}
           >
-            <span className={`absolute left-1 top-1 h-5 w-5 rounded-full bg-white transition-transform duration-150 ease-[var(--ease-out)] ${device.alertsOn ? "translate-x-5" : ""}`} />
+            <span aria-hidden className={`relative h-5 w-9 rounded-md ${device.alertsOn ? "bg-accent" : "bg-line"}`}>
+              <span className={`absolute left-[3px] top-[3px] h-3.5 w-3.5 rounded-[3px] bg-white transition-transform duration-150 ease-[var(--ease-out)] ${device.alertsOn ? "translate-x-4" : ""}`} />
+            </span>
           </button>
         }
       >
-        {lat === null && <p className="mt-3 text-sm text-warn">사장님이 매장 위치를 아직 정하지 않았어요.</p>}
-        {permError && <p className="mt-3 text-sm text-warn">{permError}</p>}
-        {device.alertsOn && (
-          <dl className="mt-4 grid grid-cols-2 gap-y-2 text-sm">
-            <dt className="text-muted">매장까지</dt>
-            <dd className="text-right tabular-nums">{geo.distance === null ? "위치 확인 중…" : `${Math.round(geo.distance)}m ${geo.inside ? "(안)" : "(밖)"}`}</dd>
-            <dt className="text-muted">GPS 정확도</dt>
-            <dd className="text-right tabular-nums">{geo.position ? `±${Math.round(geo.position.accuracy)}m` : "-"}</dd>
-            <dt className="text-muted">알림 상태</dt>
-            <dd className="text-right">{alertLabel}</dd>
-          </dl>
+        {(lat === null || permError || device.alertsOn || geo.error) && (
+          <>
+            {lat === null && <p className="text-sm text-warn">사장님이 매장 위치를 아직 정하지 않았어요.</p>}
+            {permError && <p className="text-sm text-warn">{permError}</p>}
+            {device.alertsOn && (
+              <dl className="grid gap-1.5 text-[13px]">
+                <DotRow term="매장까지"><span className={NUM}>{geo.distance === null ? "위치 확인 중…" : `${Math.round(geo.distance)}m ${geo.inside ? "(안)" : "(밖)"}`}</span></DotRow>
+                <DotRow term="GPS 정확도"><span className={NUM}>{geo.position ? `±${Math.round(geo.position.accuracy)}m` : "-"}</span></DotRow>
+                <DotRow term="알림 상태">{alertLabel}</DotRow>
+              </dl>
+            )}
+            {geo.error && <p className="mt-2 text-sm text-warn">{geo.error}</p>}
+            {device.alertsOn && <p className="mt-2.5 text-xs text-muted">이 화면을 열어 둔 동안에만 위치를 확인해요.</p>}
+          </>
         )}
-        {geo.error && <p className="mt-3 text-sm text-warn">{geo.error}</p>}
-        {device.alertsOn && <p className="mt-3 text-xs text-muted">이 화면을 열어 둔 동안에만 위치를 확인해요.</p>}
       </AlertCardFrame>
-    </div>
+    </Enter>
   );
 }
 
 /** 오늘 이후 날짜별 근무 변경 — 보기만 한다. 없으면 카드째 숨긴다. docs/prd/13 */
-function MyScheduleExceptions() {
-  const today = dayKey(useNow(60_000));
-  const { data, error } = useApi(() => api.GET("/api/schedule-exceptions/me", { params: { query: { from: today } } }), today);
+type Exceptions = { data: ScheduleException[] | null; error: unknown };
+
+function MyScheduleExceptions({ data, error }: Exceptions) {
   // 읽는 동안은 2행 자리를 둔다. 읽고 나서 없거나 실패하면 예전처럼 카드째 숨긴다
   if (data === null && !error)
     return (
       <Loading>
         <Card>
-          <h2 className="font-semibold">날짜별 근무 변경</h2>
-          <ul className="mt-3 space-y-2 text-sm">
+          <SectionLabel icon={CalendarDays}>날짜별 근무 변경</SectionLabel>
+          <ul className={EXC_ROWS}>
             {[0, 1].map((i) => (
-              <li key={i} className="flex h-5 items-center justify-between gap-2">
-                <Bone className="h-4 w-24" />
-                <Bone className="h-4 w-28" />
+              <li key={i} className={EXC_ROW}>
+                {/* 막대를 span 으로 감싼다 — flex 항목이 되면 글자 줄(13px) 높이를 잃는다 */}
+                <span><Bone className="inline-block h-3.5 w-24 align-middle" /></span>
+                <span><Bone className="inline-block h-3.5 w-28 align-middle" /></span>
               </li>
             ))}
           </ul>
@@ -319,12 +337,13 @@ function MyScheduleExceptions() {
   if (!data?.length) return null;
   return (
     <Card>
-      <h2 className="font-semibold">날짜별 근무 변경</h2>
-      <ul className="mt-3 space-y-2 text-sm">
+      <SectionLabel icon={CalendarDays}>날짜별 근무 변경</SectionLabel>
+      <ul className={EXC_ROWS}>
         {data.map((e) => (
-          <li key={e.id} className="flex justify-between gap-2 tabular-nums">
+          <li key={e.id} className={EXC_ROW}>
             <span>{date(parseDay(e.date))}</span>
-            <span>{e.kind === "off" ? "쉼" : `${e.start}~${e.end} 근무`}</span>
+            {/* 쉼은 회색 배지(취소 배지와 같은 bg-line/60), 근무는 시각 글자 */}
+            {e.kind === "off" ? <span className="inline-flex h-5 items-center rounded-md bg-line/60 px-1.5 text-[11px] font-semibold text-muted">쉼</span> : <span>{`${e.start}~${e.end} 근무`}</span>}
           </li>
         ))}
       </ul>
@@ -332,38 +351,62 @@ function MyScheduleExceptions() {
   );
 }
 
+// 카드 안 목록 — 줄 사이는 점선 (2026-10-15 B 시안 .list-row). 배지(h-5)가 있어도 줄 높이가 같게 min-h
+const EXC_ROWS = "mt-1 divide-y divide-dashed divide-line";
+const EXC_ROW = `flex min-h-10 items-center justify-between gap-2 py-2.5 text-[13px] ${NUM}`;
+
 function MePanel({ me, membership }: { me: Me; membership: MyMembership }) {
+  const now = useNow(60_000);
+  const today = dayKey(now);
+  const exceptions = useApi(() => api.GET("/api/schedule-exceptions/me", { params: { query: { from: today } } }), today);
   return (
-    <div className="space-y-4">
-      <Card className="flex items-center gap-4">
+    // 카드가 차례로 나타나고, 날짜별 근무 변경을 다 읽으면 다시
+    <Enter className="space-y-3" replay={exceptions.data !== null || !!exceptions.error}>
+      <Card className="flex items-center gap-3.5">
         <Avatar name={me.user.nickname} seed={me.user.id} size="lg" />
         <div className="min-w-0">
-          <h2 className="truncate text-lg font-semibold">{me.user.nickname}</h2>
-          <p className="truncate text-sm text-muted">{me.user.email}</p>
-          <p className="mt-1 text-xs text-muted">{membership.store.name} · 멤버</p>
+          <h2 className="truncate text-[17px] font-bold">{me.user.nickname}</h2>
+          <p className="truncate text-[13px] text-muted">{me.user.email}</p>
+          <p className="mt-0.5 text-xs text-muted">{membership.store.name} · 멤버</p>
         </div>
       </Card>
       <Card>
-        <h2 className="font-semibold">근무 조건</h2>
-        <dl className="mt-3 grid grid-cols-2 gap-y-2 text-sm">
-          <dt className="text-muted">매장</dt>
-          <dd className="text-right">{membership.store.name}</dd>
-          <dt className="text-muted">시급</dt>
-          <dd className="text-right tabular-nums">{won(membership.hourlyWage)}</dd>
-          <dt className="text-muted">근무 시간표</dt>
-          <dd className="text-right tabular-nums">{membership.schedule ? scheduleText(membership.schedule) : "정해지지 않음"}</dd>
-          <dt className="text-muted">1주 소정근로시간</dt>
-          <dd className="text-right tabular-nums">{membership.weeklyHours}시간</dd>
-          <dt className="text-muted">1주 소정근로일수</dt>
-          <dd className="text-right tabular-nums">{membership.workDaysPerWeek}일</dd>
+        <SectionLabel icon={NotebookText}>근무 조건</SectionLabel>
+        <dl className="mt-2.5 grid gap-1.5 text-[13px]">
+          <DotRow term="매장">{membership.store.name}</DotRow>
+          <DotRow term="시급"><span className={NUM}>{won(membership.hourlyWage)}</span></DotRow>
         </dl>
+        {/* 시간표·주 시간·근무일은 그래프로 (2026-10-15 사용자 요청). 그래프마다 같은 내용을 글자로도 둔다 */}
+        <div className="mt-4 space-y-4 border-t border-dashed border-line pt-3.5">
+          <section>
+            <div className="flex items-baseline justify-between gap-2 text-[13px]">
+              <h3 className="text-muted">근무 시간표</h3>
+              <span className={NUM}>{membership.schedule ? scheduleText(membership.schedule) : "정해지지 않음"}</span>
+            </div>
+            <div className="mt-2.5"><WeekRhythm schedule={membership.schedule ?? null} exceptions={exceptions.data ?? []} now={now} /></div>
+          </section>
+          <section>
+            <div className="flex items-baseline justify-between gap-2 text-[13px]">
+              <h3 className="text-muted">1주 소정근로시간</h3>
+              <span className={NUM}>{membership.weeklyHours}시간</span>
+            </div>
+            <div className="mt-1"><WeeklyHoursGauge hours={membership.weeklyHours} /></div>
+          </section>
+          <section>
+            <div className="flex items-baseline justify-between gap-2 text-[13px]">
+              <h3 className="text-muted">1주 소정근로일수</h3>
+              <span className={NUM}>{membership.workDaysPerWeek}일</span>
+            </div>
+            <div className="mt-2"><WorkDayDots schedule={membership.schedule ?? null} count={membership.workDaysPerWeek} /></div>
+          </section>
+        </div>
         {membership.hourlyWage < MINIMUM_WAGE && <p className="mt-3 text-sm text-warn">2026년 최저임금({won(MINIMUM_WAGE)})보다 낮아요.</p>}
-        <p className="mt-3 text-xs text-muted">조건은 사장님이 정해요.</p>
+        <p className="mt-2.5 text-xs text-muted">조건은 사장님이 정해요.</p>
       </Card>
-      <MyScheduleExceptions />
-      <button onClick={() => logout()} className="w-full rounded-xl border border-line py-3 text-sm">
+      <MyScheduleExceptions data={exceptions.data} error={exceptions.error} />
+      <button type="button" onClick={() => logout()} className={`${BTN.secondary} w-full`}>
         로그아웃
       </button>
-    </div>
+    </Enter>
   );
 }

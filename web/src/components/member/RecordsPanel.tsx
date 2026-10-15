@@ -1,8 +1,6 @@
 "use client";
 // 멤버의 기록 탭 — 자기 기록을 달력(기본)이나 목록으로 보고, 고칠 것은 수정·삭제·추가를 요청한다. 반영은 사장님 승인 뒤.
 // docs/prd/08, docs/prd/10-calendar.md, 화면 명세 docs/design/calendar.md §2·§4
-import { ACT_CANCEL, ACT_SAVE, BLOCK_SECONDARY } from "@/components/buttons";
-import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { PencilLine, Plus, Trash2 } from "lucide-react";
 import { api, errorCode, type Absence, type Correction } from "@/api/client";
@@ -12,7 +10,9 @@ import { CalendarLegend } from "../calendar/CalendarLegend";
 import { MonthGrid } from "../calendar/MonthGrid";
 import { useSelectedDay } from "../calendar/useSelectedDay";
 import { ViewToggle } from "../calendar/ViewToggle";
-import { Bone, Card, date, ErrorText, Field, hm, Loading, StatusPill, time, toLocalInput, useNow } from "../ui";
+import { Enter } from "../motion";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Bone, BTN, Card, date, ErrorText, Field, hm, Loading, NUM, SectionLabel, StatusPill, time, toLocalInput, useNow } from "../ui";
 
 const MESSAGES: Record<string, string> = {
   REQUEST_PENDING: "이 기록에는 이미 대기 중인 요청이 있어요.",
@@ -43,19 +43,20 @@ export function RecordsPanel(props: Props) {
   const pendingByShift = new Map(props.corrections.filter((c) => c.status === "pending" && c.shiftId).map((c) => [c.shiftId!, c]));
 
   return (
-    <div className="space-y-4">
+    // 카드가 차례로 나타나고, 불러오기가 끝나면(loading 이 바뀌면) 다시
+    <Enter className="space-y-3" replay={props.loading}>
       <ViewToggle value={view} onChange={setView} />
       {props.failed ? (
         <Card className="space-y-3">
           <ErrorText>기록을 불러오지 못했어요.</ErrorText>
-          <button type="button" onClick={props.onRetry} className={cn(BLOCK_SECONDARY, "h-10 text-sm")}>다시 시도</button>
+          <button type="button" onClick={props.onRetry} className={`${BTN.secondary} w-full`}>다시 시도</button>
         </Card>
       ) : view === "calendar" ? (
         <CalendarView {...props} fs={fs} pendingByShift={pendingByShift} />
       ) : (
         <ListView {...props} fs={fs} pendingByShift={pendingByShift} />
       )}
-    </div>
+    </Enter>
   );
 }
 
@@ -77,7 +78,7 @@ function CalendarView({ shifts, absences, corrections, year, month, loading, fs,
       marks: { open: d?.open ?? undefined, pending: d?.pending, dashed: !!d?.absence },
       body: (
         <>
-          {!!d?.minutes && <span className="text-[11px] font-semibold tabular-nums text-foreground">{compactHours(d.minutes)}</span>}
+          {!!d?.minutes && <span className={`text-[11px] font-semibold text-foreground ${NUM}`}>{compactHours(d.minutes)}</span>}
           {d?.absence && <span className="text-[10px] text-muted">{ABSENCE_SHORT[d.absence]}</span>}
         </>
       ),
@@ -109,34 +110,32 @@ function CalendarView({ shifts, absences, corrections, year, month, loading, fs,
           </>
         }
       />
-      <section className="space-y-3">
-        <h2 aria-live="polite" className="px-1 text-sm font-semibold">
-          {selected ? `${date(parseDay(selected))}${sel?.minutes ? ` · ${hm(sel.minutes)}` : ""}` : ""}
-        </h2>
+      <Card>
+        <div aria-live="polite">
+          <SectionLabel>
+            <span className={NUM}>{selected ? `${date(parseDay(selected))}${sel?.minutes ? ` · ${hm(sel.minutes)}` : ""}` : ""}</span>
+          </SectionLabel>
+        </div>
         {!selected ? (
-          <p className="px-1 text-sm text-muted">날짜를 누르면 그날 기록이 나와요.</p>
+          <p className="mt-2 text-sm text-muted">날짜를 누르면 그날 기록이 나와요.</p>
         ) : loading ? (
           <Loading>
-            <ul className="space-y-3">
+            <ul className={ROWS}>
               <RowSkeleton showDate={false} />
             </ul>
           </Loading>
+        ) : nothing ? (
+          <p className="mt-2 text-sm text-muted">이 날 기록이 없어요.</p>
         ) : (
-          <>
-            {nothing ? (
-              <p className="px-1 text-sm text-muted">이 날 기록이 없어요.</p>
-            ) : (
-              <ul className="space-y-3">
-                {dayShifts.map((s) => <RecordRow key={s.id} shift={s} pending={pendingByShift.has(s.id)} fs={fs} showDate={false} />)}
-                {dayAdds.map((c) => <PendingAddRow key={c.id} correction={c} showDate={false} />)}
-                {dayAbsences.map((a) => <AbsenceRow key={`${a.sourceId}-${a.date}`} absence={a} showDate={false} />)}
-              </ul>
-            )}
-          </>
+          <ul className={ROWS}>
+            {dayShifts.map((s) => <RecordRow key={s.id} shift={s} pending={pendingByShift.has(s.id)} fs={fs} showDate={false} />)}
+            {dayAdds.map((c) => <PendingAddRow key={c.id} correction={c} showDate={false} />)}
+            {dayAbsences.map((a) => <AbsenceRow key={`${a.sourceId}-${a.date}`} absence={a} showDate={false} />)}
+          </ul>
         )}
-        <AddRequest fs={fs} />
-        <Hint />
-      </section>
+      </Card>
+      <AddRequest fs={fs} />
+      <Hint />
     </>
   );
 }
@@ -158,22 +157,27 @@ function ListView({ shifts, absences, corrections, year, month, loading, fs, pen
     <div className="space-y-3">
       <AddRequest fs={fs} />
       {pendingAdds.length > 0 && (
-        <ul className="space-y-3">
-          {pendingAdds.map((c) => <PendingAddRow key={c.id} correction={c} showDate />)}
-        </ul>
+        <Card className="py-1.5">
+          <ul className={ROWS_FLUSH}>
+            {pendingAdds.map((c) => <PendingAddRow key={c.id} correction={c} showDate />)}
+          </ul>
+        </Card>
       )}
       {loading ? (
         <Loading>
-          <ul className="space-y-3">
-            <RowSkeleton showDate />
-            <RowSkeleton showDate />
-            <RowSkeleton showDate />
-          </ul>
+          <Card className="py-1.5">
+            <ul className={ROWS_FLUSH}>
+              <RowSkeleton showDate />
+              <RowSkeleton showDate />
+              <RowSkeleton showDate />
+            </ul>
+          </Card>
         </Loading>
+      ) : rows.length === 0 ? (
+        <Card><p className="text-center text-sm text-muted">이 달 기록이 없어요.</p></Card>
       ) : (
-        <>
-          {rows.length === 0 && <Card><p className="text-center text-muted">이 달 기록이 없어요.</p></Card>}
-          <ul className="space-y-3">
+        <Card className="py-1.5">
+          <ul className={ROWS_FLUSH}>
             {rows.map((r) =>
               "shift" in r && r.shift ? (
                 <RecordRow key={r.shift.id} shift={r.shift} pending={pendingByShift.has(r.shift.id)} fs={fs} showDate />
@@ -182,70 +186,70 @@ function ListView({ shifts, absences, corrections, year, month, loading, fs, pen
               ) : null,
             )}
           </ul>
-        </>
+        </Card>
       )}
       <Hint />
     </div>
   );
 }
 
+// 카드 안 목록 — 줄 사이는 점선 (2026-10-15 B 시안 .list-row)
+const ROWS = "mt-1 divide-y divide-dashed divide-line";
+const ROWS_FLUSH = "divide-y divide-dashed divide-line";
+const ROW = "flex items-center gap-2.5 py-2.5 text-[13px]";
+
 /** 기록 한 줄 — 목록과 달력 상세가 같이 쓴다. 대기 중인 요청이 있으면 버튼 대신 "승인 대기" */
 function RecordRow({ shift, pending, fs, showDate }: { shift: Shift; pending: boolean; fs: FormState; showDate: boolean }) {
-  const { form, setForm, onChange } = fs;
-  const times = `${time(shift.start)} ~ ${shift.end ? time(shift.end) : "근무 중"} · ${hm(shiftMinutes(shift))}`;
+  const { form, setForm } = fs;
+  const span = `${time(shift.start)} ~ ${shift.end ? time(shift.end) : "근무 중"}`;
   return (
-    <li className="rounded-2xl border border-line bg-surface px-5 py-4">
-      <div className="flex items-start justify-between gap-3">
-        {showDate ? (
-          <div>
-            <p className="font-medium">{date(shift.start)}</p>
-            <p className="text-sm text-muted tabular-nums">{times}</p>
-          </div>
-        ) : (
-          <p className="self-center font-medium tabular-nums">{times}</p>
-        )}
+    <li>
+      <div className={ROW}>
+        <div className="min-w-0 flex-1">
+          <p className={`font-medium ${NUM}`}>{showDate ? date(shift.start) : span}</p>
+          <p className={`mt-px text-xs text-muted ${NUM}`}>{showDate ? `${span} · ${hm(shiftMinutes(shift))}` : hm(shiftMinutes(shift))}</p>
+        </div>
         {pending ? (
           <StatusPill status="pending" />
         ) : (
-          <div className="flex gap-1">
-            <button onClick={() => setForm({ mode: "edit", shift })} aria-label="수정 요청" title="수정 요청" className="rounded-lg p-2 text-muted hover:bg-line/60 hover:text-foreground"><PencilLine size={18} aria-hidden /></button>
-            <button onClick={() => setForm({ mode: "delete", shift })} aria-label="삭제 요청" title="삭제 요청" className="rounded-lg p-2 text-muted hover:bg-line/60 hover:text-warn"><Trash2 size={18} aria-hidden /></button>
+          // 목록 안 보조 동작이라 작은 버튼(h-8)
+          <div className="flex shrink-0 gap-1">
+            <button type="button" onClick={() => setForm({ mode: "edit", shift })} className={BTN.small}><PencilLine size={13} aria-hidden />수정 요청</button>
+            <button type="button" onClick={() => setForm({ mode: "delete", shift })} className={BTN.danger}><Trash2 size={13} aria-hidden />삭제 요청</button>
           </div>
         )}
       </div>
-      {form?.shift?.id === shift.id && <div className="mt-3"><CorrectionForm form={form} onDone={() => (setForm(null), onChange())} onCancel={() => setForm(null)} /></div>}
+      <RequestDialog form={form?.shift?.id === shift.id ? form : null} fs={fs} />
     </li>
   );
 }
 
-/** 읽는 동안의 기록 한 줄 — RecordRow 와 같은 li 틀. 오른쪽은 수정·삭제 버튼 자리(p-2 + 아이콘 18 = 34px) */
+/**
+ * 읽는 동안의 기록 한 줄 — RecordRow 와 같은 줄 틀(ROW)에 글자 두 줄(13px·12px) 자리 막대,
+ * 오른쪽은 수정 요청·삭제 요청 작은 버튼(h-8) 자리. 막대는 글자 줄 안의 inline-block 이라 줄 높이가 같다
+ */
 function RowSkeleton({ showDate }: { showDate: boolean }) {
   return (
-    <li className="rounded-2xl border border-line bg-surface px-5 py-4">
-      <div className="flex items-start justify-between gap-3">
-        {showDate ? (
-          <div>
-            <div className="flex h-6 items-center"><Bone className="h-4 w-24" /></div>
-            <div className="flex h-5 items-center"><Bone className="h-4 w-40" /></div>
-          </div>
-        ) : (
-          <div className="flex h-[34px] items-center"><Bone className="h-5 w-44" /></div>
-        )}
-        <div className="flex gap-1">
-          <Bone className="h-[34px] w-[34px] rounded-lg" />
-          <Bone className="h-[34px] w-[34px] rounded-lg" />
-        </div>
+    <li className={ROW}>
+      <div className="min-w-0 flex-1">
+        {/* 막대는 글자 줄 안의 inline-block — 블록 안이라 줄 높이(13px·12px 글자의 줄)가 그대로 생긴다 */}
+        <div className="font-medium"><Bone className={`inline-block h-3.5 align-middle ${showDate ? "w-24" : "w-36"}`} /></div>
+        <div className="mt-px text-xs"><Bone className={`inline-block h-3 align-middle ${showDate ? "w-40" : "w-16"}`} /></div>
+      </div>
+      <div className="flex shrink-0 gap-1">
+        <Bone className="h-8 w-[84px] rounded-xl" />
+        <Bone className="h-8 w-[84px] rounded-xl" />
       </div>
     </li>
   );
 }
 
-/** 휴가·대타 한 줄 (점선) */
+/** 휴가·대타 한 줄 — 점선 테두리 표시 + 글자 (색만으로 구별하지 않는다) */
 function AbsenceRow({ absence, showDate }: { absence: Absence; showDate: boolean }) {
   return (
-    <li className="rounded-2xl border border-dashed border-line px-5 py-3">
-      {showDate && <p className="text-sm font-medium">{date(parseDay(absence.date))}</p>}
-      <p className={showDate ? "text-sm text-muted" : "text-sm font-medium text-muted"}>{ABSENCE_LABEL[absence.kind]}</p>
+    <li className={ROW}>
+      {showDate && <p className={`min-w-0 flex-1 font-medium ${NUM}`}>{date(parseDay(absence.date))}</p>}
+      <span className="inline-flex h-5 shrink-0 items-center rounded-md border border-dashed border-muted px-1.5 text-[11px] font-semibold text-muted">{ABSENCE_LABEL[absence.kind]}</span>
     </li>
   );
 }
@@ -254,43 +258,68 @@ function AbsenceRow({ absence, showDate }: { absence: Absence; showDate: boolean
 function PendingAddRow({ correction: c, showDate }: { correction: Correction; showDate: boolean }) {
   const times = `${time(Date.parse(c.start!))} ~ ${time(Date.parse(c.end!))}`;
   return (
-    <li className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-line bg-surface px-5 py-4">
-      {showDate ? (
-        <div>
-          <p className="text-sm font-medium">추가 요청 · {date(Date.parse(c.start!))}</p>
-          <p className="text-sm text-muted tabular-nums">{times}</p>
-        </div>
-      ) : (
-        <p className="text-sm font-medium tabular-nums">추가 요청 · {times}</p>
-      )}
+    <li className={ROW}>
+      <div className="min-w-0 flex-1">
+        <p className={`font-medium ${NUM}`}>{showDate ? `추가 요청 · ${date(Date.parse(c.start!))}` : times}</p>
+        <p className={`mt-px text-xs text-muted ${NUM}`}>{showDate ? times : "추가 요청"}</p>
+      </div>
       <StatusPill status={c.status} />
     </li>
   );
 }
 
 function AddRequest({ fs }: { fs: FormState }) {
-  const { form, setForm, onChange } = fs;
+  const { form, setForm } = fs;
   return (
     <>
-      <button onClick={() => setForm({ mode: "add" })} className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-line py-3 text-sm text-muted hover:text-foreground">
+      <button type="button" onClick={() => setForm({ mode: "add" })} className={`${BTN.dashed} w-full`}>
         <Plus size={16} aria-hidden /> 빠진 기록 추가 요청
       </button>
-      {form?.mode === "add" && <CorrectionForm form={form} onDone={() => (setForm(null), onChange())} onCancel={() => setForm(null)} />}
+      <RequestDialog form={form?.mode === "add" ? form : null} fs={fs} />
     </>
   );
 }
 
-function Hint() {
-  return <p className="px-1 text-xs text-muted">요청은 사장님이 승인하면 기록에 반영돼요. 요청 탭에서 진행 상황을 볼 수 있어요.</p>;
+const DIALOG_TEXT = {
+  add: { title: "빠진 기록 추가 요청", desc: () => "출퇴근을 찍지 못한 날의 시각을 적어 주세요. 사장님이 승인하면 기록에 들어가요." },
+  edit: { title: "수정 요청", desc: () => "바른 출퇴근 시각과 사유를 적어 주세요. 사장님이 승인하면 기록이 바뀌어요." },
+  delete: {
+    title: "삭제 요청",
+    desc: (s?: Shift) => `${s ? `${date(s.start)} ${time(s.start)} ~ ${s.end ? time(s.end) : "근무 중"} 기록을 ` : ""}지워 달라고 요청해요. 사장님이 승인하면 기록에서 빠져요.`,
+  },
+} as const;
+
+/**
+ * 빠진 기록 추가·수정·삭제 요청 모달 (2026-10-15 사용자 요청 "빠진기록 요청은 모달팝업으로", "수정 요청도 마찬가지야", "삭제도 마찬가지로").
+ * 조건 수정 모달과 같은 shadcn Dialog·같은 모양. form 이 null 이면 닫혀 있고, 닫으면(바깥·Esc·취소) 폼 상태를 지운다
+ */
+function RequestDialog({ form, fs }: { form: Form | null; fs: FormState }) {
+  const { setForm, onChange } = fs;
+  const text = form ? DIALOG_TEXT[form.mode] : null;
+  return (
+    <Dialog open={!!text} onOpenChange={(open) => !open && setForm(null)}>
+      <DialogContent className="max-h-[calc(100dvh-2rem)] gap-4 overflow-y-auto rounded-2xl bg-surface p-5 ring-line sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-lg font-bold tracking-tight">{text?.title}</DialogTitle>
+          <DialogDescription className="text-[13px] text-muted">{text?.desc(form?.shift)}</DialogDescription>
+        </DialogHeader>
+        {form && <CorrectionForm form={form} onDone={() => (setForm(null), onChange())} onCancel={() => setForm(null)} />}
+      </DialogContent>
+    </Dialog>
+  );
 }
 
+function Hint() {
+  return <p className="px-0.5 text-xs leading-relaxed text-muted">요청은 사장님이 승인하면 기록에 반영돼요. 요청 탭에서 진행 상황을 볼 수 있어요.</p>;
+}
+
+/** 요청 폼 — RequestDialog 안에서만 쓴다. 제목은 모달 머리가 맡고, 버튼은 모달 아래(취소 · 요청 보내기) */
 function CorrectionForm({ form, onDone, onCancel }: { form: Form; onDone: () => void; onCancel: () => void }) {
   const base = form.shift;
   const [start, setStart] = useState(base ? toLocalInput(base.start) : "");
   const [end, setEnd] = useState(base?.end ? toLocalInput(base.end) : "");
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const title = { edit: "수정 요청", delete: "삭제 요청", add: "빠진 기록 추가 요청" }[form.mode];
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -301,8 +330,7 @@ function CorrectionForm({ form, onDone, onCancel }: { form: Form; onDone: () => 
   };
 
   return (
-    <form onSubmit={submit} className="space-y-3 rounded-xl bg-background p-4">
-      <p className="text-sm font-semibold">{title}</p>
+    <form onSubmit={submit} className="space-y-3">
       {form.mode !== "delete" && (
         <div className="grid grid-cols-1 gap-2">
           <Field label="바른 출근"><input type="datetime-local" required value={start} onChange={(e) => setStart(e.target.value)} className="field" /></Field>
@@ -311,10 +339,10 @@ function CorrectionForm({ form, onDone, onCancel }: { form: Form; onDone: () => 
       )}
       <Field label="사유"><input required maxLength={200} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="예: 퇴근을 깜빡했어요" className="field" /></Field>
       <ErrorText>{error}</ErrorText>
-      <div className="flex gap-2">
-        <button className={cn(ACT_SAVE, "h-10")}>요청 보내기</button>
-        <button type="button" onClick={onCancel} className={cn(ACT_CANCEL, "h-10")}>취소</button>
-      </div>
+      <DialogFooter className="-mx-5 -mb-5 mt-4 flex-row border-line bg-transparent px-5 py-4">
+        <button type="button" onClick={onCancel} className={`${BTN.secondary} flex-1`}>취소</button>
+        <button className={`${BTN.primary} flex-1`}>요청 보내기</button>
+      </DialogFooter>
     </form>
   );
 }

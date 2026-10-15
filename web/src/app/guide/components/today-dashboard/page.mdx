@@ -30,17 +30,21 @@ const minuteNow = toMinute(useNow(1_000));
 
 ```
 TodayDashboard  Card p-0 divide-y divide-line
-├─ ① 오늘  <section px-5 py-4>
-│  ├─ h2 "오늘" + 합계 hm()
-│  └─ <ul> 오늘 출근한 기록 × 행  time(start) ~ time(end) | OpenDot 근무 중 + hm()
+├─ 01 오늘  <section px-4 py-3.5>
+│  ├─ SectionLabel Clock "01 오늘" 오른쪽 = 합계 hm()
+│  └─ <ul text-[13px] NUM, 점선 나눔> 오늘 출근한 기록 × 행  time(start) ~ time(end) | OpenDot 근무 중 + hm()
 │     (없으면 "아직 오늘 기록이 없어요." / 쉬는 날이면 "오늘은 쉬는 날이에요.")
-├─ ② 처리할 것  <section>  (0건이면 구역째 없음)
-│  └─ TodoRow (내부) <button min-h-11> 받은 대타 요청 · 내 대기 요청 + N건 + ChevronRight
-├─ ③ 이번 주  <section px-5 py-4>
-│  ├─ h2 "이번 주" + 기간 text-xs
-│  └─ <dl> 근무 시간 · ProgressBar · 근무한 날 · 주휴수당 holidayStatus()
-└─ ④ 이번 달  <button min-h-11>  "{월}월 예상 급여 (세전)" + won() + "급여 탭에서 자세히"
+├─ 02 처리할 것  <section>  (0건이면 구역째 없음)
+│  ├─ SectionLabel Bell "02 처리할 것" 오른쪽 = 건수
+│  └─ TodoRow (내부) <button min-h-11 rounded-xl border-l-[3px] border-caution bg-caution/10> 받은 대타 요청 · 내 대기 요청 + N건 + ChevronRight
+├─ 03 이번 주  <section>
+│  ├─ SectionLabel CalendarDays "03 이번 주" 오른쪽 = 기간
+│  └─ <dl text-[13px]> DotRow 근무 시간 · ProgressBar · DotRow 근무한 날 · DotRow 주휴수당 holidayStatus() (색 holidayTone)
+└─ 04 이번 달  <button min-h-11>  PiggyBank "04 {월}월 예상 급여 (세전)"(SectionLabel 모양 글자)
+   + 금액 text-[22px] font-semibold text-accent NUM <CountUp format={won}> + "급여 탭에서 자세히" text-accent
 ```
+
+구역 번호(`01`~`04`)는 보이는 장식이라 `aria-hidden` 이다. 제목은 `오늘`·`이번 주` 처럼 이름만 읽힌다.
 
 `status` 가 `"loading"` 이면 같은 구역·줄 틀에 값 대신 막대(`TodayDashboardSkeleton`), `"error"` 면 구역 없이 오류 + `다시 불러오기` 만 그린다.
 
@@ -80,7 +84,7 @@ Basic 에서 소정 주 14시간 → 주휴 `대상 아님 (주 15시간 미만)
 
 ## 불러오는 중
 
-ready 와 같은 Card·구역·줄 높이에 값 대신 막대. 구역 이름(`오늘`·`이번 주`·`근무 시간` …)과 `{월}월 예상 급여 (세전)` 은 데이터와 무관해 글자 그대로 둔다. 오늘 기록은 2행, `처리할 것` 은 0건(구역 없음)으로 잡는다 — 실제 행 수·요청 수가 다르면 그 차이만큼은 움직인다. 로그인 확인 전 첫 화면도 이 모양을 쓴다(`TodayDashboardSkeleton` export).
+ready 와 같은 Card·구역·줄 높이에 값 대신 막대. 막대는 글자 줄 안의 `inline-block`(값 h-3.5, 오른쪽 값 h-3)이라 줄 높이가 불러온 뒤와 같고, 04 금액 줄은 22px 글자 줄 높이(27.5px) 칸 안에 h-6 막대다. 구역 이름(`오늘`·`이번 주`·`근무 시간` …)과 `{월}월 예상 급여 (세전)` 은 데이터와 무관해 글자 그대로 둔다. 오늘 기록은 2행, `처리할 것` 은 0건(구역 없음)으로 잡는다 — 실제 행 수·요청 수가 다르면 그 차이만큼은 움직인다. 로그인 확인 전 첫 화면도 이 모양을 쓴다(`TodayDashboardSkeleton` export).
 
 <ComponentPreview name="today-dashboard/loading" width="max-w-md" />
 

@@ -1,22 +1,28 @@
 "use client";
 // 매장 설정 — 로고·이름·위치·5인 이상. docs/prd/07-admin.md, docs/prd/11-store-logo.md
-import { BLOCK_PRIMARY, BLOCK_SECONDARY } from "@/components/buttons";
-import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { gsap } from "gsap";
+import { useEffect, useRef, useState } from "react";
+import { CircleCheck, ImageUp, LocateFixed, MapPin, Store as StoreIcon } from "lucide-react";
 import { api, type Store } from "@/api/client";
 import { authFetch, reloadMe } from "@/auth/session";
-import { Card, ErrorText, Field } from "@/components/ui";
+import { Enter, reducedMotion, useAppear } from "@/components/motion";
+import { BTN, Card, ErrorText, Field, NUM, SectionLabel } from "@/components/ui";
 import { useApi } from "@/lib/useApi";
 import { StoreSkeleton } from "../_skeletons";
 
 export default function StorePage() {
   const { data, reload } = useApi(() => api.GET("/api/stores/me"), "");
+  // 저장 횟수(0 이면 알림 없음). StoreForm 은 저장 뒤 다시 읽은 값으로 새로 그려지므로(key) 알림은 여기서 그린다 —
+  // 안에 두면 다시 그려질 때 알림이 한 번 더 나타난다
+  const [saved, setSaved] = useState(0);
   if (!data) return <StoreSkeleton />;
   return (
-    <div className="space-y-4">
+    <Enter className="space-y-3">
       <LogoCard store={data} onSaved={reload} />
-      <StoreForm key={JSON.stringify(data)} store={data} onSaved={reload} />
-    </div>
+      <StoreForm key={JSON.stringify(data)} store={data} onError={() => setSaved(0)} onSaved={() => { setSaved((n) => n + 1); reload(); }} />
+      {/* 저장할 때마다 key 가 바뀌어 다시 나타난다 */}
+      {saved > 0 && <SavedNote key={saved} />}
+    </Enter>
   );
 }
 
@@ -58,23 +64,23 @@ function LogoCard({ store, onSaved }: { store: Store; onSaved: () => void }) {
   };
 
   return (
-    <Card className="space-y-4">
+    <Card className="space-y-3">
       <div>
-        <h2 className="font-semibold">매장 로고</h2>
-        <p className="mt-1 text-sm text-muted">헤더의 매장 이름 앞에 보여요. PNG·JPG·SVG, 1MB 이하. 가로로 긴 로고가 잘 보여요.</p>
+        <SectionLabel icon={StoreIcon}>매장 로고</SectionLabel>
+        <p className="mt-1.5 text-xs leading-relaxed text-muted">헤더의 매장 이름 앞에 보여요. PNG·JPG·SVG, 1MB 이하. 가로로 긴 로고가 잘 보여요.</p>
       </div>
-      <div className="flex h-16 items-center justify-center rounded-xl border border-dashed border-line bg-background">
+      <div className="flex h-16 items-center justify-center rounded-xl border border-dashed border-muted/40 bg-background">
         {store.logoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element -- 인증 쿠키로 받는 API 이미지
           <img src={store.logoUrl} alt={`${store.name} 로고`} className="h-10 w-auto max-w-48 object-contain" />
         ) : (
-          <span className="text-sm text-muted">로고 없음</span>
+          <span className="text-xs text-muted">로고 없음</span>
         )}
       </div>
       <ErrorText>{error}</ErrorText>
       <div className="flex gap-2">
-        <label className={cn(BLOCK_PRIMARY, "flex-1 cursor-pointer", busy && "pointer-events-none opacity-50")}>
-          {store.logoUrl ? "로고 바꾸기" : "로고 올리기"}
+        <label className={`${BTN.secondary} cursor-pointer ${busy ? "pointer-events-none opacity-50" : ""}`}>
+          <ImageUp size={16} aria-hidden /> {store.logoUrl ? "로고 바꾸기" : "로고 올리기"}
           <input
             type="file"
             accept="image/png,image/jpeg,image/svg+xml,.png,.jpg,.jpeg,.svg"
@@ -87,23 +93,24 @@ function LogoCard({ store, onSaved }: { store: Store; onSaved: () => void }) {
           />
         </label>
         {store.logoUrl && (
-          <button onClick={remove} disabled={busy} className={cn(BLOCK_SECONDARY, "w-auto px-4 text-sm disabled:opacity-50")}>지우기</button>
+          <button onClick={remove} disabled={busy} className={BTN.secondary}>지우기</button>
         )}
       </div>
     </Card>
   );
 }
 
-function StoreForm({ store, onSaved }: { store: Store; onSaved: () => void }) {
+function StoreForm({ store, onSaved, onError }: { store: Store; onSaved: () => void; onError: () => void }) {
   const [form, setForm] = useState(store);
-  const [msg, setMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const save = async (patch: Partial<Store>) => {
     const { error } = await api.PATCH("/api/stores/me", { body: { name: patch.name, lat: patch.lat, lng: patch.lng, fivePlus: patch.fivePlus } });
-    if (error) return setError("저장하지 못했어요. 값을 확인해 주세요.");
+    if (error) {
+      onError();
+      return setError("저장하지 못했어요. 값을 확인해 주세요.");
+    }
     setError(null);
-    setMsg("저장했어요.");
     await reloadMe();
     onSaved();
   };
@@ -112,7 +119,10 @@ function StoreForm({ store, onSaved }: { store: Store; onSaved: () => void }) {
     setError(null);
     navigator.geolocation.getCurrentPosition(
       (p) => void save({ lat: p.coords.latitude, lng: p.coords.longitude }),
-      (e) => setError(e.message || "위치를 가져오지 못했어요"),
+      (e) => {
+        onError();
+        setError(e.message || "위치를 가져오지 못했어요");
+      },
       { enableHighAccuracy: true, timeout: 20_000 },
     );
   };
@@ -120,30 +130,54 @@ function StoreForm({ store, onSaved }: { store: Store; onSaved: () => void }) {
     setForm({ ...form, [k]: Number.isNaN(e.target.valueAsNumber) ? null : e.target.valueAsNumber });
 
   return (
-    <div className="space-y-4">
-      <Card className="space-y-4">
+    <div className="space-y-3">
+      <Card className="space-y-3">
         <Field label="매장 이름">
           <input value={form.name} maxLength={50} onChange={(e) => setForm({ ...form, name: e.target.value })} className="field" />
         </Field>
-        <label className="flex items-center justify-between gap-3 text-sm">
+        {/* 체크 줄 — 왼쪽 상자 + 글자, 줄 전체가 44px 터치 영역 (B 시안 .check) */}
+        <label className="flex min-h-11 cursor-pointer items-center gap-2 text-[13px] font-medium">
+          <input type="checkbox" checked={form.fivePlus} onChange={(e) => setForm({ ...form, fivePlus: e.target.checked })} className="h-[18px] w-[18px] shrink-0 accent-foreground" />
           <span>상시 5인 이상 사업장 (연장근로 50% 가산)</span>
-          <input type="checkbox" checked={form.fivePlus} onChange={(e) => setForm({ ...form, fivePlus: e.target.checked })} className="h-5 w-5 accent-[var(--accent)]" />
         </label>
       </Card>
-      <Card className="space-y-4">
+      <Card className="space-y-3">
         <div>
-          <h2 className="font-semibold">매장 위치</h2>
-          <p className="mt-1 text-sm text-muted">알바생이 이 위치 50m 안에 들어오면 출근 알림을 받아요.</p>
+          <SectionLabel icon={MapPin}>매장 위치</SectionLabel>
+          <p className="mt-1.5 text-xs leading-relaxed text-muted">알바생이 이 위치 50m 안에 들어오면 출근 알림을 받아요.</p>
         </div>
-        <button onClick={pickCurrentLocation} className={BLOCK_SECONDARY}>현재 위치를 매장으로</button>
+        <button onClick={pickCurrentLocation} className={BTN.secondary}>
+          <LocateFixed size={16} aria-hidden /> 현재 위치를 매장으로
+        </button>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="위도"><input type="number" step={0.000001} value={form.lat ?? ""} onChange={coord("lat")} className="field" /></Field>
-          <Field label="경도"><input type="number" step={0.000001} value={form.lng ?? ""} onChange={coord("lng")} className="field" /></Field>
+          <Field label="위도"><input type="number" step={0.000001} value={form.lat ?? ""} onChange={coord("lat")} className={`field ${NUM}`} /></Field>
+          <Field label="경도"><input type="number" step={0.000001} value={form.lng ?? ""} onChange={coord("lng")} className={`field ${NUM}`} /></Field>
         </div>
       </Card>
       <ErrorText>{error}</ErrorText>
-      {msg && !error && <p className="appear text-sm text-accent">{msg}</p>}
-      <button onClick={() => save(form)} className={BLOCK_PRIMARY}>저장</button>
+      <button onClick={() => save(form)} className={`${BTN.primary} w-full`}>저장</button>
     </div>
+  );
+}
+
+/** 저장 완료 알림 — 아래에서 올라오며 나타나고, 체크 아이콘이 0.5배에서 1배로 톡 커진다 */
+function SavedNote() {
+  const ref = useAppear<HTMLParagraphElement>();
+  const tick = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    // 동작 줄이기면 크기 변화 없이 useAppear 의 투명도 변화만 남긴다
+    if (!tick.current || reducedMotion()) return;
+    const tween = gsap.fromTo(tick.current, { scale: 0.5 }, { scale: 1, duration: 0.4, ease: "back.out(2.5)", clearProps: "transform" });
+    return () => {
+      tween.kill();
+    };
+  }, []);
+  return (
+    <p ref={ref} className="flex items-center gap-1.5 text-sm font-medium text-accent">
+      <span ref={tick} className="inline-flex">
+        <CircleCheck size={18} aria-hidden />
+      </span>
+      저장했어요.
+    </p>
   );
 }

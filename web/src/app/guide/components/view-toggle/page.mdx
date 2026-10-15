@@ -2,7 +2,7 @@ export const metadata = { title: "View Toggle" };
 
 # View Toggle
 
-멤버 기록 탭의 달력·목록 전환. 두 칸짜리 눌림 버튼 묶음.
+멤버 기록 탭의 달력·목록 전환. 회색 바탕 위 두 칸짜리 눌림 버튼 묶음이고, 선택한 칸만 흰 바탕과 굵은 글자로 떠오른다.
 
 <ComponentPreview name="view-toggle/basic" width="max-w-md" />
 
@@ -18,9 +18,10 @@ const [view, setView] = useState<"calendar" | "list">("calendar");
 ## 구성
 
 ```
-ViewToggle  <div role="group" aria-label="보기", rounded-xl border bg-background p-1>
-└─ <button aria-pressed> × 2  (선택: bg-surface shadow-sm)
-   ├─ Icon 16px (CalendarDays / List)
+ViewToggle  <div role="group" aria-label="보기", grid 두 칸 같은 폭, rounded-xl(6px) bg-line/60 p-0.5>
+└─ <button aria-pressed> × 2  h-10 rounded-md(4px) text-[13px]
+   │  선택: bg-surface font-semibold text-foreground shadow-sm / 아님: font-medium text-muted
+   ├─ Icon 15px (CalendarDays / List), 선 2.2 선택 / 1.8
    └─ "달력" / "목록"
 ```
 

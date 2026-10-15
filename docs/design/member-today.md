@@ -8,6 +8,7 @@
 - 사용자 결정(2026-09-25): 대시보드는 출퇴근 탭의 **시계(현재 시각) 바로 아래**. 시계는 한 줄 `HH:MM:SS`.
 - 새 계산은 없다. 이번 주·이번 달 숫자는 전부 `web/src/lib/pay.ts` 가 낸 값이다 (TD-3).
 - 새 색 토큰은 없다 (§8).
+- 모양은 2026-10-15 B 시안으로 바꿨다. 1px 선, 작은 모서리, 고정폭 숫자(`NUM`), 구역 머리 `SectionLabel`, 점선 이음 줄 `DotRow`, `BTN` 버튼, GSAP 모션(`Enter`·`CountUp`·`SwapText`·`useAppear`)을 쓴다. 기준 값은 [DESIGN.md §3~§5](../../DESIGN.md). 상태 판정, 문구, 누를 수 있는 것과 그 동작은 2026-09-25 결정 그대로다.
 
 ---
 
@@ -21,7 +22,7 @@
 | 3 | **오늘 근무 카드 `TodayDashboard`** — 오늘 → 처리할 것 → 이번 주 → 이번 달 | T-2~T-5 | 항상 |
 | 4 | 매장 근처 출근 알림 설정 카드 (지금 것 그대로) | T-6 | 항상 |
 
-카드 사이 `space-y-4`(16px) — 지금 `ClockPanel` 과 같다.
+카드 사이 `space-y-3`(12px). B 시안의 카드 간격이다. 네 카드는 `Enter` 로 감싸 탭에 들어올 때 아래에서 차례로 올라오고, 기록을 다 읽어 `status` 가 바뀌면 한 번 더 올라온다.
 
 ### 1-1. 경계 — 시계 카드와 대시보드는 **다른 카드**
 
@@ -53,42 +54,49 @@
 
 ## 2. 시계 카드 — `ClockCard` (T-1)
 
-### 2-1. 구성 (가운데 정렬, `Card className="text-center"`)
+### 2-1. 구성 (왼쪽 정렬, `Card`)
 
 ```
-Card text-center
-├─ 날짜        <p text-sm text-muted>            date(now) → "9월 25일 (금)"
-├─ 시계        <p mt-1 font-mono text-5xl font-semibold tabular-nums whitespace-nowrap>  clockText(now) → "14:32:07"
-├─ 상태 알약   <p mt-3 inline-flex … role="status">   아이콘 + 상태 이름   (§2-3)
-├─ 상태 설명   <p mt-2 text-sm text-muted>       (§2-3 표, 없으면 줄 없음)
-├─ 버튼        <button mt-4 w-full rounded-xl py-4 text-lg font-bold>   (§2-3 표)
-├─ 쉬는 날 안내 <p mt-2 text-xs text-muted>       off 상태만
-└─ 오류        <div mt-3><ErrorText>             저장 실패 글자 (지금 것 그대로)
+Card
+├─ 첫 줄       <div flex min-h-6 items-center justify-between>
+│  ├─ 날짜      <p text-xs font-semibold text-muted NUM>     date(now) → "9월 25일 (금)"
+│  └─ 상태 태그  <p h-6 rounded-md border … role="status">    아이콘 + 상태 이름 (§2-3)
+├─ 시계        <p mt-2 text-[40px] font-semibold leading-none tracking-tight text-accent whitespace-nowrap NUM>  clockText(now) → "14:32:07"
+├─ 상태 설명   <p mt-2.5 text-[13px] text-muted NUM>        (§2-3 표, 없으면 줄 없음)
+├─ 버튼        <button BTN.* mt-3.5 w-full>  h-11            (§2-3 표)
+├─ 퇴근 완료 상자 done 상태만 (§2-3)
+├─ 쉬는 날 안내 <p mt-2 text-xs text-muted>                   off 상태만
+└─ 오류        <div mt-3><ErrorText>                         저장 실패 글자 (지금 것 그대로)
 ```
+
+- 시계는 강조색(`text-accent`)이다. 2026-10-15 "시계(시간) 급여는 포인트 컬러로" 결정이다.
+- 상태 태그는 시계 위 첫 줄 오른쪽에 있다. 그래서 스크린리더는 날짜 → 상태 → 시계 순으로 읽는다(그 전에는 날짜 → 시계 → 상태). `role="status"` 는 그대로라 상태가 바뀌면 한 번 읽힌다.
 
 ### 2-2. 시계 — 한 줄 고정 (사용자 결정 2026-09-25)
 
 - 형식은 `web/src/lib/format.ts` 의 `clockText` — 24시간 `HH:MM:SS` 숫자만. `15시 58분 12초` 처럼 글자를 섞지 않는다.
 - **줄바꿈 금지**: `whitespace-nowrap` + `tabular-nums` + `font-mono`. 초가 바뀌어도 폭이 흔들리지 않는다.
-- 폭 확인: `text-5xl`(48px) Geist Mono 8글자 ≈ 230px. 390px 폭 카드 안쪽은 310px, 320px 폭 기기도 안쪽 240px 이라 한 줄에 들어간다.
+- 폭 확인: 40px Geist Mono 8글자 ≈ 190px. 390px 폭 카드 안쪽은 316px(본문 350 − 카드 여백 32 − 테두리 2), 320px 폭 기기도 안쪽 246px 이라 한 줄에 들어간다.
 - 1초마다 바뀐다(`useNow(1_000)`). 시계 글자에는 `aria-live` 를 걸지 않는다 — 스크린리더가 매초 읽게 된다.
 
 ### 2-3. 네 상태 (TD-1) — 색만으로 구별하지 않는다
 
-상태마다 **아이콘 모양 · 상태 이름 글자 · 버튼 글자**가 모두 다르다. 휴가·대타는 여기에 **점선 테두리**가 더해진다 (달력과 같은 표시 — [스킬 §4](../../.claude/skills/timesheet-ui/SKILL.md#4-달력)).
+상태마다 **아이콘 모양 · 상태 이름 글자 · 버튼 글자**가 모두 다르다. 휴가·대타는 여기에 태그의 **점선 테두리**가 더해진다 (달력과 같은 표시 — [스킬 §4](../../.claude/skills/timesheet-ui/SKILL.md#4-달력)).
 
-| 상태 `kind` | 조건 (위에서부터 먼저 맞는 것) | 상태 알약 (아이콘 · 글자) | 상태 설명 | 버튼 |
+| 상태 `kind` | 조건 (위에서부터 먼저 맞는 것) | 상태 태그 (아이콘 · 글자) | 상태 설명 | 버튼 |
 |---|---|---|---|---|
-| `working` 근무 중 | 퇴근 안 한 기록(`end === null`)이 있다 | `OpenDot`(초록 채운 점) · **근무 중** | `오전 09:02 출근 · 지금까지 5시간 30분` | **퇴근** — `bg-foreground text-background` (지금 것) |
-| `done` 오늘 퇴근함 | 오늘(`dayKey(start)` = 오늘) 기록이 있고 모두 퇴근했다 | `CircleCheck` `text-accent` · **오늘 퇴근함** | `오후 06:05 퇴근` (오늘 기록 중 가장 늦은 퇴근) | 비활성 **출근** `bg-line text-muted` + 아래 `text-xs text-muted` `오늘 근무를 마쳤어요. 내일부터 다시 출근할 수 있어요.` — 다시 출근은 없다(PRD 12 T-7). 날짜가 바뀌면 before 로 돌아가 켜진다. 50m 배너·알림도 이날은 끈다 |
-| `off` 오늘 휴가·대타 | 오늘 기록이 없고 오늘 날짜의 absence 가 있다 | `CalendarOff` `text-muted` · **오늘 휴가** / **오늘 대타** + 알약 테두리 `border-dashed border-muted` | 유급 `오늘은 유급 휴가예요` · 무급 `오늘은 무급 휴가예요` · 대타 `오늘은 동료가 대신 근무해요` | **출근** — 보조 모양(위와 같음) |
-| `before` 출근 전 | 그 밖 | `CircleDashed` `text-muted` · **출근 전** | 없음 | **출근** — `bg-accent text-white` (지금 것) |
+| `working` 근무 중 | 퇴근 안 한 기록(`end === null`)이 있다 | `OpenDot`(초록 채운 점) · **근무 중** | `오전 09:02 출근 · 지금까지 5시간 30분` | **퇴근** — `BTN.primary`(진한 바탕) |
+| `done` 오늘 퇴근함 | 오늘(`dayKey(start)` = 오늘) 기록이 있고 모두 퇴근했다 | `CircleCheck` `text-accent` · **오늘 퇴근함** | `오후 06:05 퇴근` (오늘 기록 중 가장 늦은 퇴근) | 비활성 **출근** `BTN.primary` 의 disabled 모양(`bg-line text-muted`) + 아래 퇴근 완료 상자. 다시 출근은 없다(PRD 12 T-7). 날짜가 바뀌면 before 로 돌아가 켜진다. 50m 배너·알림도 이날은 끈다 |
+| `off` 오늘 휴가·대타 | 오늘 기록이 없고 오늘 날짜의 absence 가 있다 | `CalendarOff` `text-muted` · **오늘 휴가** / **오늘 대타** + 태그 테두리 `border-dashed border-muted` | 유급 `오늘은 유급 휴가예요` · 무급 `오늘은 무급 휴가예요` · 대타 `오늘은 동료가 대신 근무해요` | **출근** — `BTN.secondary`(회색 선) |
+| `before` 출근 전 | 그 밖 | `CircleDashed` `text-muted` · **출근 전** | 없음 | **출근** — `BTN.primary` + `bg-accent text-on-accent` |
 
-- 알약 공통: `inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-semibold text-foreground`. 테두리는 `border-line`, off 만 `border-dashed border-muted`. 아이콘 14px, `aria-hidden`.
-- 알약 글자는 전부 `text-foreground` — 색을 바꾸는 것은 아이콘뿐이다. 색 바탕 알약(`bg-green-500/15` 등)을 쓰지 않는 이유는 §8.
-- 알약에 `role="status"`(= `aria-live="polite"`). 출근·퇴근을 누른 뒤 상태 이름이 바뀌면 한 번 읽힌다.
-- 버튼 높이·모서리·글자 크기는 네 상태가 같다(`py-4 rounded-xl text-lg font-bold w-full`). 버튼이 위아래로 움직이지 않게 상태 설명 줄은 없을 때 아예 빠진다(빈 줄을 두지 않는다) — before 는 알약 다음 바로 버튼.
-- 휴가·대타 날에도 출근은 막지 않는다. 기록이 생기면 그날은 근무로 센다([PRD 09](../prd/09-leave-substitution.md) L-4). 그래서 버튼을 보조 모양으로 낮추고 아래에 `text-xs text-muted` 한 줄: `쉬는 날에도 출근하면 근무로 기록돼요.`
+- 태그 공통: `inline-flex h-6 items-center gap-1.5 rounded-md border px-2 text-xs font-semibold text-foreground`. 테두리는 `border-muted/40`, off 만 `border-dashed border-muted`. 아이콘 12px(`OpenDot` 은 6px 점), `aria-hidden`.
+- 태그 글자는 전부 `text-foreground` — 색을 바꾸는 것은 아이콘뿐이다. 색 바탕 알약(`bg-ok/15` 등)을 쓰지 않는 이유는 §8.
+- 태그에 `role="status"`(= `aria-live="polite"`). 출근·퇴근을 누른 뒤 상태 이름이 바뀌면 한 번 읽힌다. 바뀔 때 새 글자가 아래에서 올라온다(`SwapText`, 0.22초).
+- 버튼은 네 상태 모두 `h-11`(44px), `rounded-xl`, `w-full`. 버튼이 위아래로 움직이지 않게 상태 설명 줄은 없을 때 아예 빠진다(빈 줄을 두지 않는다) — before 는 시계 다음 바로 버튼.
+- 저장 중(`busy`)에는 버튼이 비활성이다. 모양은 `BTN` 의 disabled(`bg-line text-muted`, 선 버튼은 `opacity-50`).
+- **퇴근 완료 상자**(done): 버튼 아래 `mt-3.5` 점선 상자(`border-dashed border-muted/50 rounded-xl px-3 py-2.5`). 왼쪽은 집·달·반짝임 장면(`Scene size="sm"`, `House` + `Moon`·`Sparkle`), 오른쪽은 굵은 `수고했어요` 와 그 아래 `text-xs text-muted` `오늘 근무를 마쳤어요. 내일부터 다시 출근할 수 있어요.` 상자는 나타날 때 한 번 올라온다(`useAppear`).
+- 휴가·대타 날에도 출근은 막지 않는다. 기록이 생기면 그날은 근무로 센다([PRD 09](../prd/09-leave-substitution.md) L-4). 그래서 버튼을 선 모양으로 낮추고 아래에 `text-xs text-muted` 한 줄: `쉬는 날에도 출근하면 근무로 기록돼요.`
 - 같은 날 absence 가 여러 건이면 유급 휴가 > 무급 휴가 > 대타 순으로 하나만 보인다(`computeWeek` 의 "유급이 우선한다" 와 같은 방향).
 - 오늘 기록이 있으면 absence 가 있어도 working/done 이다 (L-4).
 
@@ -104,21 +112,28 @@ Card text-center
 
 ### 2-4. 로딩·오류
 
-| 상태 | 알약 | 설명 | 버튼 |
+| 상태 | 태그 | 설명 | 버튼 |
 |---|---|---|---|
-| `loading` 기록을 읽는 중 | 같은 크기 막대 `Bone h-[30px] w-[88px] rounded-full` (출근 전 알약 크기) | 없음 | 같은 높이 막대 `Bone mt-4 h-15 w-full rounded-xl` — 누를 버튼이 없어 상태를 모르는 동안 찍지 않는다 |
-| `error` 기록·휴가 읽기 실패 | `TriangleAlert` `text-warn` · **상태를 불러오지 못했어요** | 없음 | 보조 모양 **다시 불러오기** (`RefreshCw` 16px 앞에) → `onRetry` |
+| `loading` 기록을 읽는 중 | 같은 높이 막대 `Bone h-6 w-[68px] rounded-md` | 없음 | 같은 높이 막대 `Bone mt-3.5 h-11 w-full rounded-xl` — 누를 버튼이 없어 상태를 모르는 동안 찍지 않는다 |
+| `error` 기록·휴가 읽기 실패 | `TriangleAlert` `text-warn` · **상태를 불러오지 못했어요** | 없음 | 선 버튼 **다시 불러오기** (`RefreshCw` 16px 앞에) → `onRetry` |
 
 - 지금 코드는 기록을 읽기 전에도 `출근` 버튼이 켜져 있다. 이미 출근한 사람에게 잠깐 `출근` 이 보인다 — 이 명세에서 `loading` 으로 막는다.
-- `loading` 은 `Loading label="상태 확인 중"` 으로 감싼다(스크린리더가 한 번 읽는다). 높이는 출근 전(`before`)과 같아 기록이 들어와도 카드가 움직이지 않는다. 로그인 확인 전 첫 화면은 `ClockCardSkeleton` — 같은 모양에 날짜·시계 글자까지 막대(`h-5`·`h-12` 칸)다. 서버 렌더와 브라우저의 시각이 달라 시계 글자를 그리면 hydration 이 어긋나기 때문이다.
+- `loading` 은 카드째 `Loading label="상태 확인 중"` 으로 감싼다(스크린리더가 한 번 읽는다). 높이는 출근 전(`before`)과 같아 기록이 들어와도 카드가 움직이지 않는다. 로그인 확인 전 첫 화면은 `ClockCardSkeleton` — 같은 모양에 날짜·시계 글자까지 막대(첫 줄 `min-h-6`, 시계 `h-10` 칸)다. 서버 렌더와 브라우저의 시각이 달라 시계 글자를 그리면 hydration 이 어긋나기 때문이다.
 - 저장 실패(`저장하지 못했어요. 다시 시도해 주세요.`)는 지금처럼 버튼 아래 `ErrorText`. 상태는 바꾸지 않는다.
 
 ---
 
 ## 3. 오늘 근무 카드 — `TodayDashboard` (T-2~T-5)
 
-`Card className="p-0"` + 안쪽 `divide-y divide-line`, 구역마다 `px-5 py-4`. (요청 탭 `내 요청` 목록과 같은 틀.)
-구역 제목은 `h2 text-sm font-semibold` — 헤더 `h1 출퇴근` 아래 단계. 숫자는 전부 `tabular-nums`.
+`Card className="divide-y divide-line p-0"`, 구역마다 `px-4 py-3.5` ([DESIGN.md §3](../../DESIGN.md) 카드 구역).
+구역 머리는 `SectionLabel`(h2, 작은 회색 글자 + lucide 15px 아이콘 + 오른쪽 요약 값) — 헤더 `h1 출퇴근` 아래 단계. 머리 앞의 번호 `01`~`04` 는 보이기만 하는 장식이라 `aria-hidden` 이다. 제목 이름은 `오늘`·`처리할 것`·`이번 주` 그대로 읽힌다. 숫자는 전부 `NUM`(고정폭).
+
+| 구역 | 아이콘 | 오른쪽 요약 값 |
+|---|---|---|
+| ① 오늘 | `Clock` | 오늘 합계 `hm()` |
+| ② 처리할 것 | `Bell` | 두 행의 건수 합 |
+| ③ 이번 주 | `CalendarDays` | 기간 |
+| ④ 이번 달 | `PiggyBank` | — (구역이 버튼이라 머리도 버튼 안 글자) |
 
 ### 3-1. ① 오늘 (T-2, TD-2)
 
@@ -132,8 +147,8 @@ Card text-center
 - 시각은 기존 `time()` 표기(`오전 09:02`) 그대로 — 기록 탭과 같다. 한 행 약 230px 로 310px 안에 들어간다.
 - 행: 왼쪽 `time(start) ~ time(end)`, 퇴근 전이면 `time(start) ~` + `OpenDot` + `근무 중`. 오른쪽 `hm(shiftMinutes(s, minuteNow))`.
 - 합계 = 목록 각 행 분의 합. 두 번 나눠 일하면 둘의 합이다 (TD-2). `computeWeek` 가 날마다 더하는 식(`shiftMinutes` 합)과 같다.
-- 목록 행은 `ul`/`li`. 행 높이 약 28px (`py-1`), 누를 것이 아니라 버튼이 아니다.
-- 빈 상태(오늘 기록 0): 합계 자리에 `0시간`, 목록 대신 `text-sm text-muted` 한 줄 `아직 오늘 기록이 없어요.`
+- 목록 행은 `ul`/`li`, 13px 글자, 행 사이 점선(`divide-dashed`). 행 높이 약 34px (`py-[7px]`), 누를 것이 아니라 버튼이 아니다. 오른쪽 시간은 `font-semibold`.
+- 빈 상태(오늘 기록 0): 합계 자리에 `0시간`, 목록 대신 `text-[13px] text-muted` 한 줄 `아직 오늘 기록이 없어요.`
   - off 상태면 대신 `오늘은 쉬는 날이에요.`
 
 ### 3-2. ② 처리할 것 (T-5, TD-4)
@@ -147,9 +162,9 @@ Card text-center
 | 행 | 아이콘 | 세는 것 (`MyRequests`) |
 |---|---|---|
 | 받은 대타 요청 | `ArrowLeftRight` `text-foreground` | `substitutionsIn` 중 `status === "requested"` — 하단 내비 요청 배지와 같은 수 |
-| 내 대기 요청 | `Hourglass` `text-amber-700 dark:text-amber-400` (달력의 요청 대기와 같은 아이콘·색) | `corrections` 중 `pending` + `leaves` 중 `pending` + `substitutionsOut` 중 `requested`·`accepted` |
+| 내 대기 요청 | `Hourglass` `text-caution` (달력의 요청 대기와 같은 아이콘·색) | `corrections` 중 `pending` + `leaves` 중 `pending` + `substitutionsOut` 중 `requested`·`accepted` |
 
-- 행 전체가 `button` → `onOpenRequests()` (요청 탭). 높이 44px 이상(`min-h-11`), 오른쪽 `N건` `font-semibold` + `ChevronRight` 16px `text-muted`.
+- 행 전체가 `button` → `onOpenRequests()` (요청 탭). 높이 44px 이상(`min-h-11`). 모양은 옅은 주의색 바탕 + 왼쪽 굵은 선(`rounded-xl border-l-[3px] border-caution bg-caution/10 px-3`), 행 사이 6px. 이름은 `font-semibold`, 오른쪽 `N건` `font-semibold text-caution` + `ChevronRight` 15px `text-muted`.
 - 읽는 이름: 보이는 글자 뒤에 `sr-only` ` — 요청 탭에서 보기`.
 - **0건인 행은 숨긴다. 둘 다 0건이면 구역째 숨긴다** (`처리할 것 없음` 같은 글자도 두지 않는다). 할 일이 없을 때 첫 화면을 짧게 두기 위해서다.
 - 요청을 아직 못 읽었거나(`requests` 없음) 읽기에 실패하면 구역을 숨긴다. 요청 탭에서 다시 볼 수 있다.
@@ -157,11 +172,11 @@ Card text-center
 ### 3-3. ③ 이번 주 (T-3, TD-3)
 
 ```
-이번 주                        9월 21일 (월) ~ 9월 27일 (일)   ← h2 / 기간 text-xs text-muted
-근무 시간                               14시간 / 20시간
+03 이번 주                     9월 21일 (월) ~ 9월 27일 (일)   ← SectionLabel / 오른쪽 기간
+근무 시간 ························· 14시간 / 20시간       ← DotRow
 [██████████████████░░░░░░░░]                               ← ProgressBar
-근무한 날                         3일 / 5일 + 휴가·대타 1일
-주휴수당                                 진행 중 (4/5일)
+근무한 날 ················· 3일 / 5일 + 휴가·대타 1일
+주휴수당 ·························· 진행 중 (4/5일)
 ```
 
 값 — 전부 이번 주 `WeekPay` 하나에서 온다:
@@ -178,18 +193,20 @@ Card text-center
 - 이번 주 `WeekPay` 를 얻는 법: `computeWeeks(shifts, settings, minuteNow, absences)` 에서 `weekStart === startOfWeek(minuteNow)` 인 것. 이번 주에 기록·휴가가 하나도 없으면 목록에 없으므로 `computeWeek(startOfWeek(minuteNow), [], settings, minuteNow, absences)` 로 빈 주를 만든다. 둘 다 pay.ts 함수다.
 - 소정근로시간을 넘으면 막대는 가득 차고(넘친 만큼 더 그리지 않는다), 글자는 실제 값(`25시간 28분 / 20시간`)을 보인다. 연장·한도 경고는 급여 탭에 있다 — 여기서 반복하지 않는다.
 - `settings.weeklyHours === 0` 이면 `/ 0시간` 과 막대를 빼고 근무 시간만.
-- 긴 글자(`3일 / 5일 + 휴가·대타 1일`)는 오른쪽 칸에서 줄바꿈을 허용한다(`whitespace-nowrap` 금지). 390px 가로 스크롤 없음(TD-5).
+- 줄은 `DotRow`(이름 ···· 값, 13px)다. 진행 막대는 `근무 시간` 줄 아래 8px 에 둔다. `dl` 안의 줄 묶음에 막대를 넣을 수 없어 `dl` 을 막대 앞뒤 둘로 나눴다 — 읽는 순서는 같다.
+- 주휴 글자는 `holidayTone`(PayView.tsx) 색을 쓴다: `개근` `text-ok`, `진행 중` `text-caution`, 그 밖은 본문색. 글자가 뜻을 담고 색은 보조다. 급여 탭 주 카드와 같다.
+- 긴 글자(`3일 / 5일 + 휴가·대타 1일`)는 약 150px 이다. `DotRow` 값 칸은 줄어들지 않지만 320px 기기의 카드 안쪽(246px)에도 이름과 함께 한 줄에 들어간다. 390px 가로 스크롤 없음(TD-5).
 
 ### 3-4. ④ 이번 달 (T-4, TD-3)
 
 ```
-9월 예상 급여 (세전)                              급여 탭에서 자세히 >
-144,480원
+04 9월 예상 급여 (세전)                           급여 탭에서 자세히 >
+144,480원                                        ← 22px 강조색, 숫자가 올라가며 나타남
 ```
 
 - 구역 전체가 `button` (`min-h-11`, 왼쪽 정렬) → `onOpenPay()`.
-- 왼쪽: `text-sm text-muted` `{month + 1}월 예상 급여 (세전)` / 아래 `text-xl font-bold tabular-nums` `won(m.total)`.
-- 오른쪽: `text-sm text-accent` `급여 탭에서 자세히` + `ChevronRight` 16px. 버튼 읽는 이름은 보이는 글자 전체(`9월 예상 급여 (세전) 144,480원 급여 탭에서 자세히`).
+- 왼쪽: `SectionLabel` 과 같은 모양의 글자(`PiggyBank` 15px + `04` + `{month + 1}월 예상 급여 (세전)`, 버튼 안이라 span) / 아래 `text-[22px] font-semibold leading-tight text-accent NUM` `won(m.total)`. 큰 급여 숫자라 강조색이고, `CountUp` 으로 이전 값(처음은 0)에서 0.6초 동안 올라간다.
+- 오른쪽: `text-[13px] font-semibold text-accent` `급여 탭에서 자세히` + `ChevronRight` 15px. 버튼 읽는 이름은 보이는 글자 전체(`9월 예상 급여 (세전) 144,480원 급여 탭에서 자세히`).
 - 값: `computeMonth(weeks, 이번 해, 이번 달).total` — 급여 탭 요약 카드 총액과 같은 값(TD-3). 월에 넣는 주는 급여 탭처럼 **일요일이 그 달에 속한 주**다. 그래서 달 끝 주(예: 9/28~10/4)는 10월에 들어가고 9월 합계에 안 보인다 — 급여 탭과 같으므로 그대로 둔다.
 - 금액은 줄바꿈하지 않는다(`whitespace-nowrap`). 폭이 모자라면 오른쪽 `급여 탭에서 자세히` 가 다음 줄로 내려간다(`flex-wrap`) — 2026-09-25 가이드 390px 틀에서 `144,480` / `원` 으로 끊긴 것을 고침.
 - 내역(기본급·주휴·연장)은 여기 두지 않는다. 합계 한 줄만.
@@ -199,8 +216,8 @@ Card text-center
 
 | 상태 | 대시보드 카드 |
 |---|---|
-| 기록·휴가 읽는 중 | `TodayDashboardSkeleton` — ready 와 같은 Card·구역·줄 높이에 값 대신 `Bone`. 구역 이름(`오늘`·`이번 주`·`근무 시간`·`근무한 날`·`주휴수당`)과 `{월}월 예상 급여 (세전)` 은 글자 그대로. 오늘 기록은 2행, ② 처리할 것은 없음(0건)으로 잡고, 진행 막대 줄은 `weeklyHours > 0` 일 때만. `불러오는 중…` 글자는 두지 않는다 |
-| 기록 또는 휴가 읽기 실패 | 카드 안 `ErrorText` `오늘 근무를 불러오지 못했어요.` + 보조 버튼 `다시 불러오기`(`RefreshCw`) → `onRetry`. 휴가를 못 읽으면 주휴·휴가수당이 틀리므로 둘 중 하나만 실패해도 실패로 본다 (기록 탭 `failed` 와 같은 기준) |
+| 기록·휴가 읽는 중 | `TodayDashboardSkeleton` — ready 와 같은 Card·구역·줄 높이에 값 대신 `Bone`. 구역 머리(`01 오늘`·`03 이번 주`), 줄 이름(`근무 시간`·`근무한 날`·`주휴수당`), `04 {월}월 예상 급여 (세전)`, `급여 탭에서 자세히` 는 글자 그대로. 값 자리 막대는 글자 줄 안의 `inline-block` 이라 줄 높이가 불러온 뒤와 같다. 큰 금액 자리는 `h-[27.5px]` 칸(22px × leading-tight). 오늘 기록은 2행, ② 처리할 것은 없음(0건)으로 잡고, 진행 막대 줄은 `weeklyHours > 0` 일 때만. `불러오는 중…` 글자는 두지 않는다 |
+| 기록 또는 휴가 읽기 실패 | 카드(`p-4`) 안 `ErrorText` `오늘 근무를 불러오지 못했어요.` + 선 버튼 `다시 불러오기`(`BTN.secondary`, `RefreshCw`) → `onRetry`. 휴가를 못 읽으면 주휴·휴가수당이 틀리므로 둘 중 하나만 실패해도 실패로 본다 (기록 탭 `failed` 와 같은 기준) |
 | 가입 첫날 (기록 0, 휴가 0) | 구역은 모두 그대로 보이고 값만 0: 오늘 `아직 오늘 기록이 없어요.` · 이번 주 `0시간 / 20시간`, 빈 막대, `0일 / 5일`, 주휴 `진행 중 (0/5일)` · 이번 달 `0원`. 빈 화면 안내 문구를 따로 만들지 않는다 — 0으로 채운 모양이 무엇이 쌓일지를 보여 준다 |
 | 요청 읽는 중·실패 | ② 처리할 것만 숨는다. 나머지는 영향 없음 |
 
@@ -218,30 +235,30 @@ Card text-center
 │ 출퇴근                           (김)  │
 ├──────────────────────────────────────┤
 │ ┌──────────────────────────────────┐ │
-│ │          9월 25일 (금)            │ │ ClockCard
-│ │           14:32:07               │ │  ← 한 줄 고정
-│ │        ( ● 근무 중 )              │ │  ← 알약, role=status
+│ │ 9월 25일 (금)          [● 근무 중] │ │ ClockCard ← 태그, role=status
+│ │ 14:32:07                         │ │  ← 40px 강조색, 한 줄 고정
 │ │ 오후 01:30 출근 · 지금까지 1시간 2분 │ │
 │ │ ┌──────────────────────────────┐ │ │
 │ │ │             퇴근              │ │ │  ← bg-foreground
 │ │ └──────────────────────────────┘ │ │
 │ └──────────────────────────────────┘ │
 │ ┌──────────────────────────────────┐ │
-│ │ 오늘                   4시간 30분  │ │ TodayDashboard ①
+│ │ ◷ 01 오늘              4시간 30분  │ │ TodayDashboard ①
 │ │ 오전 09:02 ~ 오후 12:30  3시간 28분 │ │
+│ │ - - - - - - - - - - - - - - - - - │ │
 │ │ 오후 01:30 ~ ● 근무 중    1시간 2분 │ │
 │ ├──────────────────────────────────┤ │
-│ │ 처리할 것                          │ │ ②
-│ │ ⇄ 받은 대타 요청            2건  › │ │
+│ │ ♫ 02 처리할 것                  2 │ │ ②
+│ │ ┃⇄ 받은 대타 요청            2건  › │ │  ← 옅은 주의색 바탕 + 왼쪽 선
 │ ├──────────────────────────────────┤ │
-│ │ 이번 주   9월 21일 (월) ~ 9월 27일 (일)│ ③
-│ │ 근무 시간          14시간 / 20시간  │ │
+│ │ ▦ 03 이번 주 9월 21일 (월) ~ 9월 27일 (일)│ ③
+│ │ 근무 시간 ········ 14시간 / 20시간  │ │
 │ │ ████████████████████░░░░░░░░░░░  │ │
-│ │ 근무한 날   3일 / 5일 + 휴가·대타 1일 │ │
-│ │ 주휴수당            진행 중 (4/5일) │ │
+│ │ 근무한 날 · 3일 / 5일 + 휴가·대타 1일 │ │
+│ │ 주휴수당 ·········· 진행 중 (4/5일) │ │
 │ ├──────────────────────────────────┤ │
-│ │ 9월 예상 급여 (세전)  급여 탭에서 자세히 › │ ④
-│ │ 144,480원                         │ │
+│ │ ◫ 04 9월 예상 급여 (세전)  급여 탭에서 자세히 › │ ④
+│ │ 144,480원                         │ │  ← 강조색
 │ └──────────────────────────────────┘ │
 │ ┌──────────────────────────────────┐ │
 │ │ 매장 근처 출근 알림           [ ○] │ │ 알림 설정 (밀려남)
@@ -251,52 +268,54 @@ Card text-center
 ```
 
 - 근무 중에 "오후 01:30 출근" 은 **지금 열린 기록**의 출근 시각이다(오늘 첫 출근이 아니다).
-- ③ 제목 줄의 기간은 오른쪽 정렬 `text-xs`. 310px 안에서 `이번 주`(약 45px) + 기간(약 170px)이 한 줄에 들어간다. 넘치면 기간이 다음 줄로 내려간다(`flex-wrap`).
+- 구역 머리 앞 기호(◷ ♫ ▦ ◫)는 lucide 아이콘 자리 표시다(`Clock`·`Bell`·`CalendarDays`·`PiggyBank`).
+- ③ 머리 줄의 기간은 `SectionLabel` 오른쪽 값(`text-xs`, 줄어들지 않음). 316px 안에서 아이콘·`03 이번 주`(약 85px) + 기간(약 170px)이 한 줄에 들어간다. 더 좁으면 제목 쪽이 말줄임(`truncate`)된다.
 - ④ 오른쪽 `급여 탭에서 자세히 ›` 약 115px + 왼쪽 라벨 약 125px — 한 줄에 들어간다. 금액은 다음 줄.
 
 ### 4-2. 시계 카드 네 상태 (대시보드는 4-1 과 같은 틀)
 
 ```
 출근 전                         오늘 퇴근함
-┌────────────────────────┐      ┌────────────────────────┐
-│     9월 25일 (금)       │      │     9월 25일 (금)       │
-│       08:51:40         │      │       18:20:05         │
-│    ( ◌ 출근 전 )        │      │   ( ✓ 오늘 퇴근함 )     │
-│ ┌────────────────────┐ │      │    오후 06:05 퇴근      │
-│ │        출근         │ │      │ ┌────────────────────┐ │
-│ └────────────────────┘ │      │ │   출근 (비활성)     │ │ ← bg-line text-muted
-└────────────────────────┘      │ └────────────────────┘ │
-  bg-accent 채운 버튼            └────────────────────────┘
+┌────────────────────────┐      ┌──────────────────────────┐
+│ 9월 25일 (금) [◌ 출근 전]│      │ 9월 25일 (금) [✓ 오늘 퇴근함]│
+│ 08:51:40               │      │ 18:20:05                 │
+│ ┌────────────────────┐ │      │ 오후 06:05 퇴근            │
+│ │        출근         │ │      │ ┌──────────────────────┐ │
+│ └────────────────────┘ │      │ │    출근 (비활성)      │ │ ← bg-line text-muted
+└────────────────────────┘      │ └──────────────────────┘ │
+  bg-accent 채운 버튼            │ ┆⌂☾ 수고했어요           ┆ │ ← 퇴근 완료 상자(점선)
+                                │ ┆   오늘 근무를 마쳤어요.  ┆ │
+                                │ ┆   내일부터 다시 출근할…  ┆ │
+                                └──────────────────────────┘
 
 오늘 휴가·대타
 ┌─────────────────────────────┐
-│        9월 25일 (금)         │
-│          10:03:12           │
-│  ┆ ⊘ 오늘 휴가 ┆  ← 점선 알약  │
-│     오늘은 유급 휴가예요        │
+│ 9월 25일 (금)  ┆⊘ 오늘 휴가┆   │ ← 점선 태그
+│ 10:03:12                    │
+│ 오늘은 유급 휴가예요            │
 │ ┌─────────────────────────┐ │
-│ │          출근           │ │ ← 보조 모양
+│ │          출근           │ │ ← 선 버튼
 │ └─────────────────────────┘ │
 │ 쉬는 날에도 출근하면 근무로 기록돼요.│
 └─────────────────────────────┘
 ```
 
-(`◌` = `CircleDashed`, `✓` = `CircleCheck`, `⊘` = `CalendarOff` 자리 표시. 실제는 lucide 아이콘.)
+(`◌` = `CircleDashed`, `✓` = `CircleCheck`, `⊘` = `CalendarOff`, `⌂☾` = 집·달 장면 자리 표시. 실제는 lucide 아이콘. 시계 글자는 모두 강조색.)
 
 ### 4-3. 가입 첫날 (기록 0) · 처리할 것 없음
 
 ```
 │ ┌──────────────────────────────────┐ │
-│ │ 오늘                       0시간  │ │
+│ │ ◷ 01 오늘                  0시간  │ │
 │ │ 아직 오늘 기록이 없어요.            │ │
 │ ├──────────────────────────────────┤ │  ← 처리할 것 구역 없음
-│ │ 이번 주   9월 21일 (월) ~ 9월 27일 (일)│
-│ │ 근무 시간           0시간 / 20시간  │ │
+│ │ ▦ 03 이번 주 9월 21일 (월) ~ 9월 27일 (일)│
+│ │ 근무 시간 ········· 0시간 / 20시간  │ │
 │ │ ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  │ │
-│ │ 근무한 날                0일 / 5일  │ │
-│ │ 주휴수당            진행 중 (0/5일) │ │
+│ │ 근무한 날 ················ 0일 / 5일 │ │
+│ │ 주휴수당 ·········· 진행 중 (0/5일) │ │
 │ ├──────────────────────────────────┤ │
-│ │ 9월 예상 급여 (세전)  급여 탭에서 자세히 › │
+│ │ ◫ 04 9월 예상 급여 (세전)  급여 탭에서 자세히 › │
 │ │ 0원                               │ │
 │ └──────────────────────────────────┘ │
 ```
@@ -305,7 +324,7 @@ Card text-center
 
 ## 5. 새 컴포넌트
 
-기존 것 재사용: `Card`, `ErrorText`, `OpenDot`(calendar/MonthGrid), `won`·`hm`·`time`·`date`·`dayLabel`(ui.tsx), `clockText`(lib/format.ts), `holidayStatus`(PayView.tsx), pay.ts 의 `computeWeeks`·`computeWeek`·`computeMonth`·`startOfWeek`·`dayKey`·`shiftMinutes`.
+기존 것 재사용: `Card`, `SectionLabel`, `BTN`, `NUM`, `ErrorText`, `Bone`·`Loading`(ui.tsx), `OpenDot`(calendar/MonthGrid), `won`·`hm`·`time`·`date`·`dayLabel`(ui.tsx), `clockText`(lib/format.ts), `holidayStatus`·`holidayTone`·`DotRow`(PayView.tsx), `Scene`(illust.tsx), `CountUp`·`SwapText`·`useAppear`(motion.tsx), pay.ts 의 `computeWeeks`·`computeWeek`·`computeMonth`·`startOfWeek`·`dayKey`·`shiftMinutes`.
 새로 만드는 것은 셋과 순수 함수 하나다. `ClockCard`·`TodayDashboard` 는 **API 를 부르지 않는 표시 컴포넌트**로 만든다 — 가이드 예시로 상태를 전부 그려 볼 수 있어야 한다(로그인 화면이라 실화면 확인이 어렵다, TS-004).
 
 ### 5-1. `todayState` — 순수 함수 (`web/src/lib/today.ts`)
@@ -332,7 +351,7 @@ export function todayState(shifts: Shift[], absences: Absence[], now: number): T
 | `now` | `number` | — | **필수** 1초 단위 시각(시계용) |
 | `state` | `TodayState \| { kind: "loading" } \| { kind: "error" }` | — | **필수** §2-3·§2-4 |
 | `minuteNow` | `number` | — | **필수** 경과 시간 계산용(§2-3 갱신 단위) |
-| `busy` | `boolean` | `false` | 저장 중 — 버튼 비활성(`disabled:opacity-50`, 지금 것) |
+| `busy` | `boolean` | `false` | 저장 중 — 버튼 비활성(`BTN` 의 disabled 모양) |
 | `error` | `string \| null` | `null` | 저장 실패 글자 → `ErrorText` |
 | `onPunch` | `(kind: "in" \| "out") => void` | — | **필수** working 이면 `"out"`, 그 밖은 `"in"` |
 | `onRetry` | `() => void` | — | **필수** error 상태의 `다시 불러오기` |
@@ -464,22 +483,23 @@ export function todayState(shifts: Shift[], absences: Absence[], now: number): T
 | 상태 구별 | 아이콘 모양 + 상태 이름 + 버튼 글자, 휴가·대타는 점선 테두리까지. 색은 보조 |
 | 상태 바뀜 알림 | 상태 알약 `role="status"`. 시계에는 live 영역 없음 |
 | 진행 막대 | `role="progressbar"` + `aria-label` + `aria-valuemin/max/now` + `aria-valuetext` (§5-4) |
-| 제목 | 헤더 `h1 출퇴근` → 대시보드 구역 `h2` 셋(오늘·처리할 것·이번 주). ④ 이번 달은 구역 전체가 버튼이라 `h2` 없이 버튼 이름으로 읽힌다 |
-| 누르는 곳 | 출근·퇴근 버튼 약 60px, 처리할 것 행·이번 달 구역 44px 이상 |
+| 제목 | 헤더 `h1 출퇴근` → 대시보드 구역 `h2` 셋(오늘·처리할 것·이번 주). 번호 `01`~`03` 은 `aria-hidden` 이라 이름에 들어가지 않는다. ④ 이번 달은 구역 전체가 버튼이라 `h2` 없이 버튼 이름(`9월 예상 급여 (세전) 144,480원 급여 탭에서 자세히`)으로 읽힌다 |
+| 누르는 곳 | 출근·퇴근 버튼 44px, 처리할 것 행·이번 달 구역 44px 이상 |
 | 아이콘 | 전부 `aria-hidden`, 이름은 옆 글자가 가진다 |
 | 390px | 가로 스크롤 없음 — 긴 값은 줄바꿈 허용, 시계만 `whitespace-nowrap`(폭 확인 §2-2) (TD-5) |
 
 ## 8. 다크 모드와 색 — 새 토큰 없음
 
-모든 색은 기존 토큰(`globals.css`)과 이미 쓰는 Tailwind 색이다. 대비는 2026-09-25 WCAG 식으로 계산했다(라이트 / 다크).
+모든 색은 기존 토큰(`globals.css`)이다. 아래 대비 값은 2026-09-25 WCAG 식으로 계산한 것이다(라이트 / 다크). 2026-10-07 토큰을 바꾼 뒤의 글자 대비는 `web/src/lib/design-tokens.test.mjs` 가 매번 확인한다.
 
 | 쓰는 곳 | 색 | 대비 | 판정 |
 |---|---|---|---|
 | 상태 알약 글자 | `text-foreground` on `surface` | 17.49 / 16.03 | 글자 4.5 이상 |
 | 점선 알약 테두리 (off) | `border-muted` on `surface` | 4.80 / 6.93 | 비글자 3 이상 (달력과 같은 이유로 `border-line` 1.3 은 쓰지 않는다) |
-| `CircleCheck`, 보조 버튼 글자·테두리 | `accent` on `surface` | 5.17 / 4.75 | 통과 |
+| `CircleCheck`, 시계, 큰 급여 숫자, `급여 탭에서 자세히` | `accent` on `surface` | 5.17 / 4.75 | 통과 |
 | `CircleDashed`, `CalendarOff`, 보조 글자 | `muted` on `surface` | 4.80 / 6.93 | 통과 |
-| `Hourglass` | `amber-700` / `dark:amber-400` on `surface` | 5.02 / 10.48 | 통과 |
+| `Hourglass` | `caution` on `surface` | 테스트가 4.5 이상을 확인 | 통과 |
+| 처리할 것 행 `N건` | `caution` on `caution/10`(카드 위) | 테스트는 더 진한 `caution/15` 바탕에서 4.5 이상을 확인한다. `/10` 은 바탕이 카드색에 더 가까워 대비가 그보다 높다 | 통과 |
 | `TriangleAlert`, 오류 글자 | `warn` on `surface` | 4.83 / 6.32 | 통과 |
 | 막대 채움 vs 빈 칸 | `accent` vs `line` | 4.12 / 4.12 | 비글자 3 이상 |
 
@@ -494,6 +514,7 @@ export function todayState(shifts: Shift[], absences: Absence[], now: number): T
 - 50m 알림 배너와 알림 설정 카드의 내용·동작 (T-6)
 - 출근·퇴근 API 호출과 다른 기기 충돌 처리(`ALREADY_CLOCKED_IN`·`NOT_CLOCKED_IN` → 다시 읽기)
 - 범위 밖(PRD 12): 오늘 근무 **예정**, 동료 근무 여부. 대타로 **멤버가 대신 일하는 날** 표시도 PRD 12 T-1 에 없어서 넣지 않았다
+- B 시안에 있던 것 중 넣지 않은 것: 시계 카드의 `수정 요청` 버튼과 `예정 16:00`, ③ 이번 주의 요일 7칸(날마다 근무 시간·예정), ② 행의 요청자·날짜(`민수, 10/18`). 모두 새 기능이나 새 문구라 모양만 바꾸는 이번 작업에서 뺐다(§11)
 
 ## 10. 구현 체크리스트 (시니어 → QA)
 
@@ -511,4 +532,5 @@ export function todayState(shifts: Shift[], absences: Absence[], now: number): T
 |---|---|---|
 | 휴가·대타 날 50m 배너가 `출근 체크하세요` 로 뜬다 | T-6 "지금 것 유지" 라 그대로 둔다. 쉬는 날 배너를 끄려면 기획(PRD 04·12) 결정이 먼저다 | `ClockPanel` 배너 조건 |
 | §1-3 높이는 눈대중이다 | 구현 후 390×844 에서 대시보드 끝이 하단 내비 위에 오는지 잰다. 넘치면 ③ 의 `근무한 날` 줄을 주휴 줄에 합치는 쪽을 먼저 검토 | 이 문서 §3-3 |
+| B 시안의 ③ 요일 7칸(월~일, 날마다 근무 시간 · 오늘 칸 강조 · 예정 칸 흐리게)을 넣을지 | 넣으려면 날마다 근무 시간(`computeWeek` 의 일별 합)과 근무 시간표(PRD 13 `schedule`)의 예정 시간이 필요하다. "예정" 은 이 문서 §9 에서 범위 밖이라 기획 결정이 먼저다 | 이 문서 §3-3, `TodayDashboard.tsx` ③ 구역 |
 | 월 경계 주(9/28 월 ~ 10/4 일)는 9월 합계에 안 들어간다 | 급여 탭과 같게 둔다(TD-3). 헷갈린다는 의견이 나오면 급여 탭 안내 문구를 함께 고친다 | `PayView` 안내 글자 |
