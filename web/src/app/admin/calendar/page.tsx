@@ -81,7 +81,7 @@ export default function CalendarPage() {
 
   return (
     // 불러오기가 끝나면 카드가 다시 차례로 나타난다
-    <Enter className="space-y-3" replay={loading ? null : month}>
+    <Enter className="space-y-3">
       <div>
         <MonthPicker cursor={cursor} onChange={setCursor} />
         {loading ? (

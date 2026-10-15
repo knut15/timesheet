@@ -14,9 +14,11 @@ export const EASE = "power2.out";
 
 /**
  * 화면 진입 — 바로 아래 자식들이 아래에서 8px 올라오며 차례로 나타난다 (0.32초, 0.06초 간격).
- * replay 가 바뀌면 다시 한다 (예: 불러오기가 끝나 내용이 바뀌었을 때).
+ * 처음 그릴 때 한 번만 한다. 불러오기가 끝나 스켈레톤이 내용으로 바뀔 때는 다시 투명하게 만들지 않는다 —
+ * 다시 하면 이미 보이던 카드가 0 으로 떨어졌다 올라와 깜빡인다 (2026-10-15 "탭 이동할 때 화면이 한번씩 깜빡거린다").
+ * 스켈레톤이 불러온 뒤와 같은 크기라 내용은 그 자리에서 바로 바뀐다.
  */
-export function Enter({ children, className, replay }: { children: React.ReactNode; className?: string; replay?: unknown }) {
+export function Enter({ children, className }: { children: React.ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   useIsoLayoutEffect(() => {
     const items = ref.current?.children;
@@ -27,7 +29,7 @@ export function Enter({ children, className, replay }: { children: React.ReactNo
     return () => {
       tween.kill();
     };
-  }, [replay]);
+  }, []);
   return (
     <div ref={ref} className={className}>
       {children}

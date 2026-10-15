@@ -172,7 +172,7 @@ Card
 ### 3-3. ③ 이번 주 (T-3, TD-3)
 
 ```
-03 이번 주                     9월 21일 (월) ~ 9월 27일 (일)   ← SectionLabel / 오른쪽 기간
+03 이번 주                                 9/21 – 9/27   ← SectionLabel / 오른쪽 기간 (짧게)
 근무 시간 ························· 14시간 / 20시간       ← DotRow
 [██████████████████░░░░░░░░]                               ← ProgressBar
 근무한 날 ················· 3일 / 5일 + 휴가·대타 1일
@@ -183,7 +183,7 @@ Card
 
 | 줄 | 글자 | 출처 |
 |---|---|---|
-| 기간 | `date(week.weekStart) ~ date(week.weekEnd.getTime() - 1)` | `PayView` `WeekCard` 와 같은 식 |
+| 기간 | `monthDay(week.weekStart) – monthDay(week.weekEnd.getTime() - 1)` → "9/21 – 9/27" | 2026-10-15 짧게 — 긴 "9월 21일 (월) ~ …" 는 375px 에서 제목 "이번 주" 를 말줄임으로 밀어냈다. 급여 탭 `WeekCard` 는 그대로 |
 | 근무 시간 | `hm(week.workedMinutes) / {settings.weeklyHours}시간` | `computeWeek` |
 | 막대 | `ProgressBar value={week.workedMinutes} max={settings.weeklyHours * 60}` | §5 |
 | 근무한 날 | `{week.workDays}일 / {settings.workDaysPerWeek}일` + excusedDays > 0 이면 ` + 휴가·대타 {n}일` | `WeekCard` 의 근무 줄과 같은 표기 |

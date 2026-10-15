@@ -249,7 +249,7 @@ function ClockPanel({
 
   return (
     // 카드가 차례로 나타나고, 기록을 다 읽으면(status 가 바뀌면) 다시
-    <Enter className="space-y-3" replay={status}>
+    <Enter className="space-y-3">
       {geo.inside && !open && !doneToday && (
         <div role="alert" className="rounded-2xl border border-accent/30 bg-accent/10 p-4">
           <p className="flex items-start gap-2 text-sm font-semibold">
@@ -321,7 +321,7 @@ function MyScheduleExceptions({ data, error }: Exceptions) {
     return (
       <Loading>
         <Card>
-          <SectionLabel icon={CalendarDays}>날짜별 근무 변경</SectionLabel>
+          <SectionLabel tone="title" icon={CalendarDays}>날짜별 근무 변경</SectionLabel>
           <ul className={EXC_ROWS}>
             {[0, 1].map((i) => (
               <li key={i} className={EXC_ROW}>
@@ -337,7 +337,7 @@ function MyScheduleExceptions({ data, error }: Exceptions) {
   if (!data?.length) return null;
   return (
     <Card>
-      <SectionLabel icon={CalendarDays}>날짜별 근무 변경</SectionLabel>
+      <SectionLabel tone="title" icon={CalendarDays}>날짜별 근무 변경</SectionLabel>
       <ul className={EXC_ROWS}>
         {data.map((e) => (
           <li key={e.id} className={EXC_ROW}>
@@ -360,8 +360,8 @@ function MePanel({ me, membership }: { me: Me; membership: MyMembership }) {
   const today = dayKey(now);
   const exceptions = useApi(() => api.GET("/api/schedule-exceptions/me", { params: { query: { from: today } } }), today);
   return (
-    // 카드가 차례로 나타나고, 날짜별 근무 변경을 다 읽으면 다시
-    <Enter className="space-y-3" replay={exceptions.data !== null || !!exceptions.error}>
+    // 카드가 처음 한 번 차례로 나타난다 (불러오기가 끝나도 다시 하지 않는다 — 깜빡임)
+    <Enter className="space-y-3">
       <Card className="flex items-center gap-3.5">
         <Avatar name={me.user.nickname} seed={me.user.id} size="lg" />
         <div className="min-w-0">
@@ -371,7 +371,7 @@ function MePanel({ me, membership }: { me: Me; membership: MyMembership }) {
         </div>
       </Card>
       <Card>
-        <SectionLabel icon={NotebookText}>근무 조건</SectionLabel>
+        <SectionLabel tone="title" icon={NotebookText}>근무 조건</SectionLabel>
         <dl className="mt-2.5 grid gap-1.5 text-[13px]">
           <DotRow term="매장">{membership.store.name}</DotRow>
           <DotRow term="시급"><span className={NUM}>{won(membership.hourlyWage)}</span></DotRow>

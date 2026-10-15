@@ -62,11 +62,13 @@ export function Card({ children, className = "" }: { children: React.ReactNode; 
  * 카드 구역 머리 — 작은 회색 글자, 앞에 lucide 아이콘(15px), 원하면 번호("01"), 오른쪽에 요약 값.
  * 제목 수준은 as 로 (기본 h2).
  */
-export function SectionLabel({ icon: Icon, index, children, right, as: Tag = "h2" }: { icon?: LucideIcon; index?: string; children: React.ReactNode; right?: React.ReactNode; as?: "h2" | "h3" | "p" }) {
+export function SectionLabel({ icon: Icon, index, children, right, as: Tag = "h2", tone = "label" }: { icon?: LucideIcon; index?: string; children: React.ReactNode; right?: React.ReactNode; as?: "h2" | "h3" | "p"; tone?: "label" | "title" }) {
+  // title: 카드 제목 — "매장 근처 출근 알림" 과 같은 14px 굵게·본문색, 아이콘만 회색 (2026-10-15 사용자 요청: 요청·급여·내 정보 제목 강조)
+  const title = tone === "title";
   return (
     <div className="flex items-center justify-between gap-2 text-xs font-semibold text-muted">
-      <Tag className="flex min-w-0 items-center gap-1.5 text-xs font-semibold">
-        {Icon && <Icon size={15} strokeWidth={1.75} aria-hidden className="shrink-0" />}
+      <Tag className={`flex min-w-0 items-center gap-1.5 font-semibold ${title ? "text-sm text-foreground" : "text-xs"}`}>
+        {Icon && <Icon size={15} strokeWidth={1.75} aria-hidden className="shrink-0 text-muted" />}
         {index && <span className={`${NUM} text-muted/70`}>{index}</span>}
         <span className="truncate">{children}</span>
       </Tag>

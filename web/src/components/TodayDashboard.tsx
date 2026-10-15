@@ -184,6 +184,9 @@ export function ClockCardSkeleton() {
   );
 }
 
+/** "10/12" — 대시보드 이번 주 기간용 짧은 날짜 */
+const monthDay = (t: number | Date) => `${new Date(t).getMonth() + 1}/${new Date(t).getDate()}`;
+
 // 구역 번호(01·02…)는 보이는 장식 — 제목 이름은 "오늘"·"이번 주" 그대로 읽히게 aria-hidden
 const Idx = ({ n }: { n: string }) => <span aria-hidden className={`mr-1.5 text-muted/70 ${NUM}`}>{n}</span>;
 const SECTION = "px-4 py-3.5";
@@ -294,7 +297,8 @@ export function TodayDashboard({
       )}
 
       <section className={SECTION}>
-        <SectionLabel icon={CalendarDays} right={`${date(week.weekStart)} ~ ${date(week.weekEnd.getTime() - 1)}`}>
+        {/* 기간은 짧게 "10/12 – 10/18" — 긴 "10월 12일 (월) ~ …" 는 375px 에서 제목을 "03 이…" 로 밀어냈다 (2026-10-15 사용자 요청) */}
+        <SectionLabel icon={CalendarDays} right={`${monthDay(week.weekStart)} – ${monthDay(week.weekEnd.getTime() - 1)}`}>
           <Idx n="03" />
           이번 주
         </SectionLabel>
@@ -402,7 +406,7 @@ export function TodayDashboardSkeleton({ now, progress = true }: { now?: number;
           </ul>
         </section>
         <section className={SECTION}>
-          <SectionLabel icon={CalendarDays} right={right("w-40")}>
+          <SectionLabel icon={CalendarDays} right={right("w-24")}>
             <Idx n="03" />
             이번 주
           </SectionLabel>
