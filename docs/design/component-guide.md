@@ -97,7 +97,7 @@ shadcn Avatar 페이지와 같은 순서다. "설치" 는 timesheet 에서 **파
 | 시간 고정 | `MonthGrid` 의 `todayKey`, `PayView` 의 `now` 는 예시에 고정값을 넣는다(`"2026-09-25"`, `new Date(2026, 8, 25, 18, 0).getTime()`) | 오늘 날짜로 두면 미리보기가 날마다 바뀐다 |
 | 상태를 가진 예시 | `onChange`·`onSelect` 가 필요한 예시는 `useState` 로 감싼 작은 예시 컴포넌트로 만들고, 코드 탭에 그 원본을 보인다 | 컴포넌트가 제어 컴포넌트다 |
 | 링크 이동 | `BottomNav` 예시는 `onSelect` 방식만 쓴다 | `href` 방식은 `next/link` 로 실제 이동한다 |
-| 다크 모드 | 토큰은 `prefers-color-scheme` 로만 바뀐다(클래스 전환 없음). 가이드에 테마 전환 버튼을 두지 않는다. 다크 값은 §2-1 의 hex 견본으로만 보인다 | 코드 변경 없이는 한 화면에서 두 테마를 동시에 렌더할 수 없다 |
+| 다크 모드 | 앱은 항상 다크다(2026-10-15, `<html class="dark">`). 라이트 값은 `:root` 에 남아 있지만 지금은 쓰지 않는다. 가이드에 테마 전환 버튼을 두지 않는다. 다크 값은 §2-1 의 hex 견본으로만 보인다 | 코드 변경 없이는 한 화면에서 두 테마를 동시에 렌더할 수 없다 |
 
 ---
 
@@ -105,7 +105,7 @@ shadcn Avatar 페이지와 같은 순서다. "설치" 는 timesheet 에서 **파
 
 ### 2-1. 색 토큰
 
-값의 원본은 루트 [DESIGN.md](../../DESIGN.md) §2, 코드는 `web/src/app/globals.css`. `@theme inline` 으로 Tailwind 색 이름(`bg-surface`, `text-muted`, `border-line` …)이 된다. 다크는 `@media (prefers-color-scheme: dark)`.
+값의 원본은 루트 [DESIGN.md](../../DESIGN.md) §2, 코드는 `web/src/app/globals.css`. `@theme inline` 으로 Tailwind 색 이름(`bg-surface`, `text-muted`, `border-line` …)이 된다. 다크 값은 `.dark` 블록에 있고 앱은 항상 다크다(2026-10-15).
 
 중립색 다섯(바탕·글자·카드·선·보조 글자)은 2026-10-15 사용자 결정 "컬러도 바꿔줘 시안처럼" 으로 청록 기운 없는 회색이 됐다. 강조색·상태색은 그대로다. 대비 값은 DESIGN.md §2 표에 있다 — 예를 들어 보조 글자는 바탕 위 5.05(라이트) / 7.76(다크).
 
@@ -1534,7 +1534,7 @@ WeekRhythm  <div>
 └─ <ol grid-cols-7 gap-1>  이번 주 월~일 카드 × 7, <li aria-label="목요일 (오늘) 10:00~14:00 근무 4시간">
    ├─ 근무일: rounded-xl border-accent/25 bg-accent/10, 요일 · Sun 16px text-accent · "10-14" · "4h" (10px NUM)
    ├─ 쉬는 날: border-dashed border-line, 요일 · Sofa 16px text-muted · "쉼"
-   ├─ 오늘: ring-2 ring-accent, 요일 글자 font-bold text-accent, aria-current="date"
+   ├─ 오늘: 다른 카드와 같은 1px 테두리를 강조색 실선으로(border-accent), 요일 글자 font-bold text-accent, aria-current="date"
    └─ 지난 요일: opacity-55
    그날 근무 = dayPlan() — 날짜별 근무 변경(DayException)이 시간표보다 먼저
    카드는 왼쪽부터 0.04초 간격으로 6px 올라오며 나타난다(0.3초, GSAP). 모션 줄이기면 투명도만

@@ -33,7 +33,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="ko"
-      className={`${pretendard.variable} ${geistMono.variable} h-full antialiased`}
+      // 항상 다크 (2026-10-15 사용자 결정 "그냥 다크모드로하자" → "항상 다크") — 색 값은 globals.css 의 .dark 블록
+      className={`dark ${pretendard.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <SessionBoot />

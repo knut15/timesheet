@@ -2,9 +2,12 @@
 /* shadcn Dialog 의 열고 닫힘 움직임(animate-in·fade-in 등) */
 @import "tw-animate-css";
 
+/* 다크는 기기 설정이 아니라 .dark 클래스로 — 루트 <html> 에 고정으로 붙여 항상 다크 (2026-10-15 사용자 결정 "항상 다크"). shadcn 원본의 dark: 도 같은 기준 */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   /* 스크롤바·폼 컨트롤을 OS 테마에 맞춘다 — 없으면 다크 모드에서도 흰 스크롤바가 그려진다 */
-  color-scheme: light dark;
+  color-scheme: light;
   /* 값은 루트 DESIGN.md 의 색 토큰 표가 원본이다 (2026-10-07 청록·민트 강조, 2026-10-15 B 시안 — 중립색은 청록 기운 없는 회색) */
   --background: #fafafa;
   --foreground: #18181b;
@@ -53,19 +56,18 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #09090b;
-    --foreground: #fafafa;
-    --surface: #18181b;
-    --line: #27272a;
-    --muted: #a1a1aa;
-    --accent: #2dd4bf;
-    --on-accent: #05201d;
-    --warn: #f87171;
-    --ok: #4ade80;
-    --caution: #fbbf24;
-  }
+.dark {
+  color-scheme: dark;
+  --background: #09090b;
+  --foreground: #fafafa;
+  --surface: #18181b;
+  --line: #27272a;
+  --muted: #a1a1aa;
+  --accent: #2dd4bf;
+  --on-accent: #05201d;
+  --warn: #f87171;
+  --ok: #4ade80;
+  --caution: #fbbf24;
 }
 
 @layer base {
@@ -141,7 +143,7 @@ body {
     appearance: none;
     -webkit-appearance: none;
     padding-right: 2.25rem;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b6b74' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
   }

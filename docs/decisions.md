@@ -70,3 +70,4 @@
 | 2026-10-15 | 중립색을 시안 B 처럼 청록 기운 없는 회색으로(바탕 #fafafa·글자 #18181b·선 #e4e4e7·보조 #6b6b74, 다크도 회색). 강조·상태색은 그대로 | [DESIGN.md](../DESIGN.md) §2 |
 | 2026-10-15 | 멤버 기록의 빠진 기록 추가·수정·삭제 요청은 모두 모달로 | [timesheet-requests](../.claude/skills/timesheet-requests/SKILL.md) §1 끝 |
 | 2026-10-15 | 내 정보 근무 조건의 시간표·주 시간·근무일은 그래프로(Recharts) — 주간 시간표 막대, 주 시간 게이지(주휴 15h·법정 40h), 근무일 점 | [DESIGN.md](../DESIGN.md) §4 |
+| 2026-10-15 | 항상 다크 — 기기 설정과 상관없이 `<html class="dark">`(잠깐 "항상 라이트" 였다가 "그냥 다크모드로하자"). 라이트 값은 `:root` 에 남김 | [DESIGN.md](../DESIGN.md) §1·§2 |
