@@ -1534,7 +1534,7 @@ WeekRhythm  <div>
 └─ <ol grid-cols-7 gap-1>  이번 주 월~일 카드 × 7, <li aria-label="목요일 (오늘) 10:00~14:00 근무 4시간">
    ├─ 근무일: rounded-xl border-accent/25 bg-accent/10, 요일 · Sun 16px text-accent · "10-14" · "4h" (10px NUM)
    ├─ 쉬는 날: border-dashed border-line, 요일 · Sofa 16px text-muted · "쉼"
-   ├─ 오늘: ring-2 ring-accent, 요일 글자 font-bold text-accent, aria-current="date"
+   ├─ 오늘: 다른 카드와 같은 1px 테두리를 강조색 실선으로(border-accent), 요일 글자 font-bold text-accent, aria-current="date"
    └─ 지난 요일: opacity-55
    그날 근무 = dayPlan() — 날짜별 근무 변경(DayException)이 시간표보다 먼저
    카드는 왼쪽부터 0.04초 간격으로 6px 올라오며 나타난다(0.3초, GSAP). 모션 줄이기면 투명도만

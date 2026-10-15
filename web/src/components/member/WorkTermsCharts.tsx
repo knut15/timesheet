@@ -77,7 +77,8 @@ export function WeekRhythm({ schedule, exceptions, now }: { schedule: Schedule |
               key={d.toDateString()}
               aria-label={`${name}요일${isToday ? " (오늘)" : ""} ${plan ? `${plan.start}~${plan.end} 근무 ${durationText(hours)}` : "쉬는 날"}`}
               aria-current={isToday ? "date" : undefined}
-              className={`flex min-w-0 flex-col items-center gap-1 rounded-xl border px-0.5 py-2 ${plan ? "border-accent/25 bg-accent/10" : "border-dashed border-line"} ${isToday ? "ring-2 ring-accent ring-offset-1 ring-offset-surface" : ""} ${past ? "opacity-55" : ""}`}
+              // 테두리는 모두 1px — 오늘은 같은 굵기에 강조색 실선만 (2026-10-15 사용자 요청 "현재 날짜 보더도 1px 로 동일하게")
+              className={`flex min-w-0 flex-col items-center gap-1 rounded-xl border px-0.5 py-2 ${isToday ? "border-accent" : plan ? "border-accent/25" : "border-dashed border-line"} ${plan ? "bg-accent/10" : ""} ${past ? "opacity-55" : ""}`}
             >
               <span aria-hidden className={`text-[11px] ${isToday ? "font-bold text-accent" : "font-semibold text-muted"}`}>{name}</span>
               {plan ? <Sun aria-hidden size={16} strokeWidth={1.75} className="text-accent" /> : <Sofa aria-hidden size={16} strokeWidth={1.5} className="text-muted" />}
