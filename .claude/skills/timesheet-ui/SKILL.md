@@ -24,6 +24,7 @@ description: >
 | 스크롤 영역 | shadcn ScrollArea (2절) | 2026-09-25 요청 15 |
 | 달력 선택 | 테두리 없음 — 배경 + 굵은 날짜 (4절) | 2026-09-25 요청 11 |
 | 로고 | 로고가 있으면 매장 이름 글자 대신 (1절) | 2026-09-25 요청 12·14 |
+| 모양 B | 1px 선·작은 모서리·고정폭 숫자. 버튼은 `ui.tsx` 의 `BTN`, 숫자는 `NUM`, 카드 구역 머리는 `SectionLabel`(lucide 15px), 일러스트는 `illust.tsx` 의 `Scene`·`EmptyState`, 모션은 `motion.tsx`. 값은 [DESIGN.md §3~§5](../../../DESIGN.md) | 2026-10-15 사용자 결정 (시안 B, GSAP, lucide 일러스트) |
 | 입력칸 | `.field` 하나로 input·date·select 모두 높이 44px, `min-w-0`, 날짜 칸 기본 모양 끔, select 는 lucide chevron-down 배경. 두 칸 격자는 `Field` 에 맡긴다(`min-w-0`) — 칸마다 높이·폭을 따로 주지 않는다 | 2026-09-25 모바일 겹침 수정 |
 
 ### shadcn 컴포넌트를 들일 때
@@ -42,10 +43,10 @@ description: >
 
 | 자리 | 무엇 |
 |---|---|
-| 위 작은 줄 `eyebrow` | 매장 이름. 마스터 화면은 `"<매장> · 사장님"` |
+| 앞 회색 글자 `eyebrow` | 매장 이름(15px, muted). 마스터 화면은 `"<매장> · 사장님"`. 뒤에 `/` 를 두고 화면 이름이 이어진다 — 한 줄 "매장 / 화면 이름" (2026-10-15) |
 | 로고 `logoUrl` | 매장 로고가 있으면 eyebrow 줄 맨 앞, 높이 20px·가로 최대 96px·비율 유지. **로고가 매장 이름 글자를 대신한다** — eyebrow 에서 이름을 빼고(멤버 빈 값, 마스터 "사장님"), 이름은 `logoAlt` 로. 없으면 이름만 ([PRD 11](../../../docs/prd/11-store-logo.md)) |
-| 제목 `title` | **지금 활성인 메뉴 이름**과 같다 (출퇴근·기록·요청·급여·내 정보 / 대시보드·달력·요청·멤버·매장) |
-| 오른쪽 | 내 아바타(항상). 그 앞에 `actions` — 마스터는 로그아웃 `IconButton` |
+| 제목 `title` | **지금 활성인 메뉴 이름**과 같다 (출퇴근·기록·요청·급여·내 정보 / 대시보드·달력·요청·멤버·매장). 18px 굵게(`text-lg font-bold`) — 2026-10-15 "타이틀 부분을 살짝 강조" |
+| 오른쪽 | 내 아바타 `sm`(항상). 그 앞에 `actions` — 마스터는 로그아웃 `IconButton` |
 
 - `sticky top-0`, 푸터와 같은 `bg-surface/95` + blur, 높이 `h-16`(64px) 고정. 본문 위로 스크롤되어도 제목이 남는다 (2026-10-08 사용자 요청 "헤더 디자인도 푸터처럼")
 - `width` 는 본문 폭과 같게: 멤버 `max-w-md`, 마스터 `max-w-3xl`. 헤더 자체는 폭 틀 밖에 두어 바탕이 푸터처럼 화면 끝까지 닿는다 — 폭 제한은 `main`(`mx-auto w-full max-w-*`)과 헤더 안쪽 `width` 에만 (2026-10-08 사용자 요청 "헤더도 width 100%로")
@@ -61,7 +62,7 @@ description: >
 
 - 초대(`/admin/invites`)는 2026-09-25 에 내비에서 빠져 **멤버 화면 안**(맨 위 "초대 코드" 줄)으로 갔다. 이 경로에서는 멤버를 활성으로 본다. 이유는 [달력 명세 §1](../../../docs/design/calendar.md#1-마스터-달력-진입점--결정)
 - 두 역할 모두 5개가 찼다. 메뉴를 더 넣으려면 하나를 다른 화면 안으로 옮기는 결정을 먼저 한다
-- 항목은 3~5개. 아이콘 위(22px), 이름 아래(11px). 활성은 `text-accent` + 아이콘 선 굵기 2.4 + 윗선
+- 항목은 3~5개. 아이콘 위(20px), 이름 아래(11px). 활성은 바탕 칩(`bg-background`, 6px 모서리) + 진한 글자(`text-foreground font-semibold`) + 아이콘 선 굵기 2.2. 윗선은 없다 (2026-10-15 B 시안)
 - 활성 표시는 `aria-current="page"`. 아이콘은 `aria-hidden` — 이름 글자가 접근 이름이다
 - `pb-[env(safe-area-inset-bottom)]` 로 아이폰 홈 표시줄을 피한다. 본문은 `pb-28` 로 가려지지 않게 한다
 - 하위 경로(`/admin/members/[userId]`)는 부모 메뉴를 활성으로 본다
@@ -73,7 +74,7 @@ import { Clock } from "lucide-react";   // ✓ 이름으로 하나씩 가져온�
 ```
 
 - 새 아이콘은 쓰기 전에 이름이 설치된 버전에 있는지 확인한다: `node -e "console.log(typeof require('lucide-react').Clock)"` → `object`
-- 아이콘만 있는 버튼은 `IconButton` 으로 — `aria-label` 과 `title` 이 같이 붙는다
+- 아이콘만 있는 버튼은 `IconButton` 으로 — `aria-label` 과 `title` 이 같이 붙는다. 본문 안(월 이동 등)에서는 `variant="outline"`(테두리 있는 6px 사각)
 
 
 ### 스크롤 영역은 shadcn ScrollArea
@@ -93,7 +94,8 @@ import { Clock } from "lucide-react";   // ✓ 이름으로 하나씩 가져온�
 |---|---|
 | 글자 | 한글 이름은 첫 글자, 로마자는 두 글자 대문자 (`initials`) |
 | 색 | `seed`(= **사용자 id**) 해시로 8색 중 하나. 흰 글자 대비 4.5:1 이상인 색만 |
-| 크기 | `xs` 18px(달력 칸 겹침, `ring-2 ring-surface`) · `sm` 32px(목록 안) · `md` 40px(행·헤더) · `lg` 64px(상세·내 정보) |
+| 크기 | `xs` 18px(달력 칸 겹침, `ring-2 ring-surface`) · `sm` 32px(목록 안·헤더) · `md` 40px(행) · `lg` 64px(상세·내 정보) |
+| 모양 | 둥근 사각형 — 모서리 `xs` 4px · `sm` 6px · `md` 8px · `lg` 12px (2026-10-15 B 시안, 그 전에는 원) |
 | 접근성 | 옆에 이름이 있으면 장식(`aria-hidden`), 혼자 쓰면 `label` |
 
 - `seed` 에는 반드시 사용자 id 를 넣는다. 이름을 넣으면 같은 사람이 화면마다 다른 색이 된다.
@@ -109,7 +111,7 @@ import { Clock } from "lucide-react";   // ✓ 이름으로 하나씩 가져온�
 | 주 시작 | **월요일** — 급여의 주 경계(`startOfWeek`)와 같다 |
 | 날짜 기준 | 기록은 **출근한 날**(`dayKey(s.start)`) 한 칸에만 붙는다 |
 | 날짜 칸 | 버튼, 터치 영역 40px 이상, 읽는 이름에 날짜·요약, 선택은 `aria-pressed`, 오늘은 `aria-current="date"` |
-| 상태 표시 | **색만으로 구별하지 않는다.** 휴가·대타 = 점선 테두리 + 글자, 근무 중 = 채운 점, 퇴근 기록 없음 = `TriangleAlert`, 요청 대기 = `Hourglass`, 오늘 = 숫자 둘레 원, 선택 = 테두리 없이 `bg-accent/10` + 날짜 숫자 `font-bold` (휴가·대타 점선은 선택돼도 유지, 키보드 `focus-visible` 바깥 선도 유지 — 2026-09-25 사용자 요청 "선택 시 파란 라인 제거") |
+| 상태 표시 | **색만으로 구별하지 않는다.** 휴가·대타 = 점선 테두리 + 글자, 근무 중 = 채운 점, 퇴근 기록 없음 = `TriangleAlert`, 요청 대기 = `Hourglass`, 오늘 = 강조색 칸 테두리 + 강조색 숫자, 선택 = 색 테두리 없이 진한 바탕(`bg-foreground text-background`) + 날짜 숫자 `font-bold`, 칸 안 표시도 바탕색으로 뒤집는다 (휴가·대타 점선은 선택돼도 유지, 키보드 `focus-visible` 바깥 선도 유지 — 2026-09-25 사용자 요청 "선택 시 파란 라인 제거", 2026-10-15 B 시안) |
 | 점선 테두리 색 | `border-muted` — `border-line` 은 대비 1.3 이라 쓰지 않는다 |
 | 아바타 겹침 | 최대 3개, 4명 이상이면 2개 + `+N` |
 

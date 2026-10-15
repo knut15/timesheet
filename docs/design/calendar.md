@@ -120,11 +120,11 @@
 | 항목 | 값 | 계산 |
 |---|---|---|
 | 본문 폭 | 350px | 390 − 본문 `px-5` 20×2 |
-| 격자 카드 안쪽 여백 | 가로 8px, 세로 12px | `Card className="px-2 py-3"` (Card 기본 p-5 를 덮는다) |
-| 격자 폭 | 334px | 350 − 8×2 |
-| **칸 폭** | **약 47.7px** | 334 ÷ 7, `grid-cols-7 gap-0` |
-| 칸 높이 | 멤버 **56px**, 마스터 **64px** | 터치 영역 47×56 / 47×64 — 40px 이상(CAL-8) |
-| 칸 안쪽 여백 | 2px | 칸 테두리가 이웃과 붙지 않게 버튼에 `m-0.5`(표시 폭 약 43.7px) |
+| 격자 카드 안쪽 여백 | 10px | `Card className="p-2.5"` (Card 기본 p-4 를 덮는다, 2026-10-15) |
+| 격자 폭 | 328px | 350 − 카드 테두리 1×2 − 10×2 |
+| **칸 폭** | **약 44.3px** | (328 − 칸 사이 3px×6) ÷ 7, `grid-cols-7 gap-[3px]`. 375px 화면에서는 약 42.1px |
+| 칸 높이 | 멤버 **52px**, 마스터 **60px** (버튼 `h-[52px]`·`h-[60px]`, 줄 사이 3px) | 터치 영역 44×52 / 44×60 — 40px 이상(CAL-8) |
+| 칸 사이 | 3px | 칸마다 1px 테두리가 있어 이웃과 붙지 않게 `gap-[3px]` |
 | 요일 줄 | 높이 24px, `text-[11px] text-muted` 가운데 | `월 화 수 목 금 토 일` — **월요일 시작**(CAL-1) |
 | 주 수 | 그 달에 필요한 만큼 (4~6줄) | 칸 높이 × 줄 수. 멤버 6줄 = 336px |
 
@@ -144,7 +144,7 @@
 
 | 자리 | 글자 | 스타일 |
 |---|---|---|
-| 날짜 숫자 | `22` | 왼쪽 위, `text-xs font-medium tabular-nums`, 숫자 둘레 20×20 원 자리 (오늘 표시용) |
+| 날짜 숫자 | `22` | 왼쪽 위, 11px 고정폭 숫자(`NUM`) `font-semibold`. 오늘은 강조색 굵게, 선택은 굵게 |
 | 표시 자리 | 아이콘·점 최대 2개 | 오른쪽 위, 10px, 간격 2px. 순서: 근무 상태(● 또는 !) → 요청 대기(⧗) |
 | 시간 | `4.5h`, `14h` | 가운데, `text-[11px] font-semibold tabular-nums text-foreground` |
 | 휴가·대타 글자 | `유급` `무급` `대타` | 가운데, `text-[10px] text-muted` |
@@ -170,14 +170,14 @@
 | 진행 중 (오늘 출근, 퇴근 안 찍음) | 오른쪽 위 **채운 점 ●** 6px | `bg-ok` | "근무 중" |
 | 퇴근 안 찍힘 (지난 날 출근, 아직 열림) | 오른쪽 위 **`TriangleAlert`** 10px | `text-warn` | "퇴근 기록 없음" |
 | 수정 요청 대기 | 오른쪽 위 **`Hourglass`** 10px | `text-caution` | "수정 요청 대기 중" |
-| 오늘 | 날짜 숫자 둘레 **원 테두리** 1.5px + 숫자 굵게 | `ring-accent`, 숫자 `text-accent font-bold` | "오늘" + `aria-current="date"` |
-| 선택됨 | 옅은 배경 + **날짜 숫자 굵게** (테두리 없음 — 2026-09-25 사용자 요청 "선택 시 파란 라인 제거") | `bg-accent/10`, 숫자 `font-bold` | `aria-pressed="true"` |
+| 오늘 | 칸 **강조색 테두리**(1px 테두리 + 안쪽 1px 고리) + 숫자 강조색 굵게 (2026-10-15 B 시안) | `border-accent ring-1 ring-inset ring-accent`, 숫자 `text-accent font-bold` | "오늘" + `aria-current="date"` |
+| 선택됨 | **진한 바탕 + 반전 글자** + 날짜 숫자 굵게 (색 테두리 없음 — 2026-09-25 사용자 요청 "선택 시 파란 라인 제거". 바탕은 2026-10-15 B 시안). 칸 안 표시(점·삼각형·모래시계)도 바탕색으로 뒤집혀 모양으로 구별된다 | `bg-foreground text-background`, 숫자 `font-bold` | `aria-pressed="true"` |
 | 이번 달 밖 | 숫자만, 흐리게. 누를 수 없다 | `text-muted opacity-40` | 버튼 아님, `aria-hidden` |
 | 기록 없음 (이번 달) | 숫자만 | — | "기록 없음" |
 
-- 오늘(숫자 둘레 원)과 선택됨(옅은 배경 + 굵은 숫자)은 둘이 겹치면 둘 다 보인다.
+- 오늘(강조색 테두리)과 선택됨(진한 바탕)은 둘이 겹치면 둘 다 보인다 — 진한 바탕 둘레에 강조색 테두리.
 - 선택된 칸은 휴가·대타의 점선 테두리를 그대로 두고 배경만 더한다. 색 외의 선택 신호는 굵은 날짜와 아래 상세 머리의 날짜다.
-- 오늘을 accent 로 **채우지 않는다.** 처음 이유는 다크에서 흰 글자/`#3b82f6` 대비 3.68 이었다. 2026-10-07 새 토큰(`on-accent`)으로는 대비가 맞지만, 선택 표시(옅은 배경)와 겹치지 않게 원 테두리를 유지한다(§8).
+- 오늘을 accent 로 **채우지 않는다.** 채우는 것은 선택(진한 바탕)이라, 오늘은 테두리로만 표시해 둘을 구별한다(§8).
 - 근무와 휴가가 같은 날 겹치면(예: 반차처럼 휴가 날에 기록이 있음) 멤버 칸은 시간(2줄)과 휴가 글자(3줄)를 둘 다, 마스터 칸은 시간 + 점선 테두리를 둘 다 보인다.
 - 날짜 기준: 기록은 **출근 시각의 날**(`dayKey(s.start)`)에 붙는다. `pay.ts` 가 주를 나누는 기준과 같다. 자정을 넘긴 근무도 출근한 날 한 칸에만 나온다.
 - 진행 중인 근무의 시간은 지금 시각까지로 센다 (`shiftMinutes(s, now)`, `useNow(60_000)`).
@@ -346,9 +346,8 @@
 
 | 쓰임 | 라이트 | 다크 | 대비 (라이트 / 다크, 배경 surface) |
 |---|---|---|---|
-| 오늘 숫자·원 | `--accent` #0f766e | #2dd4bf | 5.47 / 8.97 ✓ |
-| 선택 배경 | `--accent` 10% | 같음 | 글자 대비는 배경 위 `foreground` 로 유지 |
-| 선택 배경 | `bg-accent/10` | 같음 | 배경이라 대비 대상 아님 |
+| 오늘 숫자·테두리 | `--accent` #0f766e | #2dd4bf | 5.47 / 8.97 ✓ |
+| 선택 바탕·글자 | `bg-foreground` 위 `text-background` | 같음 | 본문 대비와 같은 쌍(라이트 14.23 / 다크 16.46) ✓ |
 | 점선 테두리 (휴가·대타) | `--muted` #5b6f6f | #86a19f | 5.32 / 6.05 ✓ — `--line` 은 1.22 / 1.23 이라 **쓰지 않는다** |
 | 근무 중 점 | `--ok` #166534 | #4ade80 | 7.13 / 9.58 ✓ — 대시보드·달력 모두 같은 `bg-ok` |
 | 퇴근 기록 없음 | `--warn` #b91c1c | #f87171 | 6.47 / 6.04 ✓ |
@@ -409,8 +408,8 @@ export function MonthGrid(props: {
 }): JSX.Element;
 ```
 
-- `Card className="px-2 py-3"` 로 감싼다. 요일 줄, 칸, `footer` 순서.
-- 칸 버튼: `relative m-0.5 flex flex-col rounded-lg border text-left` + 상태별 클래스(§3 표). 테두리 기본 `border-transparent`, 점선 `border-dashed border-muted`, 선택 `bg-accent/10` + 날짜 `font-bold` (테두리 없음, 점선은 유지).
+- `Card className="p-2.5"` 로 감싼다. 요일 줄, 칸, `footer` 순서.
+- 칸 버튼: `relative flex min-w-0 flex-col rounded-md border text-left` + 상태별 클래스(§3 표). 테두리 기본 `border-line`, 점선 `border-dashed border-muted`, 오늘 `border-accent ring-1 ring-inset ring-accent`, 선택 `bg-foreground text-background` + 날짜 `font-bold` (색 테두리 없음, 점선은 유지).
 - 오늘 숫자: `inline-flex h-5 w-5 items-center justify-center rounded-full ring-[1.5px] ring-accent text-accent font-bold`.
 
 ### `components/calendar/AvatarStack.tsx`

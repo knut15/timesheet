@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 import { ChevronRight, TicketPlus } from "lucide-react";
 import { api, type Member } from "@/api/client";
+import { Enter } from "@/components/motion";
 import { Avatar } from "@/components/shell";
-import { Card, ErrorText, Field, Spinner, won } from "@/components/ui";
+import { BTN, Card, ErrorText, Field, NUM, Spinner, won } from "@/components/ui";
 import { MINIMUM_WAGE } from "@/lib/pay";
 import { useApi } from "@/lib/useApi";
 
@@ -14,33 +15,34 @@ export default function MembersPage() {
   if (!data) return <Spinner />;
   const members = data.filter((m) => m.role === "member");
   return (
-    <div className="space-y-3">
+    <Enter className="space-y-3">
       <InviteEntry />
       {members.length === 0 ? (
         <Card>
           <p className="text-sm text-muted">
-            아직 멤버가 없어요. <Link href="/admin/invites" className="text-accent">초대 코드를 발급</Link>해 보세요.
+            아직 멤버가 없어요. <Link href="/admin/invites" className="font-medium text-accent">초대 코드를 발급</Link>해 보세요.
           </p>
         </Card>
       ) : (
-        <ul className="space-y-3">
+        // 넓은 화면에서는 두 줄로
+        <ul className="grid items-start gap-3 sm:grid-cols-2">
           {members.map((m) => (
             <MemberRow key={m.userId} member={m} onChange={reload} />
           ))}
         </ul>
       )}
-    </div>
+    </Enter>
   );
 }
 
 /** 초대 화면 진입 줄. 초대는 하단 내비에서 빠지고 멤버 화면 안으로 들어왔다 (docs/design/calendar.md §1) */
 function InviteEntry() {
   return (
-    <Link href="/admin/invites" className="flex h-14 items-center gap-3 rounded-2xl border border-line bg-surface px-5 hover:bg-background">
-      <TicketPlus size={20} aria-hidden className="text-accent" />
+    <Link href="/admin/invites" className="flex h-14 items-center gap-2.5 rounded-2xl border border-line bg-surface px-4 hover:bg-background">
+      <TicketPlus size={20} strokeWidth={1.75} aria-hidden className="text-muted" />
       <span className="flex-1 font-semibold">초대 코드</span>
-      <span className="text-sm text-muted">발급·관리</span>
-      <ChevronRight size={16} aria-hidden className="text-muted" />
+      <span className="text-[13px] text-muted">발급·관리</span>
+      <ChevronRight size={15} aria-hidden className="text-muted" />
     </Link>
   );
 }
@@ -66,16 +68,16 @@ function MemberRow({ member, onChange }: { member: Member; onChange: () => void 
   return (
     <li>
       <Card>
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
           <Avatar name={member.nickname} seed={member.userId} />
           <div className="min-w-0 flex-1">
-            <Link href={`/admin/members/${member.userId}`} className="font-semibold hover:underline">{member.nickname}</Link>
-            <p className="truncate text-sm text-muted">{member.email}</p>
+            <Link href={`/admin/members/${member.userId}`} className="font-semibold underline-offset-2 hover:underline">{member.nickname}</Link>
+            <p className="truncate text-xs text-muted">{member.email}</p>
           </div>
-          <Link href={`/admin/members/${member.userId}`} className="shrink-0 text-sm text-accent">근무 기록</Link>
+          <Link href={`/admin/members/${member.userId}`} className={`${BTN.small} shrink-0`}>근무 기록</Link>
         </div>
         {editing ? (
-          <div className="mt-4 space-y-3">
+          <div className="mt-3 space-y-3">
             <div className="grid grid-cols-3 gap-2">
               <Field label="시급(원)"><input type="number" step={10} value={form.hourlyWage} onChange={num("hourlyWage")} className="field" /></Field>
               <Field label="주 시간"><input type="number" step={0.5} value={form.weeklyHours} onChange={num("weeklyHours")} className="field" /></Field>
@@ -84,20 +86,20 @@ function MemberRow({ member, onChange }: { member: Member; onChange: () => void 
             {form.hourlyWage < MINIMUM_WAGE && <p className="text-sm text-warn">2026년 최저임금({won(MINIMUM_WAGE)})보다 낮아요.</p>}
             <ErrorText>{error}</ErrorText>
             <div className="flex gap-2">
-              <button onClick={save} className="flex-1 rounded-xl bg-accent py-2.5 text-sm font-semibold text-on-accent">저장</button>
-              <button onClick={() => setEditing(false)} className="flex-1 rounded-xl border border-line py-2.5 text-sm">취소</button>
+              <button onClick={save} className={`${BTN.primary} flex-1`}>저장</button>
+              <button onClick={() => setEditing(false)} className={`${BTN.secondary} flex-1`}>취소</button>
             </div>
           </div>
         ) : (
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-sm">
-            <p className="tabular-nums">
+          <>
+            <p className={`mt-2.5 text-xs text-muted ${NUM}`}>
               {won(member.hourlyWage)} · 주 {member.weeklyHours}시간 · {member.workDaysPerWeek}일
             </p>
-            <div className="flex gap-3">
-              <button onClick={() => setEditing(true)} className="text-accent">조건 수정</button>
-              <button onClick={remove} className="text-warn">내보내기</button>
+            <div className="mt-2.5 flex gap-1.5">
+              <button onClick={() => setEditing(true)} className={BTN.small}>조건 수정</button>
+              <button onClick={remove} className={BTN.danger}>내보내기</button>
             </div>
-          </div>
+          </>
         )}
       </Card>
     </li>

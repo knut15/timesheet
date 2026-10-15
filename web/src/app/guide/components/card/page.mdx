@@ -2,7 +2,7 @@ export const metadata = { title: "Card" };
 
 # Card
 
-흰 바탕 둥근 상자. 화면 본문을 묶는 기본 단위.
+흰 바탕에 가는 선을 두른 상자. 화면 본문을 묶는 기본 단위.
 
 <ComponentPreview name="card/basic" width="max-w-md" />
 
@@ -13,14 +13,14 @@ export const metadata = { title: "Card" };
 ```tsx
 <Card>
   <p className="text-sm text-muted">이번 주 근무</p>
-  <p className="mt-1 text-2xl font-bold tabular-nums">18시간 30분</p>
+  <p className={`mt-1 text-2xl font-bold ${NUM}`}>18시간 30분</p>
 </Card>
 ```
 
 ## 구성
 
 ```
-Card  <section rounded-2xl border border-line bg-surface p-5 {className}>
+Card  <section rounded-2xl(8px) border border-line bg-surface p-4 {className}>
 └─ children
 ```
 
@@ -29,6 +29,12 @@ Card  <section rounded-2xl border border-line bg-surface p-5 {className}>
 `className` 으로 안쪽 여백을 바꾼다. 달력 격자가 쓰는 방식이다.
 
 <ComponentPreview name="card/padding" width="max-w-md" />
+
+## 구역 나누기
+
+한 카드 안을 여러 구역으로 나눌 때는 `className="divide-y divide-line p-0"` 으로 카드 여백을 없애고, 안에 `<div className="px-4 py-3.5">` 를 쌓는다. 구역 사이에 가는 선이 들어간다. 구역 머리는 `SectionLabel`.
+
+<ComponentPreview name="card/sections" width="max-w-md" />
 
 ## 하지 말 것
 

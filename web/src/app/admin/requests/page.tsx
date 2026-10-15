@@ -2,10 +2,13 @@
 // 마스터 요청 화면 — 기록 수정 요청 승인·거절, 휴가·대타 승인·거절, 직접 등록·삭제. docs/prd/08·09
 // 흐름 규칙은 .claude/skills/timesheet-requests/SKILL.md
 import { useState } from "react";
+import { ArrowLeftRight, ListChecks, PartyPopper, Plane } from "lucide-react";
 import { parseDay } from "@/lib/pay";
 import { api, errorCode, type Correction, type LeaveReq, type Member, type Substitution } from "@/api/client";
+import { EmptyState } from "@/components/illust";
+import { Enter } from "@/components/motion";
 import { Avatar } from "@/components/shell";
-import { Card, date, ErrorText, Field, Spinner, StatusPill, time } from "@/components/ui";
+import { BTN, Card, date, ErrorText, Field, NUM, SectionLabel, Spinner, StatusPill, time } from "@/components/ui";
 import { useApi } from "@/lib/useApi";
 
 const MESSAGES: Record<string, string> = {
@@ -19,6 +22,11 @@ const MESSAGES: Record<string, string> = {
 const msg = (e: unknown) => MESSAGES[errorCode(e) ?? ""] ?? "잠시 뒤 다시 시도해 주세요.";
 const span = (s: string, e: string | null) => `${date(Date.parse(s))} ${time(Date.parse(s))} ~ ${e ? time(Date.parse(e)) : "근무 중"}`;
 const range = (a: string, b: string) => (a === b ? date(parseDay(a)) : `${date(parseDay(a))} ~ ${date(parseDay(b))}`);
+/** 카드 안 목록 행 — 점선으로 나눈다 (B 시안 .list-row) */
+const ROW = "flex items-center gap-2.5 border-b border-dashed border-line py-2.5 text-[13px] last:border-b-0";
+/** 체크 줄 — 왼쪽 상자 + 글자, 줄 전체가 44px 터치 영역 (B 시안 .check) */
+const CHECK = "flex min-h-11 cursor-pointer items-center gap-2 text-[13px] font-medium";
+const CHECK_BOX = "h-[18px] w-[18px] shrink-0 accent-foreground";
 const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
 
 export default function RequestsPage() {
@@ -45,48 +53,59 @@ export default function RequestsPage() {
   const waiting = pendingC.length + pendingL.length + waitingS.length;
 
   return (
-    <div className="space-y-6">
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-muted">처리할 요청 {waiting}건</h2>
-        {waiting === 0 && <Card><p className="text-sm text-muted">대기 중인 요청이 없어요.</p></Card>}
+    <Enter className="space-y-6">
+      <section className="space-y-2">
+        <div className="px-1"><SectionLabel index="01" right={`${waiting}건`}>처리할 요청</SectionLabel></div>
+        {waiting === 0 && (
+          <Card>
+            <EmptyState icon={ListChecks} accents={[{ icon: PartyPopper, at: "tr" }]} title="대기 중인 요청이 없어요.">
+              멤버가 기록 수정·휴가·대타를 요청하면 여기에 모여요.
+            </EmptyState>
+          </Card>
+        )}
         {pendingC.map((c) => <CorrectionCard key={c.id} c={c} onDone={reload} />)}
         {pendingL.map((l) => <LeaveCard key={l.id} l={l} onDone={reload} />)}
         {waitingS.map((s) => <SubCard key={s.id} s={s} onDone={reload} />)}
       </section>
 
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-muted">직접 등록</h2>
+      <section className="space-y-2">
+        <div className="px-1"><SectionLabel index="02">직접 등록</SectionLabel></div>
         {team.length === 0 ? <Card><p className="text-sm text-muted">멤버가 있어야 등록할 수 있어요.</p></Card> : (
-          <>
+          // 넓은 화면에서는 휴가·대타 등록을 나란히
+          <div className="grid items-start gap-3 sm:grid-cols-2">
             <DirectLeave team={team} onDone={reload} />
             {team.length >= 2 && <DirectSub team={team} onDone={reload} />}
-          </>
+          </div>
         )}
       </section>
 
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-muted">확정된 휴가·대타</h2>
-        {confirmedL.length + confirmedS.length === 0 && <Card><p className="text-sm text-muted">없어요.</p></Card>}
-        <ul className="space-y-2">
-          {confirmedL.map((l) => (
-            <ConfirmedRow key={l.id} seed={l.userId} who={l.nickname} text={`휴가 ${range(l.startDate, l.endDate)} · ${l.paid ? "유급" : "무급"}${l.byMaster ? " · 직접 등록" : ""}`}
-              onDelete={() => api.DELETE("/api/stores/me/leaves/{id}", { params: { path: { id: l.id } } })} onDone={reload} />
-          ))}
-          {confirmedS.map((s) => (
-            <ConfirmedRow key={s.id} seed={s.requesterId} who={s.requesterNickname} text={`대타 ${date(parseDay(s.date))} → ${s.substituteNickname}님이 근무`}
-              onDelete={() => api.DELETE("/api/stores/me/substitutions/{id}", { params: { path: { id: s.id } } })} onDone={reload} />
-          ))}
-        </ul>
+      <section className="space-y-2">
+        <div className="px-1"><SectionLabel index="03" right={confirmedL.length + confirmedS.length}>확정된 휴가·대타</SectionLabel></div>
+        <Card className="py-1.5">
+          {confirmedL.length + confirmedS.length === 0 ? <p className="py-2.5 text-sm text-muted">없어요.</p> : (
+            <ul>
+              {confirmedL.map((l) => (
+                <ConfirmedRow key={l.id} seed={l.userId} who={l.nickname} text={`휴가 ${range(l.startDate, l.endDate)}`} sub={`${l.paid ? "유급" : "무급"}${l.byMaster ? " · 직접 등록" : ""}`}
+                  onDelete={() => api.DELETE("/api/stores/me/leaves/{id}", { params: { path: { id: l.id } } })} onDone={reload} />
+              ))}
+              {confirmedS.map((s) => (
+                <ConfirmedRow key={s.id} seed={s.requesterId} who={s.requesterNickname} text={`대타 ${date(parseDay(s.date))} → ${s.substituteNickname}님이 근무`}
+                  onDelete={() => api.DELETE("/api/stores/me/substitutions/{id}", { params: { path: { id: s.id } } })} onDone={reload} />
+              ))}
+            </ul>
+          )}
+        </Card>
       </section>
 
       {closed.length > 0 && (
-        <section className="space-y-3">
-          <h2 className="text-sm font-semibold text-muted">최근 처리</h2>
-          <Card className="p-0">
-            <ul className="divide-y divide-line">
+        <section className="space-y-2">
+          <div className="px-1"><SectionLabel index="04">최근 처리</SectionLabel></div>
+          <Card className="py-1.5">
+            <ul>
               {closed.map((r) => (
-                <li key={r.id} className="flex items-center justify-between gap-3 px-5 py-3 text-sm">
-                  <span className="flex min-w-0 items-center gap-2"><Avatar name={r.who} seed={r.seed} size="sm" /><span className="truncate">{r.who} · {r.text}</span></span>
+                <li key={r.id} className={ROW}>
+                  <Avatar name={r.who} seed={r.seed} size="sm" />
+                  <span className="min-w-0 flex-1 truncate">{r.who} · {r.text}</span>
                   <StatusPill status={r.status} />
                 </li>
               ))}
@@ -94,15 +113,15 @@ export default function RequestsPage() {
           </Card>
         </section>
       )}
-    </div>
+    </Enter>
   );
 }
 
 function Who({ name, seed, kind }: { name: string; seed: string; kind: string }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2.5">
       <Avatar name={name} seed={seed} size="sm" />
-      <p className="text-sm"><strong>{name}</strong> <span className="text-muted">· {kind}</span></p>
+      <p className="text-sm"><strong className="font-semibold">{name}</strong> <span className="text-muted">· {kind}</span></p>
     </div>
   );
 }
@@ -130,8 +149,8 @@ function Review({ onApprove, onReject, onDone, approveLabel = "승인", canAppro
       <input value={note} onChange={(e) => setNote(e.target.value)} maxLength={200} placeholder="메모 (거절 사유 등, 선택)" className="field text-sm" />
       <ErrorText>{error}</ErrorText>
       <div className="flex gap-2">
-        {canApprove && <button disabled={busy} onClick={() => run(onApprove)} className="flex-1 rounded-xl bg-accent py-2.5 text-sm font-semibold text-on-accent disabled:opacity-50">{approveLabel}</button>}
-        <button disabled={busy} onClick={() => run(() => onReject(note))} className="flex-1 rounded-xl border border-line py-2.5 text-sm disabled:opacity-50">거절</button>
+        {canApprove && <button disabled={busy} onClick={() => run(onApprove)} className={`${BTN.primary} flex-1`}>{approveLabel}</button>}
+        <button disabled={busy} onClick={() => run(() => onReject(note))} className={`${BTN.secondary} flex-1`}>거절</button>
       </div>
     </div>
   );
@@ -142,9 +161,9 @@ function CorrectionCard({ c, onDone }: { c: Correction; onDone: () => void }) {
   return (
     <Card>
       <Who name={c.nickname} seed={c.userId} kind={kind} />
-      <dl className="mt-3 grid grid-cols-[4rem_1fr] gap-y-1 text-sm">
-        {c.current && (<><dt className="text-muted">지금</dt><dd className="tabular-nums">{span(c.current.start, c.current.end)}</dd></>)}
-        {c.action !== "delete" && (<><dt className="text-muted">요청</dt><dd className="font-medium tabular-nums">{span(c.start!, c.end)}</dd></>)}
+      <dl className="mt-3 grid grid-cols-[3.5rem_1fr] gap-y-1.5 text-[13px]">
+        {c.current && (<><dt className="text-muted">지금</dt><dd className={NUM}>{span(c.current.start, c.current.end)}</dd></>)}
+        {c.action !== "delete" && (<><dt className="text-muted">요청</dt><dd className={`font-semibold ${NUM}`}>{span(c.start!, c.end)}</dd></>)}
         <dt className="text-muted">사유</dt><dd>{c.reason}</dd>
       </dl>
       <Review
@@ -163,11 +182,11 @@ function LeaveCard({ l, onDone }: { l: LeaveReq; onDone: () => void }) {
   return (
     <Card>
       <Who name={l.nickname} seed={l.userId} kind="휴가 신청" />
-      <p className="mt-2 text-sm font-medium">{range(l.startDate, l.endDate)}</p>
-      <p className="text-sm text-muted">{l.reason}</p>
-      <label className="mt-3 flex items-center justify-between text-sm">
+      <p className={`mt-3 text-sm font-semibold ${NUM}`}>{range(l.startDate, l.endDate)}</p>
+      <p className="mt-0.5 text-[13px] text-muted">{l.reason}</p>
+      <label className={`mt-2 ${CHECK}`}>
+        <input type="checkbox" checked={paid} onChange={(e) => setPaid(e.target.checked)} className={CHECK_BOX} />
         <span>유급 휴가로 승인 (체크 안 하면 무급)</span>
-        <input type="checkbox" checked={paid} onChange={(e) => setPaid(e.target.checked)} className="h-5 w-5 accent-[var(--accent)]" />
       </label>
       <Review
         onApprove={() => api.POST("/api/stores/me/leaves/{id}/approve", { params: { path: { id: l.id } }, body: { paid } })}
@@ -183,8 +202,8 @@ function SubCard({ s, onDone }: { s: Substitution; onDone: () => void }) {
   return (
     <Card>
       <Who name={s.requesterNickname} seed={s.requesterId} kind="대타 요청" />
-      <p className="mt-2 text-sm"><strong>{date(parseDay(s.date))}</strong> → <strong>{s.substituteNickname}</strong>님이 대신 근무</p>
-      <p className="text-sm text-muted">{s.reason}</p>
+      <p className="mt-3 text-sm"><strong className={`font-semibold ${NUM}`}>{date(parseDay(s.date))}</strong> → <strong className="font-semibold">{s.substituteNickname}</strong>님이 대신 근무</p>
+      <p className="mt-0.5 text-[13px] text-muted">{s.reason}</p>
       <div className="mt-2"><StatusPill status={s.status} /></div>
       <Review
         canApprove={!waiting}
@@ -225,20 +244,20 @@ function DirectLeave({ team, onDone }: { team: Member[]; onDone: () => void }) {
   };
   return (
     <Card>
-      <h3 className="font-semibold">휴가 등록</h3>
+      <SectionLabel as="h3" icon={Plane}>휴가 등록</SectionLabel>
       <form onSubmit={submit} className="mt-3 space-y-3">
         <MemberSelect team={team} value={who} onChange={setWho} label="멤버" />
         <div className="grid grid-cols-2 gap-2">
           <Field label="시작일"><input type="date" required value={start} onChange={(e) => setStart(e.target.value)} className="field" /></Field>
           <Field label="종료일"><input type="date" required min={start} value={end} onChange={(e) => setEnd(e.target.value)} className="field" /></Field>
         </div>
-        <label className="flex items-center justify-between text-sm">
+        <label className={CHECK}>
+          <input type="checkbox" checked={paid} onChange={(e) => setPaid(e.target.checked)} className={CHECK_BOX} />
           <span>유급 휴가</span>
-          <input type="checkbox" checked={paid} onChange={(e) => setPaid(e.target.checked)} className="h-5 w-5 accent-[var(--accent)]" />
         </label>
         <Field label="사유"><input required maxLength={200} value={reason} onChange={(e) => setReason(e.target.value)} className="field" /></Field>
         <ErrorText>{error}</ErrorText>
-        <button className="w-full rounded-xl bg-accent py-3 font-semibold text-on-accent">등록 (바로 확정)</button>
+        <button className={`${BTN.primary} w-full`}>등록 (바로 확정)</button>
       </form>
     </Card>
   );
@@ -260,7 +279,7 @@ function DirectSub({ team, onDone }: { team: Member[]; onDone: () => void }) {
   };
   return (
     <Card>
-      <h3 className="font-semibold">대타 등록</h3>
+      <SectionLabel as="h3" icon={ArrowLeftRight}>대타 등록</SectionLabel>
       <form onSubmit={submit} className="mt-3 space-y-3">
         <div className="grid grid-cols-2 gap-2">
           <MemberSelect team={team} value={from} onChange={setFrom} label="쉬는 멤버" />
@@ -269,23 +288,27 @@ function DirectSub({ team, onDone }: { team: Member[]; onDone: () => void }) {
         <Field label="날짜"><input type="date" required value={day} onChange={(e) => setDay(e.target.value)} className="field" /></Field>
         <Field label="사유"><input required maxLength={200} value={reason} onChange={(e) => setReason(e.target.value)} className="field" /></Field>
         <ErrorText>{error}</ErrorText>
-        <button className="w-full rounded-xl border border-accent py-3 font-semibold text-accent">등록 (바로 확정)</button>
+        <button className={`${BTN.secondary} w-full`}>등록 (바로 확정)</button>
       </form>
     </Card>
   );
 }
 
-function ConfirmedRow({ seed, who, text, onDelete, onDone }: { seed: string; who: string; text: string; onDelete: () => Promise<{ error?: unknown }>; onDone: () => void }) {
+function ConfirmedRow({ seed, who, text, sub, onDelete, onDone }: { seed: string; who: string; text: string; sub?: string; onDelete: () => Promise<{ error?: unknown }>; onDone: () => void }) {
   return (
-    <li className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-surface px-4 py-3 text-sm">
-      <span className="flex min-w-0 items-center gap-2"><Avatar name={who} seed={seed} size="sm" /><span className="truncate">{who} · {text}</span></span>
+    <li className={ROW}>
+      <Avatar name={who} seed={seed} size="sm" />
+      <span className="min-w-0 flex-1">
+        <span className="block truncate">{who} · {text}</span>
+        {sub && <span className="block text-xs text-muted">{sub}</span>}
+      </span>
       <button
         onClick={async () => {
           if (!window.confirm("이 휴가·대타를 지울까요? 급여 계산에서 빠져요.")) return;
           await onDelete();
           onDone();
         }}
-        className="shrink-0 text-xs text-warn"
+        className={`${BTN.danger} shrink-0`}
       >
         삭제
       </button>

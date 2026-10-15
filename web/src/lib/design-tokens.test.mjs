@@ -74,7 +74,7 @@ function scanTsx(re) {
 
 test("화면 코드에 직접 박은 색이 없다", () => {
   // 허용: 아바타 흰 글자(고정 배경색이라 다크와 무관), 토글 손잡이 bg-white
-  const ALLOW = [/shell\.tsx:\d+ .*select-none.*text-white/, /TimesheetApp\.tsx:\d+ .*rounded-full bg-white transition/];
+  const ALLOW = [/shell\.tsx:\d+ .*select-none.*text-white/, /TimesheetApp\.tsx:\d+ .*bg-white transition-transform/];
   const BAD = /\b(text|bg|border|ring)-(white|black|(green|emerald|amber|yellow|red|blue|stone|gray|slate)-\d{2,3})\b/;
   assert.deepEqual(scanTsx(BAD).filter((hit) => !ALLOW.some((re) => re.test(hit))), []);
 });
@@ -129,4 +129,31 @@ test("헤더 바탕은 화면 폭 전체 — 폭 제한은 main 과 헤더 안�
     assert.doesNotMatch(lines[at - 1], /max-w-/, `${f}: AppHeader 를 감싼 틀에 max-w`);
     assert.match(lines.find((l) => l.includes("<main")), /mx-auto w-full max-w-(md|3xl)/, `${f}: main 에 폭 제한 없음`);
   }
+});
+
+// 2026-10-15 사용자 결정 — 모양 B (가는 선·작은 모서리)
+test("모서리는 카드 8px·버튼 6px·배지 4px", () => {
+  assert.match(css, /--radius-2xl:\s*8px/);
+  assert.match(css, /--radius-xl:\s*6px/);
+  assert.match(css, /--radius-md:\s*4px/);
+});
+
+// 2026-10-15 사용자 결정 — GSAP 모션은 동작 줄이기를 지킨다
+test("GSAP 을 쓰는 모션 코드는 prefers-reduced-motion 을 본다", () => {
+  const motion = readFileSync(new URL("../components/motion.tsx", import.meta.url), "utf8");
+  const illust = readFileSync(new URL("../components/illust.tsx", import.meta.url), "utf8");
+  assert.ok(motion.includes("prefers-reduced-motion"));
+  assert.ok(illust.includes("reducedMotion()"));
+  // 화면 코드가 gsap 을 직접 쓰면 그 파일도 reducedMotion 을 써야 한다
+  const root = new URL("../", import.meta.url);
+  for (const f of readdirSync(root, { recursive: true })) {
+    if (!f.endsWith(".tsx")) continue;
+    const src = readFileSync(new URL(f, root), "utf8");
+    if (/from "gsap"/.test(src)) assert.ok(/reducedMotion|prefers-reduced-motion/.test(src), `${f}: gsap 을 쓰는데 동작 줄이기를 보지 않는다`);
+  }
+});
+
+// 2026-10-15 사용자 결정 — 일러스트는 사람 그림 없이 lucide 조합
+test("일러스트는 lucide 로만 — 이미지 일러스트 파일을 쓰지 않는다", () => {
+  assert.deepEqual(scanTsx(/src="[^"]*\b(peep|doodle|illust)[^"]*\.svg"/), []);
 });

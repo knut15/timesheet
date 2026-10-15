@@ -5,7 +5,7 @@
 웹 앱 `/guide` 에 올릴 컴포넌트 가이드의 내용 명세다. 개발팀은 이 문서의 각 절을 MDX 페이지 하나(`/guide/components/<slug>`)로 옮긴다.
 
 - **형식만** shadcn/ui 문서 페이지(<https://ui.shadcn.com/docs/components/base/avatar>)를 따른다. 컴포넌트 코드는 바꾸지 않고, shadcn·Base UI 를 도입하지 않는다 (사용자 결정 2026-09-25).
-- 여기 적은 props·기본값·클래스는 2026-09-25 `feature/component-guide` 의 코드에서 옮겼다. 코드가 바뀌면 코드가 맞고, 이 문서를 고친다.
+- 여기 적은 props·기본값·클래스는 2026-09-25 `feature/component-guide` 의 코드에서 옮겼고, 2026-10-15 디자인 B(가는 선·작은 모서리·고정폭 숫자·GSAP 모션·lucide 장면 일러스트)에 맞춰 고쳤다. 코드가 바뀌면 코드가 맞고, 이 문서를 고친다.
 - 화면 규칙(헤더 제목, 메뉴 구성, 아바타 seed 규칙 등)의 원본은 timesheet-ui 스킬이다. 이 문서는 규칙을 **복제하지 않고** 스킬의 절을 가리킨다.
 - 예시 데이터는 전부 가짜다. 이름은 `김하늘`·`이서준`·`박도윤`·`최유나`·`Alex Kim`·`Mia`, id 는 `user-demo-01` ~ `user-demo-08`, 매장은 `데모 카페 성수점` 만 쓴다. 실제 사용자·매장 데이터를 가져오지 않는다.
 
@@ -18,8 +18,8 @@
 | 경로 | 페이지 |
 |---|---|
 | `/guide` | 첫 화면 — 소개, 기초 토큰 요약, 컴포넌트 목록 |
-| `/guide/foundations` | 기초 — 색·타이포·간격·모서리·아이콘 (§2) |
-| `/guide/components/<slug>` | 컴포넌트 페이지 15개 (§4) |
+| `/guide/foundations` | 기초 — 색·타이포·간격·모서리·움직임·아이콘·일러스트 (§2) |
+| `/guide/components/<slug>` | 컴포넌트 페이지 19개 (§4) |
 
 ### 1-2. `/guide` 첫 화면
 
@@ -48,13 +48,17 @@
 | 표시 | `avatar-stack` | Avatar Stack |
 | | `status-pill` | Status Pill |
 | | `card` | Card |
+| | `section-label` | Section Label |
+| | `scene` | Scene |
 | | `spinner` | Spinner |
-| 입력 | `field` | Field |
+| 입력 | `buttons` | Buttons |
+| | `field` | Field |
 | | `error-text` | Error Text |
 | | `month-picker` | Month Picker |
 | 달력 | `month-grid` | Month Grid |
 | | `calendar-legend` | Calendar Legend |
 | | `view-toggle` | View Toggle |
+| 움직임 | `motion` | Motion |
 | 화면 조각 | `pay-view` | Pay View |
 
 - 목차 이름은 영문 컴포넌트 이름(코드 식별자와 같은 뜻)으로 두고, 각 페이지 제목 아래 설명은 한글이다.
@@ -99,12 +103,12 @@ shadcn Avatar 페이지와 같은 순서다. "설치" 는 timesheet 에서 **파
 
 | 토큰 | Tailwind | 라이트 | 다크 | 쓰는 곳 |
 |---|---|---|---|---|
-| `--background` | `bg-background` | `#f6f8f8` | `#0b1213` | 페이지 바탕, 입력칸(`.field`), 보기 전환 틀 |
-| `--foreground` | `text-foreground` | `#0f2a2a` | `#e8f1f0` | 본문 글자 |
-| `--surface` | `bg-surface` | `#ffffff` | `#132022` | 카드, 헤더, 하단 내비, 아바타 겹침 경계(`ring-surface`) |
-| `--line` | `border-line` | `#e2eaea` | `#1f3134` | 카드·헤더·내비 경계선, 중립 배지 바탕 |
-| `--muted` | `text-muted` | `#5b6f6f` | `#86a19f` | 보조 글자, 비활성 메뉴, 점선 테두리 |
-| `--accent` | `text-accent` `bg-accent` | `#0f766e` | `#2dd4bf` | 활성 메뉴, 오늘·선택, 입력 포커스, 강조 버튼 바탕 |
+| `--background` | `bg-background` | `#f6f8f8` | `#0b1213` | 페이지 바탕, 하단 내비 활성 칩, 주 버튼(`BTN.primary`) 글자 |
+| `--foreground` | `text-foreground` | `#0f2a2a` | `#e8f1f0` | 본문 글자, 하단 내비 활성 글자, 주 버튼(`BTN.primary`) 바탕 |
+| `--surface` | `bg-surface` | `#ffffff` | `#132022` | 카드, 헤더, 하단 내비, 입력칸(`.field`), 선 버튼, 아바타 겹침 경계(`ring-surface`) |
+| `--line` | `border-line` | `#e2eaea` | `#1f3134` | 카드·헤더·내비·버튼 경계선, 중립 배지 바탕, 보기 전환 틀(60%) |
+| `--muted` | `text-muted` | `#5b6f6f` | `#86a19f` | 보조 글자, 비활성 메뉴, 구역 머리(`SectionLabel`), 점선 테두리, 장면 소품 |
+| `--accent` | `text-accent` `bg-accent` | `#0f766e` | `#2dd4bf` | 오늘·선택, 입력 포커스(테두리 + 15% 고리), 시계·큰 급여 숫자, 장면 원(10% 바탕), 강조 버튼 바탕 |
 | `--on-accent` | `text-on-accent` `bg-on-accent` | `#ffffff` | `#05201d` | 강조 버튼 글자, 출근 알림 카드 안 반전 버튼 |
 | `--warn` | `text-warn` `bg-warn` | `#b91c1c` | `#f87171` | 오류 글자, 내비 배지(글자 `text-background`), 거절 상태, 퇴근 기록 없음 |
 | `--ok` | `text-ok` `bg-ok` | `#166534` | `#4ade80` | `StatusPill` 승인, 근무 중 점 |
@@ -122,20 +126,24 @@ shadcn Avatar 페이지와 같은 순서다. "설치" 는 timesheet 에서 **파
 ### 2-2. 타이포
 
 - 글꼴: 본문은 **Pretendard**(가변, `next/font/local` 로 앱이 직접 제공 — `layout.tsx` 의 `--font-pretendard`, `font-sans` 도 같은 글꼴). 없을 때만 `system-ui` 계열로 떨어진다. 코드는 `font-mono` = Geist Mono.
-- 숫자(금액·시간·날짜)는 `tabular-nums`.
+- 숫자(시각·시간·금액·날짜)는 고정폭 글꼴. `ui.tsx` 의 `NUM` 상수(`font-mono tabular-nums`)를 붙인다 — 자릿수가 바뀌어도 글자 폭이 같아 숫자가 흔들리지 않는다. 시계·큰 급여 숫자는 여기에 `text-accent` 를 더한다 (2026-10-15 사용자 결정).
 
 | 크기 | 클래스 | 실제 쓰는 곳 |
 |---|---|---|
 | 9px | `text-[9px]` | `Avatar` xs 이니셜, `+N` |
 | 10px | `text-[10px]` | 내비 배지 숫자, 달력 칸 휴가 글자 |
-| 11px | `text-[11px]` | 내비 이름, 요일 줄, 범례, 달력 칸 시간 |
-| 12px | `text-xs` | 헤더 위 작은 줄, `StatusPill`, `Avatar` sm |
-| 14px | `text-sm` | `Field` 이름, 보조 설명, `ErrorText`, 보기 전환 |
+| 11px | `text-[11px]` | 내비 이름, `StatusPill`, 요일 줄, 범례, 달력 칸 시간 |
+| 12px | `text-xs` | `Field` 이름(`font-semibold`), `SectionLabel`, 작은 버튼(`BTN.small`), `Avatar` sm |
+| 14px | `text-sm` | 보조 설명, `ErrorText`, 보기 전환, 선 버튼(`BTN.secondary`) |
+| 15px | `text-[15px]` | 헤더 매장 이름(`font-medium`), 주 버튼(`BTN.primary`) |
 | 16px | `text-base` | 입력칸 `.field` (iOS 확대 방지 크기) |
-| 20px | `text-xl` | 헤더 제목(`font-bold tracking-tight`), `Avatar` lg |
-| 30px | `text-3xl` | 급여 총액(`font-bold`) |
+| 18px | `text-lg` | 헤더 화면 이름(`font-bold tracking-tight`) |
+| 20px | `text-xl` | `Avatar` lg |
+| 28px | `text-[28px]` | 대시보드 인건비(`font-semibold text-accent`, `NUM`) |
+| 30px | `text-[30px]` | 급여 총액(`font-semibold text-accent`, `NUM`) |
+| 40px | `text-[40px]` | 출퇴근 시계(`font-semibold text-accent`, `NUM`) |
 
-굵기: `font-medium`(메뉴·배지) · `font-semibold`(카드 소제목·금액·아바타) · `font-bold`(화면 제목·총액·오늘 숫자).
+굵기: `font-medium`(메뉴) · `font-semibold`(배지·구역 머리·금액·시계·큰 급여 숫자·아바타) · `font-bold`(화면 이름·오늘·선택한 날 숫자).
 
 ### 2-3. 간격·모서리·높이
 
@@ -143,19 +151,28 @@ shadcn Avatar 페이지와 같은 순서다. "설치" 는 timesheet 에서 **파
 |---|---|---|
 | 본문 가로 여백 | `px-5` (20px) | 헤더 안쪽, `main` |
 | 본문 아래 여백 | `pb-28` (112px) | 하단 내비(64px + 안전 영역)에 가리지 않게 |
-| 카드 안쪽 | `p-5` (20px) | `Card` 기본. 달력 격자만 `px-2 py-3` |
+| 카드 안쪽 | `p-4` (16px) | `Card` 기본. 구역을 나누면 `divide-y divide-line p-0` + 구역마다 `px-4 py-3.5`. 달력 격자는 `p-2.5` |
 | 카드 사이 | `space-y-4` (16px) | `PayView` |
 | 본문 폭 | 멤버 `max-w-md`(448px) · 마스터 `max-w-3xl`(768px) | [스킬 §1](../../.claude/skills/timesheet-ui/SKILL.md#1-헤더--appheader) |
-| 모서리 | `rounded-2xl`(14px) 카드 · `rounded-xl`(10px) 버튼·입력칸·보기 전환 틀 · `rounded-lg`(8px) 달력 칸·전환 버튼 · `rounded-full` 아바타·배지·아이콘 버튼 | |
-| 누르는 높이 | 아이콘 버튼 44×44, 보기 전환 40, 내비 항목 64, 달력 칸 52/60 | 터치 영역 44px 이상이 기준(DESIGN.md §6). 보기 전환·달력 칸은 폭·높이 한계로 예외 |
+| 누르는 높이 | 버튼 44(작은 버튼 32), 아이콘 버튼 44×44, 보기 전환 40, 내비 항목 64, 달력 칸 52/60 | 터치 영역 44px 이상이 기준(DESIGN.md §6). 작은 버튼·보기 전환·달력 칸은 폭·높이 한계로 예외 |
+
+**모서리** — 선은 가늘게, 모서리는 작게 (2026-10-15 디자인 B). `globals.css` `@theme` 에서 Tailwind 이름의 값을 바꿨으므로 같은 클래스가 예전보다 덜 둥글다.
+
+| 클래스 | 값 | 쓰는 곳 |
+|---|---|---|
+| `rounded-2xl` | 8px (예전 14px) | `Card`, 가이드 미리보기 틀 |
+| `rounded-xl` | 6px (예전 10px) | 버튼(`BTN`), 입력칸(`.field`), `IconButton`, 하단 내비 활성 칩, 보기 전환 틀 |
+| `rounded-md` | 4px (새로 정함) | `StatusPill`, 내비 배지, 달력 칸, 보기 전환 버튼 |
+| `rounded-[4px]`~`rounded-[12px]` | 크기별 4 · 6 · 8 · 12px | `Avatar` xs · sm · md · lg — 둥근 사각형. 아바타 겹침의 `+N` 도 4px |
+| `rounded-full` | 원 | 장면 일러스트의 원, 근무 중 점 |
 
 ### 2-4. 아이콘
 
 - **lucide-react 만** 쓴다. 규칙·확인 명령은 [스킬 §2 "아이콘은 lucide-react 만"](../../.claude/skills/timesheet-ui/SKILL.md#아이콘은-lucide-react-만). 설치 버전 1.47.0.
-- 크기는 쓰는 곳이 정한다: 내비 22 · 아이콘 버튼 20 · 보기 전환 16 · 달력 표시·범례 10.
-- 선 굵기: 활성 2.4 / 비활성 내비 1.8 / 비활성 보기 전환 2.
+- 크기는 쓰는 곳이 정한다: 내비 20 · 아이콘 버튼 20(outline 18) · 보기 전환 16 · 카드 구역 머리(`SectionLabel`) 15 · 달력 표시·범례 10.
+- 선 굵기: 내비 활성 2.2 / 비활성 1.8 · 구역 머리 1.75 · 장면 일러스트 1.5 · 비활성 보기 전환 2.
 - 아이콘은 항상 `aria-hidden`, 접근 이름은 옆 글자나 `aria-label` 이 가진다.
-- 페이지에 지금 쓰는 아이콘 목록을 격자로 보인다: `Clock` `CalendarDays` `ClipboardList` `Wallet` `UserRound`(멤버 내비) · `LayoutDashboard` `Inbox` `Users` `Store`(마스터 내비) · `LogOut` · `List` · `Hourglass` `TriangleAlert`(달력). 2026-09-25 에 전부 `typeof === "object"` 확인.
+- 페이지에 지금 쓰는 아이콘 목록을 격자로 보인다: `Clock` `CalendarDays` `ClipboardList` `Wallet` `UserRound`(멤버 내비) · `LayoutDashboard` `Inbox` `Users` `Store`(마스터 내비) · `LogOut` · `List` · `Hourglass` `TriangleAlert`(달력). 2026-09-25 에 전부 `typeof === "object"` 확인. 장면 일러스트와 구역 머리 아이콘은 화면마다 골라 쓰므로 이 격자에 싣지 않는다.
 
 ---
 
@@ -166,36 +183,77 @@ shadcn Avatar 페이지와 같은 순서다. "설치" 는 timesheet 에서 **파
 - 월 이동 같은 좌우 화살표는 lucide `ChevronLeft`/`ChevronRight` 를 `IconButton` 으로. `◀` `▶` 글자를 쓰지 않는다
 - 규칙 원본: timesheet-ui 스킬 §0·§2
 
+### 2-6. 움직임
+
+움직임은 두 가지로 나뉜다. 매번 손에 닿는 누름 반응은 CSS 가 맡고, 화면이 바뀌거나 무언가 끝나는 순간은 GSAP 3.15 모션이 맡는다 (2026-10-15 사용자 결정). 기준의 원본은 [DESIGN.md](../../DESIGN.md).
+
+GSAP 모션 4종 — 코드 `web/src/components/motion.tsx`, 페이지 §4-19.
+
+| 이름 | 언제 | 움직임 |
+|---|---|---|
+| `Enter` | 화면 진입 | 바로 아래 자식들이 8px 아래에서 올라오며 차례로. 0.32초, 0.06초 간격 |
+| `CountUp` | 숫자 변화(급여·시간) | 이전 값(처음은 0)에서 새 값까지 0.6초 |
+| `SwapText` | 글자 바뀜(출퇴근 상태) | 새 글자가 아래에서 올라오며 나타난다. 0.22초 |
+| `useAppear` | 완료 상자·저장 알림 | 마운트될 때 10px 아래에서 올라온다. 0.35초 |
+
+- 곡선은 `power2.out`(`motion.tsx` 의 `EASE`) — CSS `--ease-out` 과 같은 성격.
+- 모션 줄이기(`prefers-reduced-motion`)면 4종 모두 이동 없이 투명도만. `CountUp` 은 새 값을 바로 보인다.
+- 탭 전환처럼 하루 수십 번 보는 것에는 걸지 않는다.
+
+CSS 누름·등장 (`globals.css`) — 그대로 둔다.
+
+- 곡선 `--ease-out` (`cubic-bezier(0.23, 1, 0.32, 1)`). `ease-in`·`transition-all` 금지.
+- 버튼·하단 주요 메뉴 누름 `scale(0.97)` 120ms, 색 변화 150ms `ease`. 목록 행·카드·목차 링크는 뺀다. 누름 대상에 Tailwind `transition` 을 따로 주지 않는다.
+- 레이아웃 속성은 전환하지 않는다 — 토글 손잡이는 `translate-x`.
+- 오류 문구(`ErrorText`)·온보딩 카드는 `.appear` 200ms(위로 4px), 여러 개면 50ms 간격.
+- 모션 줄이기면 누름 축소 끔, `.appear` 는 투명도만.
+
+### 2-7. 일러스트
+
+빈 화면·로그인·온보딩처럼 잠깐 머무는 자리에 lucide 아이콘을 엮은 작은 장면을 둔다 (2026-10-15 사용자 결정). 그림 파일을 들이지 않고, **사람 그림은 쓰지 않는다** — 뜻은 사물로 보인다(출퇴근 = 시계 + 커피 잔 + 해).
+
+- 가운데 옅은 강조색 원(`bg-accent/10`, `border-accent/20`)에 주인공 아이콘(강조색), 네 모서리 중 1~2곳에 소품(`text-muted`). 선 굵기 1.5.
+- 크기 `md` 원 64·주인공 30·소품 16px, `sm` 원 44·주인공 22·소품 13px.
+- 처음 그릴 때 원이 올라오고 소품이 0.08초 간격으로 튀어나온다. 장식이라 `aria-hidden`.
+- 한 화면에 하나. 작은 구역의 빈 상태는 글자만.
+- 코드 `web/src/components/illust.tsx`, 페이지 §4-18.
+
 ## 3. 컴포넌트 목록
 
 | slug | 컴포넌트 (export) | 파일 | 예시 수 |
 |---|---|---|---|
 | `app-header` | `AppHeader` | `shell.tsx` | 4 |
 | `bottom-nav` | `BottomNav`, 타입 `NavItem` | `shell.tsx` | 5 |
-| `icon-button` | `IconButton` | `shell.tsx` | 2 |
+| `icon-button` | `IconButton` | `shell.tsx` | 3 |
 | `avatar` | `Avatar`, 함수 `initials` | `shell.tsx` | 5 |
 | `avatar-stack` | `AvatarStack` | `calendar/AvatarStack.tsx` | 4 |
 | `status-pill` | `StatusPill` | `ui.tsx` | 2 |
-| `card` | `Card` | `ui.tsx` | 2 |
+| `card` | `Card` | `ui.tsx` | 3 |
+| `section-label` | `SectionLabel` | `ui.tsx` | 4 (하나는 Card 와 같은 예시) |
+| `scene` | `Scene`, 타입 `Accent`, `EmptyState` | `illust.tsx` | 3 |
 | `spinner` | `Spinner` | `ui.tsx` | 1 |
+| `buttons` | 상수 `BTN` | `ui.tsx` | 4 |
 | `field` | `Field` + CSS 클래스 `.field` | `ui.tsx`, `globals.css` | 4 |
 | `error-text` | `ErrorText` | `ui.tsx` | 2 |
 | `month-picker` | `MonthPicker`, 훅 `useMonthCursor` | `ui.tsx` | 2 |
 | `month-grid` | `MonthGrid`, 타입 `Marks`, `OpenDot` | `calendar/MonthGrid.tsx` | 7 |
 | `calendar-legend` | `CalendarLegend` | `calendar/CalendarLegend.tsx` | 2 |
 | `view-toggle` | `ViewToggle` | `calendar/ViewToggle.tsx` | 2 |
-| `pay-view` | `PayView`, 함수 `holidayStatus` | `PayView.tsx` | 5 |
+| `motion` | `Enter`, `CountUp`, `SwapText`, 훅 `useAppear` | `motion.tsx` | 4 |
+| `pay-view` | `PayView`, `DotRow`, 함수 `holidayStatus` | `PayView.tsx` | 6 |
 
-페이지를 두지 않는 export (`ui.tsx`): 표시 함수 `won` `hm` `time` `date` `dayLabel` `toLocalInput`, 변환 `toShift` `monthRange` `keyed`, 훅 `useNow`. 화면 요소가 아니므로 컴포넌트 목록에 싣지 않는다. 예시 코드에서 쓰면 import 만 보인다.
+페이지를 두지 않는 export (`ui.tsx`): 표시 함수 `won` `hm` `time` `date` `dayLabel` `toLocalInput`, 변환 `toShift` `monthRange` `keyed`, 훅 `useNow`. 숫자 글꼴 상수 `NUM` 은 §2-2 에서 다룬다. 화면 요소가 아니므로 컴포넌트 목록에 싣지 않는다. 예시 코드에서 쓰면 import 만 보인다.
 `AuthForm`·`TimesheetApp`·`member/*`·`SessionBoot`·`useSelectedDay` 는 화면·로직이라 가이드 대상이 아니다.
 
 ---
 
 ## 4. 컴포넌트 페이지
 
+§4 의 번호는 추가한 순서다. 목차 순서는 §1-3 표를 따른다 (§4-16~4-19 는 2026-10-15 디자인 B 에서 추가).
+
 ### 4-1. `app-header` — App Header
 
-**설명**: 모든 화면의 머리. 위 작은 줄(매장·역할)과 화면 제목, 오른쪽에 동작과 내 아바타.
+**설명**: 모든 화면의 머리. 한 줄에 `매장 / 화면 이름` 을 두고 화면 이름을 굵게 강조한다 (2026-10-15 디자인 B). 오른쪽에 동작과 내 아바타.
 
 **파일·import**: `web/src/components/shell.tsx`
 
@@ -214,12 +272,14 @@ import { AppHeader } from "@/components/shell";
 ```
 AppHeader  <header sticky top-0, border-b, bg-surface/95 blur>
 └─ 폭 틀  <div mx-auto {width} h-16 px-5>
-   ├─ 글자 묶음
-   │  ├─ eyebrow  <p text-xs text-muted, 한 줄 자름>
-   │  └─ title    <h1 text-xl font-bold, 한 줄 자름>
-   └─ 오른쪽 묶음
+   ├─ 한 줄 묶음  <div flex items-center gap-1.5>
+   │  ├─ 로고 <img alt={logoAlt} h-5 max-w-24> (logoUrl 있을 때 — 매장 이름 글자를 대신)
+   │  ├─ eyebrow  <span text-[15px] font-medium text-muted, 한 줄 자름> (값이 있을 때)
+   │  ├─ 나눔 "/"  <span aria-hidden text-muted/50> (로고나 eyebrow 가 있을 때)
+   │  └─ title    <h1 text-lg(18px) font-bold, 줄어들지 않음>
+   └─ 오른쪽 묶음  <div gap-1>
       ├─ actions  (넘긴 그대로)
-      └─ Avatar md, label "<nickname> (나)"
+      └─ Avatar sm(32px), label "<nickname> (나)"
 ```
 
 **예시**
@@ -228,7 +288,7 @@ AppHeader  <header sticky top-0, border-b, bg-surface/95 blur>
 |---|---|---|
 | Basic — 멤버 | 멤버 화면 머리 | `eyebrow="데모 카페 성수점"` `title="출퇴근"` `me={{ id: "user-demo-01", nickname: "김하늘" }}` `width="max-w-md"` |
 | 마스터 + 로그아웃 | `actions` 에 `IconButton` | `eyebrow="데모 카페 성수점 · 사장님"` `title="대시보드"` `me={{ id: "user-demo-08", nickname: "Alex Kim" }}` `actions={<IconButton icon={LogOut} label="로그아웃" onClick={() => {}} />}` 기본 폭 |
-| 긴 글자 자르기 | 매장·제목이 길면 한 줄에서 말줄임 | `eyebrow="데모 카페 성수점 2층 테라스 별관 · 사장님"` `title="멤버"` 틀 폭 320px |
+| 긴 글자 자르기 | 자리가 모자라면 매장 이름 쪽만 말줄임, 화면 이름은 끝까지 | `eyebrow="데모 카페 성수점 2층 테라스 별관 · 사장님"` `title="멤버"` 틀 폭 320px |
 | 제목은 활성 메뉴 | `BottomNav` 와 함께 두어 제목 = 활성 메뉴 이름임을 보인다 | 멤버 5메뉴, `active="records"` ↔ `title="기록"` |
 
 **사용 규칙**: [스킬 §1 헤더](../../.claude/skills/timesheet-ui/SKILL.md#1-헤더--appheader) (eyebrow·title·width 값).
@@ -243,17 +303,19 @@ AppHeader  <header sticky top-0, border-b, bg-surface/95 blur>
 
 | Prop | Type | Default | 설명 |
 |---|---|---|---|
-| `eyebrow` | `string` | — | **필수** 위 작은 줄 |
-| `title` | `string` | — | **필수** 화면 제목(`h1`) |
-| `me` | `{ id: string; nickname: string }` | — | **필수** 내 아바타. `id` 가 색 seed |
+| `eyebrow` | `string` | — | **필수** 제목 앞 매장 자리(15px 회색). 로고도 eyebrow 도 없으면 나눔 `/` 를 그리지 않는다 |
+| `title` | `string` | — | **필수** 화면 이름(`h1`, 18px 굵게). 줄어들지 않는다 |
+| `me` | `{ id: string; nickname: string }` | — | **필수** 내 아바타(sm 32px). `id` 가 색 seed |
 | `actions` | `React.ReactNode` | — | 아바타 앞 동작 |
 | `width` | `string` (Tailwind max-w 클래스) | `"max-w-3xl"` | 안쪽 폭 |
+| `logoUrl` | `string \| null` | — | 매장 로고 주소. 있으면 한 줄 맨 앞에 두고 매장 이름 글자를 대신한다 |
+| `logoAlt` | `string` | `""` | 로고의 대체 텍스트 — 매장 이름 |
 
 ---
 
 ### 4-2. `bottom-nav` — Bottom Nav
 
-**설명**: 화면 하단 고정 내비게이션. 아이콘 위, 이름 아래. 모든 로그인 화면의 푸터.
+**설명**: 화면 하단 고정 내비게이션. 아이콘 위, 이름 아래. 활성 항목은 옅은 바탕 칩과 진한 글자 (2026-10-15 디자인 B — 윗선 없음). 모든 로그인 화면의 푸터.
 
 **파일·import**
 
@@ -279,11 +341,12 @@ BottomNav  <nav aria-label="주요 메뉴", fixed bottom-0, bg-surface/95, 안�
 └─ <ul grid, 열 수 = items.length>
    └─ <li> × items
       └─ <Link href> 또는 <button onSelect>   aria-current="page" (활성)
-         ├─ 활성 윗선  <span h-0.5 bg-accent> (활성만)
+         │  글자 11px — 활성 font-semibold text-foreground / 비활성 font-medium text-muted
+         ├─ 활성 칩  <span aria-hidden absolute inset-x-1 inset-y-1.5 rounded-xl bg-background> (활성만)
          ├─ 아이콘 틀
-         │  ├─ Icon 22px (선 2.4 활성 / 1.8)
-         │  └─ 배지  <span bg-warn, 9 초과는 "9+"> (badge > 0 일 때)
-         ├─ label
+         │  ├─ Icon 20px (선 2.2 활성 / 1.8)
+         │  └─ 배지  <span rounded-md bg-warn, 9 초과는 "9+"> (badge > 0 일 때)
+         ├─ label  <span relative> (칩 위에 그린다)
          └─ sr-only " (처리할 것 N건)" (badge > 0 일 때)
 ```
 
@@ -329,7 +392,7 @@ BottomNav  <nav aria-label="주요 메뉴", fixed bottom-0, bg-surface/95, 안�
 
 ### 4-3. `icon-button` — Icon Button
 
-**설명**: 헤더 오른쪽에 두는 아이콘만 있는 둥근 버튼. 이름은 `aria-label` 과 `title` 로 붙는다.
+**설명**: 아이콘만 있는 버튼. 헤더에는 테두리 없는 `ghost`, 월 이동처럼 본문 안에는 테두리 있는 `outline` 을 쓴다. 이름은 `aria-label` 과 `title` 로 붙는다.
 
 **import**: `import { IconButton } from "@/components/shell";`
 
@@ -342,8 +405,10 @@ BottomNav  <nav aria-label="주요 메뉴", fixed bottom-0, bg-surface/95, 안�
 **구성**
 
 ```
-IconButton  <button type="button" aria-label={label} title={label}, 44×44 rounded-full>
-└─ Icon 20px aria-hidden
+IconButton  <button type="button" aria-label={label} title={label}, 44×44 rounded-xl(6px)>
+│  ghost   text-muted, 마우스를 올리면 bg-line/60
+│  outline border border-line bg-surface text-foreground, 마우스를 올리면 bg-background
+└─ Icon aria-hidden — ghost 20px / outline 18px
 ```
 
 **예시**
@@ -352,6 +417,7 @@ IconButton  <button type="button" aria-label={label} title={label}, 44×44 round
 |---|---|---|
 | Basic | 로그아웃 | `icon={LogOut}` `label="로그아웃"` `onClick` 은 미리보기 아래 `"로그아웃 눌림"` 글자 표시 |
 | 헤더 안 | `AppHeader` `actions` 자리 | §4-1 "마스터 + 로그아웃" 과 같은 데이터 |
+| Outline | `variant="outline"` — 본문 안 화살표. `MonthPicker` 가 이 모양 | `ChevronLeft`/`ChevronRight`, `label` "이전"/"다음", 가운데 숫자 0 에서 ±1 |
 
 **사용 규칙**: [스킬 §2 아이콘](../../.claude/skills/timesheet-ui/SKILL.md#아이콘은-lucide-react-만) 마지막 줄.
 
@@ -366,12 +432,13 @@ IconButton  <button type="button" aria-label={label} title={label}, 44×44 round
 | `icon` | `LucideIcon` | — | **필수** |
 | `label` | `string` | — | **필수** `aria-label`·`title` |
 | `onClick` | `() => void` | — | **필수** |
+| `variant` | `"ghost" \| "outline"` | `"ghost"` | `ghost` 테두리 없음(헤더), `outline` 가는 선 + 흰 바탕(본문 안) |
 
 ---
 
 ### 4-4. `avatar` — Avatar
 
-**설명**: 멤버 아바타. 사진 없이 이름 이니셜과 사용자 id 로 고정된 배경색.
+**설명**: 멤버 아바타. 사진 없이 이름 이니셜과 사용자 id 로 고정된 배경색. 모양은 둥근 사각형이다 (2026-10-15 디자인 B).
 
 **import**: `import { Avatar, initials } from "@/components/shell";`
 
@@ -384,7 +451,7 @@ IconButton  <button type="button" aria-label={label} title={label}, 44×44 round
 **구성**
 
 ```
-Avatar  <span rounded-full, 흰 글자, 배경 = AVATAR_COLORS[hash(seed) % 8]>
+Avatar  <span 둥근 사각형(크기별 모서리), 흰 글자, 배경 = AVATAR_COLORS[hash(seed) % 8]>
 └─ initials(name)
    role="img" + aria-label (label 있을 때) / aria-hidden (없을 때)
 ```
@@ -395,7 +462,7 @@ Avatar  <span rounded-full, 흰 글자, 배경 = AVATAR_COLORS[hash(seed) % 8]>
 |---|---|---|
 | Basic | 기본 크기 md(40px) | `name="김하늘" seed="user-demo-01"` |
 | 한글·로마자 이니셜 | 한글은 첫 글자, 로마자는 두 글자 대문자 | `김하늘`→`김` · `Alex Kim`→`AK` · `Mia`→`MI` · `" "`(공백)→`?`. 각각 seed `user-demo-01`·`-08`·`-02`·`-03` |
-| Sizes | xs 18 · sm 32 · md 40 · lg 64 | 4개 모두 `name="이서준" seed="user-demo-05"` |
+| Sizes | xs 18 · sm 32 · md 40 · lg 64, 모서리 4 · 6 · 8 · 12 | 4개 모두 `name="이서준" seed="user-demo-05"` |
 | 색 고정 | 같은 seed 는 이름이 달라도 같은 색, 8색 전부 | 윗줄: `seed="user-demo-06"` 에 이름 `박도윤`·`Doyun Park` 두 개 (같은 색). 아랫줄: `user-demo-01`~`user-demo-08` 8개 — 8색이 하나씩 나온다(2026-09-25 hash 계산 확인) |
 | 접근성 | `label` 유무에 따른 읽힘 | 왼쪽: 이름 글자 옆 장식 `<Avatar name="최유나" seed="user-demo-04" /> 최유나`. 오른쪽: 혼자 `label="최유나"`. 각 아래에 캡션 "스크린리더: 이름 글자만 읽음" / "스크린리더: 최유나, 이미지" |
 
@@ -416,7 +483,7 @@ Avatar  <span rounded-full, 흰 글자, 배경 = AVATAR_COLORS[hash(seed) % 8]>
 |---|---|---|---|
 | `name` | `string` | — | **필수** 이니셜의 원본 |
 | `seed` | `string` | — | **필수** 색을 정하는 값. 사용자 id |
-| `size` | `"xs" \| "sm" \| "md" \| "lg"` | `"md"` | 18 / 32 / 40 / 64px, 글자 9px / 12 / 14 / 20 |
+| `size` | `"xs" \| "sm" \| "md" \| "lg"` | `"md"` | 18 / 32 / 40 / 64px, 글자 9px / 12 / 14 / 20, 모서리 4px / 6 / 8 / 12 |
 | `label` | `string` | — | 있으면 `role="img"` + `aria-label`, 없으면 `aria-hidden` |
 
 `initials(name: string): string`
@@ -448,7 +515,7 @@ Avatar  <span rounded-full, 흰 글자, 배경 = AVATAR_COLORS[hash(seed) % 8]>
 AvatarStack  <span aria-hidden flex>
 ├─ 겹침 틀 <span ring-2 ring-surface, 둘째부터 -ml-1.5> × 보이는 인원
 │  └─ Avatar xs
-└─ +N  <span 18px rounded-full bg-line text-[9px]> (남은 인원 > 0, 최대 +99)
+└─ +N  <span 18px rounded-[4px] bg-line text-[9px]> (남은 인원 > 0, 최대 +99)
 ```
 
 **예시** — 미리보기 틀은 `bg-surface`(칸 배경과 같게, `ring-surface` 경계가 보이도록).
@@ -477,13 +544,13 @@ AvatarStack  <span aria-hidden flex>
 
 ### 4-6. `status-pill` — Status Pill
 
-**설명**: 요청 상태 배지. 수정 요청·휴가·대타가 같이 쓴다.
+**설명**: 요청 상태 배지. 높이 20px 작은 사각 배지다. 수정 요청·휴가·대타가 같이 쓴다.
 
 **import**: `import { StatusPill } from "@/components/ui";`
 
 **사용법**: `<StatusPill status="pending" />`
 
-**구성**: `<span rounded-full px-2 py-0.5 text-xs font-medium {tone}>` 안에 상태 이름 글자 하나.
+**구성**: `<span inline-flex h-5 rounded-md(4px) px-1.5 text-[11px] font-semibold {tone}>` 안에 상태 이름 글자 하나.
 
 **예시**
 
@@ -518,7 +585,7 @@ AvatarStack  <span aria-hidden flex>
 
 ### 4-7. `card` — Card
 
-**설명**: 흰 바탕 둥근 상자. 화면 본문을 묶는 기본 단위.
+**설명**: 흰 바탕에 가는 선을 두른 상자. 화면 본문을 묶는 기본 단위.
 
 **import**: `import { Card } from "@/components/ui";`
 
@@ -527,18 +594,19 @@ AvatarStack  <span aria-hidden flex>
 ```tsx
 <Card>
   <p className="text-sm text-muted">이번 주 근무</p>
-  <p className="mt-1 text-2xl font-bold tabular-nums">18시간 30분</p>
+  <p className={`mt-1 text-2xl font-bold ${NUM}`}>18시간 30분</p>
 </Card>
 ```
 
-**구성**: `<section rounded-2xl border border-line bg-surface p-5 {className}>` + `children`.
+**구성**: `<section rounded-2xl(8px) border border-line bg-surface p-4 {className}>` + `children`.
 
 **예시**
 
 | 예시 (H2) | 설명 | 가짜 데이터 |
 |---|---|---|
 | Basic | 제목 + 값 | 위 사용법 그대로 |
-| 여백 덮기 | `className` 으로 안쪽 여백을 바꾼다 (달력 격자가 쓰는 방식) | `className="px-2 py-3"`, 안에 `데모 카페 성수점` 글자 |
+| 여백 덮기 | `className` 으로 안쪽 여백을 바꾼다 (달력 격자가 쓰는 방식) | `className="p-2.5"`, 안에 `데모 카페 성수점` 글자 |
+| 구역 나누기 | `className="divide-y divide-line p-0"` + 구역마다 `<div className="px-4 py-3.5">`, 구역 머리는 `SectionLabel` | 구역 둘: `CalendarDays` `01` `이번 주 근무` 오른쪽 `5일` / 값 `18시간 30분` · `Wallet` `02` `예상 급여` / 값 `190,920원` |
 
 **하지 말 것**
 - 카드 안에 카드를 넣지 않는다.
@@ -579,7 +647,7 @@ AvatarStack  <span aria-hidden flex>
 
 > 입력칸 규칙(2026-09-25): 종류와 상관없이 높이 44px(`h-11`), 격자 안에서 줄어들 수 있게 `min-w-0`, 날짜 칸은 기본 모양을 끄고 왼쪽 정렬, select 는 기본 화살표 대신 lucide chevron-down. 모바일 요청 화면에서 날짜 두 칸이 겹치고 날짜·선택 높이가 달랐던 것을 고친 규칙이다. 선택 예시는 "날짜 + 선택" 두 칸.
 
-**설명**: 입력칸 이름표. 이름 글자 아래에 입력 요소를 둔다. 입력 요소 자체는 CSS 클래스 `.field` 로 꾸민다.
+**설명**: 입력칸 이름표. 이름 글자 아래에 입력 요소를 둔다. 입력 요소 자체는 CSS 클래스 `.field` 로 꾸민다 — 흰 바탕에 가는 선, 누르면 강조색 테두리와 옅은 고리 (2026-10-15 디자인 B).
 
 **파일**: `Field` 는 `web/src/components/ui.tsx`, `.field` 는 `web/src/app/globals.css` `@layer components`.
 
@@ -596,11 +664,12 @@ AvatarStack  <span aria-hidden flex>
 **구성**
 
 ```
-Field  <label block text-sm>
-├─ <span text-muted>{label}</span>
-└─ <div mt-1>{children}</div>
+Field  <label block min-w-0 text-sm>
+├─ <span text-xs(12px) font-semibold text-muted>{label}</span>
+└─ <span block mt-1.5>{children}</span>
      └─ (넘긴 입력 요소, 보통 className="field")
-.field = w-full rounded-xl border border-line bg-background px-3 py-2.5 text-base, 포커스 시 border-accent
+.field = h-11 w-full min-w-0 rounded-xl(6px) border border-line bg-surface px-3 text-base
+         포커스 시 border-accent + 바깥 고리 ring-3 ring-accent/15
 ```
 
 **예시**
@@ -654,7 +723,7 @@ Field  <label block text-sm>
 
 ### 4-11. `month-picker` — Month Picker
 
-**설명**: 달 이동. 왼쪽·오른쪽 버튼과 가운데 `2026년 9월`.
+**설명**: 달 이동. 테두리 있는 왼쪽·오른쪽 화살표 버튼과 가운데 `2026년 9월`. 숫자는 고정폭 글꼴이라 달이 바뀌어도 글자 폭이 흔들리지 않는다.
 
 **import**: `import { MonthPicker, useMonthCursor } from "@/components/ui";`
 
@@ -669,9 +738,9 @@ const [cursor, setCursor] = useMonthCursor(); // 오늘이 든 달로 시작
 
 ```
 MonthPicker  <div flex justify-between>
-├─ <IconButton icon={ChevronLeft} label="이전 달" />
-├─ <p font-semibold>{year}년 {month + 1}월</p>
-└─ <IconButton icon={ChevronRight} label="다음 달" />
+├─ <IconButton variant="outline" icon={ChevronLeft} label="이전 달" />
+├─ <p font-semibold {NUM}>{year}년 {month + 1}월</p>   NUM = font-mono tabular-nums
+└─ <IconButton variant="outline" icon={ChevronRight} label="다음 달" />
 ```
 
 **예시**
@@ -685,7 +754,6 @@ MonthPicker  <div flex justify-between>
 
 **하지 말 것**
 - `month` 에 1~12 를 넣지 않는다.
-- `<form>` 안에 두지 않는다 — 두 버튼에 `type` 이 없어 form 안에서는 submit 으로 동작한다.
 
 **API 레퍼런스**
 
@@ -698,11 +766,13 @@ MonthPicker  <div flex justify-between>
 
 `useMonthCursor()` → `[cursor, setCursor]` (`useState` 반환 그대로). 처음 값은 오늘이 든 달.
 
+두 화살표는 `IconButton` 이라 `type="button"` 을 가진다. `<form>` 안에 두어도 누를 때 form 이 제출되지 않는다.
+
 ---
 
 ### 4-12. `month-grid` — Month Grid
 
-**설명**: 월요일 시작 월 격자. 날짜 칸은 버튼이고, 칸 내용은 부르는 쪽이 `cell` 로 채운다. 멤버·마스터 달력이 같이 쓴다.
+**설명**: 월요일 시작 월 격자. 날짜 칸은 작은 모서리(`rounded-md` 4px)의 버튼이고, 칸 내용은 부르는 쪽이 `cell` 로 채운다. 오늘은 강조색 테두리, 선택한 날은 진한 바탕 (2026-10-15 디자인 B). 멤버·마스터 달력이 같이 쓴다.
 
 **import**: `import { MonthGrid, OpenDot, type Marks } from "@/components/calendar/MonthGrid";`
 
@@ -726,18 +796,21 @@ const [selected, setSelected] = useState<string | null>("2026-09-25");
 **구성**
 
 ```
-MonthGrid  Card className="px-2 py-3"
+MonthGrid  Card className="p-2.5"
 ├─ 격자  <div role="group" aria-label="2026년 9월 달력" aria-busy={busy}>
-│  ├─ 요일 줄  <div aria-hidden grid-cols-7> 월 화 수 목 금 토 일
-│  └─ 칸 줄  <div grid-cols-7>
+│  ├─ 요일 줄  <div aria-hidden grid-cols-7 gap-[3px]> 월 화 수 목 금 토 일 (11px font-semibold text-muted)
+│  └─ 칸 줄  <div grid-cols-7 gap-[3px]>
 │     ├─ 이번 달 밖  <div aria-hidden opacity-40> 숫자만
-│     └─ 날짜 칸  <button aria-label={label} aria-pressed={selected} aria-current="date"(오늘)>
+│     └─ 날짜 칸  <button rounded-md border aria-label={label} aria-pressed={selected} aria-current="date"(오늘)>
 │        ├─ 1줄
-│        │  ├─ 날짜 숫자 (오늘이면 ring-accent 원, 선택이면 굵게)
+│        │  ├─ 날짜 숫자 11px NUM — 보통 font-semibold, 오늘 font-bold text-accent, 선택 font-bold
 │        │  └─ 표시 자리 aria-hidden: OpenDot(open="today") · TriangleAlert(open="stale") · Hourglass(pending)
-│        └─ 본문 aria-hidden: cell(key).body (busy 면 비움)
-└─ footer  <div mt-2> (있을 때)
-테두리: 점선 marks.dashed 또는 투명. 선택은 테두리 없이 bg-accent/10 + 날짜 숫자 font-bold (점선은 선택돼도 유지)
+│        └─ 본문 <span data-body aria-hidden>: cell(key).body (busy 면 비움)
+└─ footer  <div mt-2.5> (있을 때)
+테두리: 점선(marks.dashed) border-dashed border-muted → 오늘 border-accent → 선택 border-foreground → 보통 border-line
+오늘: 테두리에 더해 안쪽 고리 ring-1 ring-inset ring-accent (선택과 겹치면 진한 바탕 둘레에 강조색 테두리)
+바탕: 선택 bg-foreground text-background / 기록 있는 날(본문에 그린 것이 있으면) bg-background / 그 밖 bg-surface
+선택 칸 반전: 본문의 text-foreground·text-muted 글자를 바탕색으로 뒤집고, 근무 중 점·아이콘도 바탕색으로 그린다
 포커스: focus-visible:outline-2 outline-offset-1 outline-accent — 키보드 이동 때만 보이는 바깥 선
 ```
 
@@ -749,21 +822,24 @@ MonthGrid  Card className="px-2 py-3"
 | 멤버 달력 | 시간·휴가 글자·상태 표시 + 범례 | `cellHeight={56}`, `footer={<CalendarLegend role="member" />}`. 칸(시간 글자는 `compactHours(분)`): `09-22` 270분 → `4.5h` · `09-23` 540분 → `9h`, `marks={{ open: "stale", pending: true }}` · `09-24` 글자 `유급`, `marks={{ dashed: true }}` · `09-25` 130분 → `2.2h`, `marks={{ open: "today" }}` · `09-26` 글자 `대타`, `dashed`. `label` 은 [달력 명세 §7 읽는 이름 예시](calendar.md#읽는-이름-예시--dayarialabel) 표의 멤버 문장 그대로 |
 | 마스터 달력 | 아바타 겹침 + 시간 | `cellHeight={64}`, `footer={<CalendarLegend role="master" />}`. 칸: `09-22` `AvatarStack`(김하늘·이서준·박도윤) + 870분 → `15h`, `marks={{ dashed: true, pending: true }}` · `09-24` 5명(+ 최유나·Alex Kim) + 900분 → `15h` · `09-25` 2명(김하늘·Mia) + 240분 → `4h`, `open: "today"` · `09-27` 글자 `쉼 1`, `dashed`. `Mia` 의 id 는 `user-demo-02` |
 | 불러오는 중 | `busy` 면 칸 내용·표시를 숨기고 `aria-busy` | `busy`, `footer={<p className="text-[11px] text-muted">불러오는 중…</p>}` |
-| 선택과 점선 | 점선 칸을 선택해도 점선은 남고 연한 배경·굵은 날짜가 더해진다. 파란 테두리는 없다 | 멤버 달력 데이터, 선택 `"2026-09-24"`(유급 휴가 칸) |
+| 선택과 점선 | 점선 칸을 선택해도 점선은 남고 진한 바탕·굵은 날짜가 더해진다. 칸 안 글자는 바탕색으로 뒤집힌다 | 멤버 달력 데이터, 선택 `"2026-09-24"`(유급 휴가 칸) |
 | 키보드 포커스 | Tab 으로 칸에 가면 바깥 선(accent)이 보인다. 마우스·터치 선택에는 없다 | 멤버 달력 데이터. 미리보기 캡션 "Tab 으로 칸을 옮겨 보세요" |
 | 6줄 달 | 줄 수는 달마다 4~6 | `year={2026} month={10}`(2026년 11월, 6줄), 빈 값, `todayKey` 는 이 달 밖 |
 
 `OpenDot` 은 이 페이지 "구성" 아래에 단독 미리보기 하나(`<OpenDot /> 근무 중`)로 보인다. 별도 페이지는 두지 않는다.
 
-> 선택 표시 (2026-09-25 사용자 요청 "선택 시 파란 라인 제거"): 테두리 없이 `bg-accent/10` + 날짜 숫자 `font-bold`. 휴가·대타 점선은 선택돼도 남고, 키보드 `focus-visible` 바깥 선은 그대로다.
+> 선택 표시 (2026-09-25 사용자 요청 "선택 시 파란 라인 제거", 2026-10-15 디자인 B): 색 테두리 없이 진한 바탕 `bg-foreground text-background` + 날짜 숫자 `font-bold`, 칸 안 표시도 바탕색으로 뒤집는다. 휴가·대타 점선은 선택돼도 남고, 키보드 `focus-visible` 바깥 선은 그대로다. 오늘은 `border-accent ring-1 ring-inset ring-accent` + 숫자 `text-accent font-bold`.
+>
+> 칸 본문 글자는 `text-foreground`(시간)·`text-muted`(휴가 글자)로 칠한다. 선택 칸이 이 두 색 이름을 찾아 바탕색으로 뒤집기 때문이다.
 
 **사용 규칙**: [달력 명세 §3 월 격자](calendar.md#3-월-격자) (치수·칸 배치·상태 표), [§7 접근성](calendar.md#7-접근성), [스킬 §4 달력](../../.claude/skills/timesheet-ui/SKILL.md#4-달력).
 
 **하지 말 것**
 - `body` 에 긴 글자(`4시간 30분`)를 넣지 않는다 — `compactHours` 로 줄이고 정확한 값은 `label` 에 둔다.
 - `label` 을 날짜만으로 두지 않는다 — 칸 내용이 `aria-hidden` 이라 `label` 이 유일한 읽는 글자다.
-- 오늘 칸을 accent 로 채우지 않는다 ([달력 명세 §8](calendar.md#8-다크-모드--새-토큰-없음)).
-- 선택 칸에 테두리(`border-accent` 등)를 다시 넣지 않는다. 포커스 바깥 선(`focus-visible`)을 지우지 않는다.
+- 오늘 칸을 accent 로 채우지 않는다 — 채우는 것은 선택(진한 바탕)이다 ([달력 명세 §8](calendar.md#8-다크-모드--새-토큰-없음)).
+- 선택 칸에 색 테두리(`border-accent` 등)를 넣지 않는다. 포커스 바깥 선(`focus-visible`)을 지우지 않는다.
+- 칸 본문 글자를 `text-foreground`·`text-muted` 밖의 색으로 칠하지 않는다 — 선택 칸에서 뒤집히지 않아 진한 바탕 위에서 안 보인다.
 
 **API 레퍼런스**
 
@@ -807,9 +883,9 @@ MonthGrid  Card className="px-2 py-3"
 CalendarLegend  <div text-[11px] text-muted>
 ├─ <ul flex-wrap>
 │  ├─ OpenDot + "근무 중"
-│  ├─ TriangleAlert 10px + "퇴근 기록 없음"
-│  ├─ Hourglass 10px + "요청 대기"
-│  └─ 점선 상자 12×10 + "휴가·대타"(member) / "쉰 사람 있음"(master)
+│  ├─ TriangleAlert 12px text-warn + "퇴근 기록 없음"
+│  ├─ Hourglass 12px text-caution + "요청 대기"
+│  └─ 점선 상자 12×10 rounded-[2px] + "휴가·대타"(member) / "쉰 사람 있음"(master)
 └─ <p> "유급·무급: 휴가 · 대타: 대타로 쉰 날" (member 만)
 ```
 
@@ -834,7 +910,7 @@ CalendarLegend  <div text-[11px] text-muted>
 
 ### 4-14. `view-toggle` — View Toggle
 
-**설명**: 멤버 기록 탭의 달력·목록 전환. 두 칸 짜리 눌림 버튼 묶음.
+**설명**: 멤버 기록 탭의 달력·목록 전환. 회색 바탕 위 두 칸짜리 눌림 버튼 묶음이고, 선택한 칸만 흰 바탕과 굵은 글자로 떠오른다 (2026-10-15 디자인 B).
 
 **import**: `import { ViewToggle } from "@/components/calendar/ViewToggle";`
 
@@ -848,9 +924,10 @@ const [view, setView] = useState<"calendar" | "list">("calendar");
 **구성**
 
 ```
-ViewToggle  <div role="group" aria-label="보기", rounded-xl border bg-background p-1>
-└─ <button aria-pressed> × 2  (선택: bg-surface shadow-sm)
-   ├─ Icon 16px (CalendarDays / List)
+ViewToggle  <div role="group" aria-label="보기", grid 두 칸 같은 폭, rounded-xl(6px) bg-line/60 p-0.5>
+└─ <button aria-pressed> × 2  h-10 rounded-md(4px) text-[13px]
+   │  선택: bg-surface font-semibold text-foreground shadow-sm / 아님: font-medium text-muted
+   ├─ Icon 15px (CalendarDays / List), 선 2.2 선택 / 1.8
    └─ "달력" / "목록"
 ```
 
@@ -876,9 +953,9 @@ ViewToggle  <div role="group" aria-label="보기", rounded-xl border bg-backgrou
 
 ### 4-15. `pay-view` — Pay View
 
-**설명**: 월 급여 요약 카드와 주별 내역 카드. 멤버 급여 탭과 마스터 멤버 상세가 같이 쓴다. 계산은 `lib/pay.ts` 가 하고 이 컴포넌트는 보여주기만 한다.
+**설명**: 월 급여 요약 카드와 주별 내역 카드. 큰 급여 숫자는 강조색이고, 바뀔 때 숫자가 올라가며 바뀐다 (2026-10-15 디자인 B). 멤버 급여 탭과 마스터 멤버 상세가 같이 쓴다. 계산은 `lib/pay.ts` 가 하고 이 컴포넌트는 보여주기만 한다.
 
-**import**: `import { PayView, holidayStatus } from "@/components/PayView";`
+**import**: `import { DotRow, PayView, holidayStatus } from "@/components/PayView";`
 
 **사용법**
 
@@ -889,15 +966,18 @@ ViewToggle  <div role="group" aria-label="보기", rounded-xl border bg-backgrou
 **구성**
 
 ```
-PayView  <div space-y-4>
+PayView  <Enter space-y-3 replay={replay}>   카드가 차례로 나타난다
 ├─ 요약 Card
-│  ├─ "예상 급여 (세전)" + 총액 text-3xl
-│  ├─ <dl> 기본급(시간) · 주휴수당 · 휴가수당(있을 때만) · 연장 가산(시간)
-│  └─ 안내 글자 (합산 기준·미반영 항목)
+│  ├─ SectionLabel PiggyBank "예상 급여 (세전)"
+│  ├─ 총액 <p text-[30px] font-semibold text-accent NUM> <CountUp value={total} format={won} />
+│  ├─ <dl text-[13px]> DotRow × 기본급(시간) · 주휴수당 · 휴가수당(있을 때만) · 연장 가산(시간)
+│  │     금액이 0원인 줄은 muted
+│  └─ 안내 글자 text-xs (합산 기준·미반영 항목)
 ├─ 빈 달 글자 "이 달 기록이 없어요." (주가 0개일 때)
 └─ WeekCard (내부) × 주
-   ├─ 기간 `date(주 시작) ~ date(주 끝 − 1ms)` + 주 합계
-   ├─ <dl> 근무 · 기본급 · 휴가수당(있을 때) · 주휴수당 · holidayStatus · 연장(5인 미만 표시)
+   ├─ SectionLabel CalendarDays "10/13 (월) ~ 10/19 (일)" 오른쪽 = 주 합계
+   ├─ <dl> DotRow × 근무 · 기본급 · 휴가수당(있을 때) · 주휴수당 · holidayStatus · 연장(5인 미만 표시)
+   │     주휴 상태 글자: 개근 text-ok, 진행 중 text-caution
    └─ 한도 경고 text-warn (연장 12시간 초과)
 ```
 
@@ -919,6 +999,7 @@ const settings = { hourlyWage: 10320, weeklyHours: 20, workDaysPerWeek: 5, fiveP
 | 휴가 포함 | 휴가 날이 개근을 채운다, 휴가수당 줄이 생긴다 | 9/14~9/16 근무 + `absences: [{ date: "2026-09-17", kind: "paid_leave" }, { date: "2026-09-18", kind: "substitution" }]` |
 | 연장 한도 초과 (5인 이상) | 주 12시간 넘는 연장 → 경고 줄 | `settings.fivePlus = true`, 9/21~9/25 매일 `9~17시`(8시간) |
 | 빈 달 | 기록 없음 | `shifts: []` → 요약 카드 0원 + `이 달 기록이 없어요.` |
+| 점선 이음 줄 — DotRow | `DotRow` 단독. 0 인 줄은 `muted` | `시급` `won(10320)` · `근무` `hm(1110) · 5일` · `연장` `hm(0)`(muted). 계산한 금액은 넣지 않는다 |
 
 금액은 이 문서에 적지 않는다. 미리보기가 `pay.ts` 로 계산한 값이 곧 정답이다.
 
@@ -941,14 +1022,225 @@ const settings = { hourlyWage: 10320, weeklyHours: 20, workDaysPerWeek: 5, fiveP
 | `month` | `number` | — | **필수** 0~11 |
 | `now` | `number` | — | **필수** 진행 중 근무와 주 진행 여부 기준 시각 |
 | `absences` | `Absence[]` (`{ date: "YYYY-MM-DD"; kind: "paid_leave" \| "unpaid_leave" \| "substitution" }`) | `[]` | 승인된 휴가·대타 |
+| `replay` | `unknown` | — | 값이 바뀌면 카드 등장(`Enter`)을 다시 한다. 불러오기가 끝났을 때 바뀌는 값을 넘긴다 |
+
+`DotRow` — `이름 ··· 값` 한 줄. `<dl className="mt-2.5 grid gap-1.5 text-[13px]">` 안에 쌓는다. 점선은 줄의 `::after` 라 `dt`·`dd` 구조를 해치지 않는다.
+
+| Prop | Type | Default | 설명 |
+|---|---|---|---|
+| `term` | `React.ReactNode` | — | **필수** 왼쪽 이름(`dt`, muted) |
+| `children` | `React.ReactNode` | — | **필수** 오른쪽 값(`dd`). 숫자면 `NUM` |
+| `muted` | `boolean` | `false` | 값을 옅게(`font-medium text-muted`). 0원 줄. 아니면 `font-semibold` |
 
 `holidayStatus(week: WeekPay, settings: PaySettings, now: number): string` — 주휴 상태 글자. 결과는 `대상 아님 (주 15시간 미만)` · `개근` · `대상 아님 (그 주 전부 휴가)` · `진행 중 (n/m일)` · `미충족 (n/m일)` 중 하나.
 
 ---
 
+### 4-16. `section-label` — Section Label
+
+**설명**: 카드 안 구역의 머리. 작은 회색 글자 앞에 lucide 아이콘(15px)과 번호를 두고, 오른쪽에 요약 값을 둔다.
+
+**import**: `import { SectionLabel } from "@/components/ui";`
+
+**사용법**: `<SectionLabel icon={Clock}>오늘 근무</SectionLabel>`
+
+**구성**
+
+```
+SectionLabel  <div flex justify-between text-xs font-semibold text-muted>
+├─ 제목  <{as} flex items-center gap-1.5>   as 기본 h2
+│  ├─ Icon 15px, 선 1.75, aria-hidden (icon 있을 때)
+│  ├─ 번호  <span NUM text-muted/70> (index 있을 때)
+│  └─ 글자  <span 한 줄 자름>{children}</span>
+└─ 오른쪽 값  <span shrink-0 NUM> (right 있을 때)
+```
+
+**예시**
+
+| 예시 (H2) | 설명 | 가짜 데이터 |
+|---|---|---|
+| Basic | 아이콘 + 글자 | `icon={Clock}` `오늘 근무` |
+| 번호와 오른쪽 값 | `index`·`right` | `ClipboardList` `01` `보낸 요청` 오른쪽 `3건` · `Wallet` `02` `예상 급여` 오른쪽 `9월` |
+| 글자만 | 아이콘 없이, `as="h3"` | `지금 근무 중` 오른쪽 `2명` |
+| 카드 안 | §4-7 "구역 나누기" 와 같은 예시 | `card/sections` |
+
+**하지 말 것**
+- 구역 아이콘을 lucide 밖에서 가져오지 않는다. 크기·굵기를 바꾸지 않는다 — 컴포넌트가 15px·1.75 로 정한다.
+- 화면 제목 자리에 쓰지 않는다. 화면 이름은 `AppHeader` 가 가진다.
+- `right` 에 긴 문장을 넣지 않는다 — 줄어들지 않아 제목 글자가 잘린다.
+
+**API 레퍼런스**
+
+| Prop | Type | Default | 설명 |
+|---|---|---|---|
+| `children` | `React.ReactNode` | — | **필수** 구역 이름. 한 줄에서 자른다 |
+| `icon` | `LucideIcon` | — | 앞에 붙는 아이콘(15px, 선 1.75) |
+| `index` | `string` | — | 구역 번호(예 `"01"`). 옅은 고정폭 숫자 |
+| `right` | `React.ReactNode` | — | 오른쪽 요약 값. 고정폭 숫자 |
+| `as` | `"h2" \| "h3" \| "p"` | `"h2"` | 제목 태그 |
+
+---
+
+### 4-17. `buttons` — Buttons
+
+**설명**: 버튼 모양 상수 `BTN`. 컴포넌트가 아니라 클래스 묶음이라 `<button>`·`<a>` 에 그대로 붙인다. 색 테두리 없이 주 동작은 진한 바탕, 보통 동작은 가는 선, 추가는 점선.
+
+**import**: `import { BTN } from "@/components/ui";`
+
+**사용법**
+
+```tsx
+<button className={BTN.primary}>출근하기</button>
+<button className={`${BTN.secondary} w-full`}>매장 만들기</button>
+```
+
+**구성** — 다섯 모양 모두 `inline-flex items-center justify-center rounded-xl`(6px) 이 바탕. 폭·바깥 여백은 쓰는 쪽에서 더한다.
+
+| 키 | 높이 | 모양 | 쓰는 곳 |
+|---|---|---|---|
+| `primary` | 44px `h-11` | `bg-foreground` + `text-background`, 15px 굵게. 꺼지면 `bg-line` + `text-muted` | 한 화면의 주 동작 하나 |
+| `secondary` | 44px `h-11` | `border-line` 가는 선 + `bg-surface`, 14px | 보조 동작 |
+| `small` | 32px `h-8` | secondary 와 같은 선, 12px | 목록 행 안 동작 |
+| `dashed` | 44px `h-11` | 점선 `border-muted/60`, `text-muted` | 더하는 동작(휴가 추가·멤버 초대) |
+| `danger` | 32px `h-8` | small 과 같고, 마우스를 올리면 선·글자가 `warn` | 삭제 |
+
+**예시**
+
+| 예시 (H2) | 설명 | 가짜 데이터 |
+|---|---|---|
+| Basic | 다섯 모양 | `출근하기` `취소` `수정` `휴가 추가` `삭제` |
+| 아이콘과 함께 | 글자 앞 lucide 아이콘 `aria-hidden` | `LogIn` 로그인 · `Plus` 멤버 초대 · `Trash2` 삭제 |
+| 전체 폭 | `w-full` 덧붙이기 | `코드 등록`(primary) · `매장 만들기`(secondary) |
+| 꺼진 상태 | `disabled` | `저장 중…` · `취소` · `수정` |
+
+**하지 말 것**
+- 버튼마다 `rounded-*`·`h-*`·색을 새로 쓰지 않는다. 모양이 더 필요하면 `BTN` 에 추가를 요청한다.
+- 버튼에 Tailwind `transition`·`transition-colors` 를 붙이지 않는다 — 누름 전환이 덮인다(테스트가 막는다).
+- 한 화면에 `BTN.primary` 를 여러 개 두지 않는다.
+- 아이콘만 있는 버튼은 `IconButton`.
+
+**API 레퍼런스**: `BTN` 은 `as const` 객체 `{ primary, secondary, small, dashed, danger }` — 값은 모두 `string`(클래스).
+
+---
+
+### 4-18. `scene` — Scene
+
+**설명**: lucide 아이콘을 엮은 작은 장면 그림. 옅은 강조색 원 안에 주인공 아이콘 하나, 둘레에 소품 1~2개. 사람 그림 없이 사물로 뜻을 보인다. 빈 상태 `EmptyState` 도 이 페이지에 있다. 규칙은 §2-7.
+
+**import**: `import { EmptyState, Scene } from "@/components/illust";`
+
+**사용법**: `<Scene icon={Clock} accents={[{ icon: Coffee, at: "br" }, { icon: Sun, at: "tl" }]} />`
+
+**구성**
+
+```
+Scene  <div aria-hidden relative, md 96×72 / sm 60×56>
+├─ 원  <span rounded-full border-accent/20 bg-accent/10 text-accent, 가운데, md 64px / sm 44px>
+│  └─ icon  md 30px / sm 22px, 선 1.5
+└─ 소품  <span absolute text-muted, at 자리(tl·tr·bl·br)> × accents
+   └─ icon  md 16px / sm 13px, 선 1.5
+EmptyState  <div grid justify-items-center px-4 py-6 text-center>
+├─ Scene md
+├─ title  <p mt-3 text-sm font-semibold>
+└─ children  <div mt-1 text-xs text-muted> (있을 때)
+```
+
+처음 그릴 때 원이 6px 올라오며 나타나고(0.35초), 0.15초 뒤 소품이 0.08초 간격으로 커지며 튀어나온다. 모션 줄이기면 전체가 투명도만.
+
+**예시**
+
+| 예시 (H2) | 설명 | 가짜 데이터 |
+|---|---|---|
+| Basic | 출퇴근 장면 + `다시 보기`(key 바꿔 다시 그림) | `Clock`, 소품 `Coffee` br · `Sun` tl |
+| 크기 | md · sm | `Inbox`, 소품 `Sparkles` tr |
+| 빈 상태 — EmptyState | Card 안 | `CalendarDays`, 소품 `Moon` tr, 제목 `이 달 기록이 없어요`, 설명 `출근을 누르면 여기에 근무가 쌓여요.` |
+
+**하지 말 것**
+- 사람·얼굴 아이콘(`User`, `Smile` 등)을 주인공으로 쓰지 않는다.
+- 소품을 셋 이상 넣지 않는다.
+- 장면에 읽을 내용을 담지 않는다 — `aria-hidden` 이다. 뜻은 옆 제목 글자가 가진다.
+- 한 화면에 장면을 여러 개 두지 않는다.
+
+**API 레퍼런스**
+
+`Scene`
+
+| Prop | Type | Default | 설명 |
+|---|---|---|---|
+| `icon` | `LucideIcon` | — | **필수** 가운데 주인공(강조색) |
+| `accents` | `Accent[]` | `[]` | 둘레 소품 1~2개 |
+| `size` | `"md" \| "sm"` | `"md"` | md 원 64·아이콘 30 / sm 원 44·아이콘 22 |
+
+`Accent` (타입): `icon: LucideIcon` **필수** 소품(`text-muted`) · `at: "tl" | "tr" | "bl" | "br"` **필수** 자리.
+
+`EmptyState`
+
+| Prop | Type | Default | 설명 |
+|---|---|---|---|
+| `icon` | `LucideIcon` | — | **필수** 장면 주인공 |
+| `accents` | `Accent[]` | — | 장면 소품 |
+| `title` | `string` | — | **필수** 한 줄 제목 |
+| `children` | `React.ReactNode` | — | 설명. 없으면 그리지 않는다 |
+
+---
+
+### 4-19. `motion` — Motion
+
+**설명**: GSAP 로 만든 모션 4종. 화면 진입(`Enter`), 숫자 변화(`CountUp`), 글자 바뀜(`SwapText`), 완료 순간(`useAppear`)에만 쓴다. 규칙은 §2-6.
+
+**import**: `import { CountUp, Enter, SwapText, useAppear } from "@/components/motion";`
+
+**사용법**
+
+```tsx
+<Enter className="space-y-4">
+  <Card>…</Card>
+  <Card>…</Card>
+</Enter>
+```
+
+**구성**
+
+| 이름 | 움직임 | 모션 줄이기 |
+|---|---|---|
+| `Enter` | 바로 아래 자식들이 8px 아래에서 차례로. 0.32초, 0.06초 간격. 끝나면 인라인 스타일을 지운다 | 투명도만 0.2초 |
+| `CountUp` | 이전 값(처음은 0)에서 새 값까지 0.6초. React 가 그린 글자 노드의 값만 바꾼다 | 새 값을 바로 |
+| `SwapText` | 새 글자가 아래(100%)에서 올라온다. 0.22초. 처음 그릴 때는 움직이지 않는다 | 투명도만 0.2초 |
+| `useAppear` | ref 를 붙인 요소가 마운트될 때 10px 아래에서. 0.35초 | 투명도만 0.2초 |
+
+곡선은 모두 `EASE`(`power2.out`). 그리기 전에 시작 상태를 잡아(`useLayoutEffect`) 첫 장면이 깜빡이지 않는다.
+
+**예시** — 모든 예시에 다시 움직여 볼 버튼을 둔다.
+
+| 예시 (H2) | 설명 | 가짜 데이터 |
+|---|---|---|
+| Basic — Enter | 카드 3장이 차례로, `다시 보기` 로 `replay` 를 바꿈 | `오늘 근무` `이번 주 합계` `예상 급여` |
+| 숫자 변화 — CountUp | `9월`/`10월` 버튼으로 값 바꿈, `format={won}`, 큰 숫자 `text-accent` + `NUM` | `190920` ↔ `247680` |
+| 글자 바뀜 — SwapText | 버튼으로 상태 전환 | `근무 중` ↔ `퇴근함` |
+| 완료 순간 — useAppear | `저장` 을 누르면 완료 상자가 나타남 | `CircleCheck` + `저장했어요` |
+
+**하지 말 것**
+- 탭 전환·목록 스크롤처럼 자주 보는 곳에 걸지 않는다.
+- 화면 코드에서 `gsap` 을 직접 부르지 않는다. 새 모션은 `motion.tsx` 에 추가를 요청한다 — 모션 줄이기 처리가 한 곳에 모여 있다.
+- `Enter` 안에 자식을 하나만 두면 차례 등장이 없다.
+- `CountUp` 의 `format` 안에서 금액을 계산하지 않는다 (`lib/pay.ts`).
+
+**API 레퍼런스**
+
+| 이름 | Props | 설명 |
+|---|---|---|
+| `Enter` | `children` **필수**, `className?: string`, `replay?: unknown` | `replay` 가 바뀌면 다시 한다 |
+| `CountUp` | `value: number` **필수**, `format: (n: number) => string` **필수**, `className?: string` | 움직이는 동안 `format` 에 반올림한 정수가 들어온다 |
+| `SwapText` | `text: string` **필수**, `className?: string` | 바깥 `span`(`inline-flex overflow-hidden`)의 클래스 |
+| `useAppear<T extends HTMLElement>()` | — | ref 객체를 돌려준다. 붙인 요소가 마운트될 때 한 번 |
+| `EASE` | — | `"power2.out"` |
+| `reducedMotion()` | — | 모션 줄이기면 `true`, 서버에서는 `false` |
+
+---
+
 ## 5. 개발팀 전달 요점
 
-1. 페이지 15개 + `/guide` + `/guide/foundations`. slug·순서·묶음은 §1-3 표 그대로.
+1. 페이지 19개 + `/guide` + `/guide/foundations`. slug·순서·묶음은 §1-3 표 그대로.
 2. 페이지 틀은 §1-4 의 9절 순서. 예시 이름이 곧 H2.
 3. 미리보기는 실제 컴포넌트를 import 한다. 가이드용 복제 컴포넌트를 만들지 않는다.
 4. `BottomNav`·`AppHeader` 미리보기는 `transform` 틀 안에 넣는다 (§1-5).

@@ -1,0 +1,83 @@
+export const metadata = { title: "Scene" };
+
+# Scene
+
+lucide 아이콘을 엮은 작은 장면 그림. 옅은 강조색 원 안에 주인공 아이콘 하나, 둘레에 소품 1~2개. 사람 그림 없이 사물로 뜻을 보여 준다. 빈 상태를 그리는 `EmptyState` 도 이 페이지에 있다.
+
+<ComponentPreview name="scene/basic" />
+
+<FileLocation path="web/src/components/illust.tsx" importLine={`import { EmptyState, Scene } from "@/components/illust";`} />
+
+## 사용법
+
+```tsx
+<Scene icon={Clock} accents={[{ icon: Coffee, at: "br" }, { icon: Sun, at: "tl" }]} />
+```
+
+## 구성
+
+```
+Scene  <div aria-hidden relative, md 96×72 / sm 60×56>
+├─ 원  <span rounded-full border-accent/20 bg-accent/10 text-accent, 가운데, md 64px / sm 44px>
+│  └─ icon  md 30px / sm 22px, 선 1.5
+└─ 소품  <span absolute text-muted, at 자리(tl·tr·bl·br)> × accents
+   └─ icon  md 16px / sm 13px, 선 1.5
+```
+
+처음 그릴 때 원이 6px 올라오며 나타나고(0.35초), 0.15초 뒤 소품이 0.08초 간격으로 커지며 튀어나온다. 모션 줄이기 설정이면 전체가 투명도만 바뀐다. 다시 움직이게 하려면 `key` 를 바꿔 새로 그린다.
+
+## 크기
+
+`md`(기본)와 `sm` 두 가지.
+
+<ComponentPreview name="scene/sizes" />
+
+## 빈 상태 — EmptyState
+
+장면 아래에 한 줄 제목(14px 굵게)과 설명(12px 회색)을 둔다. 화면에 하나만 두고, 작은 구역의 빈 상태는 장면 없이 글자만 쓴다.
+
+<ComponentPreview name="scene/empty-state" width="max-w-md" />
+
+## 사용 규칙
+
+일러스트 규칙은 기초 페이지 "일러스트" 절. 기준의 원본은 루트 <DocLink path="DESIGN.md">DESIGN.md</DocLink>.
+
+## 하지 말 것
+
+- 사람·얼굴 아이콘(`User`, `Smile` 등)을 주인공으로 쓰지 않는다. 사물로 뜻을 보인다.
+- 소품을 셋 이상 넣지 않는다. 자리는 네 모서리뿐이고, 많으면 주인공이 묻힌다.
+- 장면에 읽을 내용을 담지 않는다 — `aria-hidden` 이라 스크린리더가 읽지 않는다. 뜻은 옆 제목 글자가 가진다.
+- 한 화면에 장면을 여러 개 두지 않는다.
+
+## API 레퍼런스
+
+### Scene
+
+<PropsTable
+  rows={[
+    { prop: "icon", type: "LucideIcon", required: true, description: "가운데 주인공 아이콘(강조색)" },
+    { prop: "accents", type: "Accent[]", default: "[]", description: "둘레 소품. 1~2개" },
+    { prop: "size", type: '"md" | "sm"', default: '"md"', description: "md 원 64px·아이콘 30 / sm 원 44px·아이콘 22" },
+  ]}
+/>
+
+### Accent
+
+<PropsTable
+  first="필드"
+  rows={[
+    { prop: "icon", type: "LucideIcon", required: true, description: "소품 아이콘(`text-muted`)" },
+    { prop: "at", type: '"tl" | "tr" | "bl" | "br"', required: true, description: "자리. 왼쪽 위·오른쪽 위·왼쪽 아래·오른쪽 아래" },
+  ]}
+/>
+
+### EmptyState
+
+<PropsTable
+  rows={[
+    { prop: "icon", type: "LucideIcon", required: true, description: "장면 주인공" },
+    { prop: "accents", type: "Accent[]", description: "장면 소품" },
+    { prop: "title", type: "string", required: true, description: "한 줄 제목" },
+    { prop: "children", type: "React.ReactNode", description: "설명. 없으면 그리지 않는다" },
+  ]}
+/>

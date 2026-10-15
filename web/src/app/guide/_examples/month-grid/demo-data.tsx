@@ -2,6 +2,7 @@
 // 칸 내용·marks·읽는 이름은 실제 화면(member/RecordsPanel.tsx, admin/calendar/page.tsx)과 같은 방식으로 만든다.
 import { AvatarStack } from "@/components/calendar/AvatarStack";
 import type { Marks } from "@/components/calendar/MonthGrid";
+import { NUM } from "@/components/ui";
 import { ABSENCE_SHORT, compactHours, dayAriaLabel, type MasterDay, type MemberDay } from "@/lib/calendar";
 
 export const TODAY = "2026-09-25";
@@ -23,7 +24,7 @@ export function memberCell(key: string): Cell {
     marks: { open: d?.open ?? undefined, pending: d?.pending, dashed: !!d?.absence },
     body: (
       <>
-        {!!d?.minutes && <span className="text-[11px] font-semibold tabular-nums text-foreground">{compactHours(d.minutes)}</span>}
+        {!!d?.minutes && <span className={`text-[11px] font-semibold text-foreground ${NUM}`}>{compactHours(d.minutes)}</span>}
         {d?.absence && <span className="text-[10px] text-muted">{ABSENCE_SHORT[d.absence]}</span>}
       </>
     ),

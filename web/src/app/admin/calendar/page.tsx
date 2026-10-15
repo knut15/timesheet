@@ -7,8 +7,9 @@ import { AvatarStack } from "@/components/calendar/AvatarStack";
 import { CalendarLegend } from "@/components/calendar/CalendarLegend";
 import { MonthGrid } from "@/components/calendar/MonthGrid";
 import { useSelectedDay } from "@/components/calendar/useSelectedDay";
+import { Enter } from "@/components/motion";
 import { Avatar } from "@/components/shell";
-import { Card, date, ErrorText, hm, keyed, MonthPicker, StatusPill, time, useMonthCursor, useNow } from "@/components/ui";
+import { BTN, Card, date, ErrorText, hm, keyed, MonthPicker, NUM, StatusPill, time, useMonthCursor, useNow } from "@/components/ui";
 import { ABSENCE_LABEL, compactHours, correctionDay, dateLabel, dayAriaLabel, masterDays, type MasterDay } from "@/lib/calendar";
 import { dayKey, parseDay, shiftMinutes, type Shift } from "@/lib/pay";
 import { useApi } from "@/lib/useApi";
@@ -45,7 +46,7 @@ export default function CalendarPage() {
         <MonthPicker cursor={cursor} onChange={setCursor} />
         <Card className="space-y-3">
           <ErrorText>근무 기록을 불러오지 못했어요.</ErrorText>
-          <button type="button" onClick={dash.reload} className="w-full rounded-xl border border-line py-2.5 text-sm">다시 시도</button>
+          <button type="button" onClick={dash.reload} className={`${BTN.secondary} w-full`}>다시 시도</button>
         </Card>
       </div>
     );
@@ -78,11 +79,12 @@ export default function CalendarPage() {
   ) : null;
 
   return (
-    <div className="space-y-4">
+    // 불러오기가 끝나면 카드가 다시 차례로 나타난다
+    <Enter className="space-y-3" replay={loading ? null : month}>
       <div>
         <MonthPicker cursor={cursor} onChange={setCursor} />
         {(loading || monthPeople.size > 0) && (
-          <p className="mt-1 px-1 text-sm text-muted">
+          <p className={`mt-1 text-center text-[13px] text-muted ${NUM}`}>
             {loading ? "불러오는 중…" : `${todayKey.startsWith(month) ? "이번 달" : `${cursor.month + 1}월`} ${monthPeople.size}명 · ${Math.round(monthMinutes / 60)}시간`}
           </p>
         )}
@@ -108,7 +110,7 @@ export default function CalendarPage() {
         }
       />
       <DayDetail dayKeyValue={selected} summary={selected ? days.get(selected) : undefined} data={data} pending={pending} now={now} />
-    </div>
+    </Enter>
   );
 }
 
@@ -129,27 +131,26 @@ function DayDetail({ dayKeyValue: key, summary, data, pending, now }: { dayKeyVa
       ].join(" · ");
 
   let body: React.ReactNode;
-  if (!key) body = <p className="px-1 text-sm text-muted">날짜를 누르면 그날 근무가 나와요.</p>;
-  else if (!data) body = <p className="px-1 text-sm text-muted">불러오는 중…</p>;
+  if (!key) body = <p className="text-sm text-muted">날짜를 누르면 그날 근무가 나와요.</p>;
+  else if (!data) body = <p className="mt-2 text-sm text-muted">불러오는 중…</p>;
   else {
     const rows = dayRows(key, data, pending);
     body =
       rows.length === 0 ? (
-        <p className="px-1 text-sm text-muted">이 날 일한 사람이 없어요.</p>
+        <p className="mt-2 text-sm text-muted">이 날 일한 사람이 없어요.</p>
       ) : (
-        <Card className="p-0">
-          <ul className="divide-y divide-line">
-            {rows.map((r) => <MemberDayRow key={r.userId} row={r} pending={pending} now={now} />)}
-          </ul>
-        </Card>
+        <ul className="mt-1">
+          {rows.map((r) => <MemberDayRow key={r.userId} row={r} pending={pending} now={now} />)}
+        </ul>
       );
   }
 
+  // 구역 머리(날짜 · 인원 · 시간)는 고르면 바뀌므로 aria-live 로 읽어 준다
   return (
-    <section className="space-y-3">
-      <h2 aria-live="polite" className="px-1 text-sm font-semibold">{head}</h2>
+    <Card>
+      <h2 aria-live="polite" className={`text-xs font-semibold text-muted ${NUM}`}>{head}</h2>
       {body}
-    </section>
+    </Card>
   );
 }
 
@@ -180,15 +181,15 @@ function MemberDayRow({ row, pending, now }: { row: Row; pending: Correction[]; 
   const today = dayKey(now);
   const working = row.shifts.some((s) => s.end === null && dayKey(s.start) === today);
   return (
-    <li>
-      <Link href={`/admin/members/${row.userId}`} className={`flex items-center gap-3 px-5 py-4 hover:bg-background ${row.shifts.length === 0 && row.absence ? "border-l-2 border-dashed border-l-muted" : ""}`}>
+    <li className="border-b border-dashed border-line last:border-b-0">
+      <Link href={`/admin/members/${row.userId}`} className={`-mx-2 flex items-center gap-2.5 rounded-xl px-2 py-2.5 text-[13px] hover:bg-background ${row.shifts.length === 0 && row.absence ? "border-l-2 border-dashed border-l-muted" : ""}`}>
         <span className="relative self-start">
           <Avatar name={row.nickname} seed={row.userId} size="sm" />
           {working && <span aria-hidden className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-surface bg-ok" />}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="font-medium">{row.nickname}</p>
-          <ul className="space-y-0.5 text-sm text-muted tabular-nums">
+          <p className="font-semibold">{row.nickname}</p>
+          <ul className={`mt-0.5 space-y-0.5 text-xs text-muted ${NUM}`}>
             {row.shifts.map((s) => {
               const stale = s.end === null && dayKey(s.start) !== today;
               const waiting = pending.some((c) => c.shiftId === s.id);
@@ -197,7 +198,7 @@ function MemberDayRow({ row, pending, now }: { row: Row; pending: Correction[]; 
                   <span>{time(s.start)} ~ {s.end ? time(s.end) : "근무 중"} · {hm(shiftMinutes(s, now))}</span>
                   {stale && (
                     <span className="inline-flex items-center gap-1 text-warn">
-                      <TriangleAlert size={14} aria-hidden /> 퇴근 기록 없음
+                      <TriangleAlert size={13} aria-hidden /> 퇴근 기록 없음
                     </span>
                   )}
                   {waiting && <StatusPill status="pending" />}
@@ -213,7 +214,7 @@ function MemberDayRow({ row, pending, now }: { row: Row; pending: Correction[]; 
             {row.absence && <li>{ABSENCE_LABEL[row.absence]}</li>}
           </ul>
         </div>
-        <ChevronRight size={16} aria-hidden className="shrink-0 text-muted" />
+        <ChevronRight size={15} aria-hidden className="shrink-0 text-muted" />
       </Link>
     </li>
   );

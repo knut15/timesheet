@@ -3,7 +3,10 @@ import Link from "next/link";
 import { useState } from "react";
 import { useArea } from "@/auth/hooks";
 import { login, signup } from "@/auth/session";
-import { Card, ErrorText, Field } from "./ui";
+import { Clock, Coffee, KeyRound, Sparkles, Sun } from "lucide-react";
+import { Scene } from "./illust";
+import { Enter } from "./motion";
+import { BTN, ErrorText, Field } from "./ui";
 
 const MESSAGES: Record<string, string> = {
   INVALID_CREDENTIALS: "이메일 또는 비밀번호가 맞지 않아요.",
@@ -36,44 +39,52 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         : null;
 
   return (
-    <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center px-5 py-10">
-      <h1 className="text-2xl font-bold tracking-tight">타임시트</h1>
-      <p className="mt-1 text-sm text-muted">{mode === "login" ? "로그인" : "가입하기"}</p>
-      {notice && <p className="mt-4 rounded-xl bg-warn/10 p-3 text-sm text-warn">{notice}</p>}
-      <Card className="mt-6">
-        <form onSubmit={submit} className="space-y-4">
-          <Field label="이메일">
-            <input type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className="field" />
-          </Field>
-          <Field label="비밀번호">
-            <input
-              type="password"
-              required
-              minLength={mode === "signup" ? 8 : undefined}
-              autoComplete={mode === "login" ? "current-password" : "new-password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="field"
-            />
-          </Field>
-          {mode === "signup" && (
-            <Field label="이름">
-              <input required maxLength={30} value={nickname} onChange={(e) => setNickname(e.target.value)} className="field" />
-            </Field>
-          )}
-          <ErrorText>{error}</ErrorText>
-          <button disabled={busy} className="w-full rounded-xl bg-accent py-3 font-semibold text-on-accent disabled:opacity-50">
-            {mode === "login" ? "로그인" : "가입하고 시작하기"}
-          </button>
-        </form>
-      </Card>
-      <p className="mt-4 text-center text-sm text-muted">
+    // B 시안 11·12번 — 카드 없이 장면 + 제목, 그 아래 입력칸. 본문은 차례로 나타난다
+    <Enter className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center px-6 py-10">
+      <div className="flex items-end gap-3.5">
         {mode === "login" ? (
-          <>처음이신가요? <Link href="/signup" className="text-accent">가입하기</Link></>
+          <Scene icon={Clock} accents={[{ icon: Coffee, at: "br" }, { icon: Sun, at: "tl" }]} />
         ) : (
-          <>이미 계정이 있나요? <Link href="/login" className="text-accent">로그인</Link></>
+          <Scene icon={KeyRound} accents={[{ icon: Sparkles, at: "tr" }]} />
+        )}
+        <div>
+          <p className="text-xs font-semibold tracking-[0.02em] text-muted">타임시트</p>
+          <h1 className="mt-1 text-2xl leading-snug font-bold tracking-tight">{mode === "login" ? "로그인" : "가입하기"}</h1>
+        </div>
+      </div>
+      {notice && <p className="mt-6 rounded-xl bg-warn/10 p-3 text-sm text-warn">{notice}</p>}
+      <form onSubmit={submit} className="mt-7 grid gap-3">
+        <Field label="이메일">
+          <input type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className="field" />
+        </Field>
+        <Field label="비밀번호">
+          <input
+            type="password"
+            required
+            minLength={mode === "signup" ? 8 : undefined}
+            autoComplete={mode === "login" ? "current-password" : "new-password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="field"
+          />
+        </Field>
+        {mode === "signup" && (
+          <Field label="이름">
+            <input required maxLength={30} value={nickname} onChange={(e) => setNickname(e.target.value)} className="field" />
+          </Field>
+        )}
+        <ErrorText>{error}</ErrorText>
+        <button disabled={busy} className={`${BTN.primary} mt-1.5 w-full`}>
+          {mode === "login" ? "로그인" : "가입하고 시작하기"}
+        </button>
+      </form>
+      <p className="mt-4.5 text-center text-[13px] text-muted">
+        {mode === "login" ? (
+          <>처음이신가요? <Link href="/signup" className="font-semibold text-accent">가입하기</Link></>
+        ) : (
+          <>이미 계정이 있나요? <Link href="/login" className="font-semibold text-accent">로그인</Link></>
         )}
       </p>
-    </div>
+    </Enter>
   );
 }

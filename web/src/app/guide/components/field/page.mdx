@@ -2,7 +2,7 @@ export const metadata = { title: "Field" };
 
 # Field
 
-입력칸 이름표. 이름 글자 아래에 입력 요소를 둔다. 입력 요소 자체는 CSS 클래스 `.field` 로 꾸민다.
+입력칸 이름표. 이름 글자 아래에 입력 요소를 둔다. 입력 요소 자체는 CSS 클래스 `.field` 로 꾸민다 — 흰 바탕에 가는 선, 누르면 강조색 테두리와 옅은 고리가 생긴다.
 
 <ComponentPreview name="field/basic" width="max-w-md" />
 
@@ -19,11 +19,12 @@ export const metadata = { title: "Field" };
 ## 구성
 
 ```
-Field  <label block text-sm>
-├─ <span text-muted>{label}</span>
-└─ <div mt-1>{children}</div>
+Field  <label block min-w-0 text-sm>
+├─ <span text-xs(12px) font-semibold text-muted>{label}</span>
+└─ <span block mt-1.5>{children}</span>
      └─ (넘긴 입력 요소, 보통 className="field")
-.field = w-full rounded-xl border border-line bg-background px-3 py-2.5 text-base, 포커스 시 border-accent
+.field = h-11 w-full min-w-0 rounded-xl(6px) border border-line bg-surface px-3 text-base
+         포커스 시 border-accent + 바깥 고리 ring-3 ring-accent/15
 ```
 
 ## 날짜

@@ -1,0 +1,64 @@
+export const metadata = { title: "Section Label" };
+
+# Section Label
+
+카드 안 구역의 머리. 작은 회색 글자 앞에 lucide 아이콘(15px)과 번호를 두고, 오른쪽에 요약 값을 둔다.
+
+<ComponentPreview name="section-label/basic" width="max-w-md" />
+
+<FileLocation path="web/src/components/ui.tsx" importLine={`import { SectionLabel } from "@/components/ui";`} />
+
+## 사용법
+
+```tsx
+<SectionLabel icon={Clock}>오늘 근무</SectionLabel>
+```
+
+## 구성
+
+```
+SectionLabel  <div flex justify-between text-xs font-semibold text-muted>
+├─ 제목  <{as} flex items-center gap-1.5>   as 기본 h2
+│  ├─ Icon 15px, 선 1.75, aria-hidden (icon 있을 때)
+│  ├─ 번호  <span NUM text-muted/70> (index 있을 때)
+│  └─ 글자  <span 한 줄 자름>{children}</span>
+└─ 오른쪽 값  <span shrink-0 NUM> (right 있을 때)
+```
+
+`NUM` 은 `font-mono tabular-nums` — 번호와 오른쪽 값은 고정폭 숫자로 그린다.
+
+## 번호와 오른쪽 값
+
+`index="01"` 로 구역 번호를, `right` 로 그 구역의 요약 값을 단다.
+
+<ComponentPreview name="section-label/index-right" width="max-w-md" />
+
+## 글자만
+
+아이콘 없이 써도 된다. 카드 제목이 이미 `h2` 면 `as="h3"` 로 한 단계 낮춘다.
+
+<ComponentPreview name="section-label/text-only" width="max-w-md" />
+
+## 카드 안
+
+카드를 구역으로 나눌 때 각 구역 맨 위에 둔다. Card 페이지의 "구역 나누기" 와 같은 예시다.
+
+<ComponentPreview name="card/sections" width="max-w-md" />
+
+## 하지 말 것
+
+- 구역 아이콘을 lucide 밖에서 가져오지 않는다. 크기·굵기를 바꾸지 않는다 — 컴포넌트가 15px·1.75 로 정한다.
+- 화면 제목 자리에 쓰지 않는다. 화면 이름은 `AppHeader` 가 가진다.
+- `right` 에 긴 문장을 넣지 않는다 — 줄어들지 않아 제목 글자가 잘린다. 숫자 한 덩어리(`3건`, `18시간`)만 둔다.
+
+## API 레퍼런스
+
+<PropsTable
+  rows={[
+    { prop: "children", type: "React.ReactNode", required: true, description: "구역 이름. 한 줄에서 자른다" },
+    { prop: "icon", type: "LucideIcon", description: "앞에 붙는 아이콘(15px, 선 1.75)" },
+    { prop: "index", type: "string", description: "구역 번호(예 `\"01\"`). 옅은 고정폭 숫자" },
+    { prop: "right", type: "React.ReactNode", description: "오른쪽 요약 값. 고정폭 숫자" },
+    { prop: "as", type: '"h2" | "h3" | "p"', default: '"h2"', description: "제목 태그" },
+  ]}
+/>

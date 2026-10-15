@@ -29,9 +29,10 @@
   --color-warn: var(--warn);
   --color-ok: var(--ok);
   --color-caution: var(--caution);
-  /* 모서리: 버튼·입력칸 rounded-xl = 10px, 카드 rounded-2xl = 14px */
-  --radius-xl: 10px;
-  --radius-2xl: 14px;
+  /* 모서리 (2026-10-15 B 시안 — 가는 선·작은 모서리): 버튼·입력칸 rounded-xl = 6px, 카드 rounded-2xl = 8px, 배지·달력 칸 rounded-md = 4px */
+  --radius-xl: 6px;
+  --radius-2xl: 8px;
+  --radius-md: 4px;
   /* shadcn 컴포넌트가 쓰는 이름을 우리 토큰에 잇는다 (scroll-area 의 bg-border, ring-ring) */
   --color-border: var(--line);
   --color-ring: var(--accent);
@@ -107,7 +108,8 @@ body {
    * min-w-0 으로 두 칸 격자 안에서 줄어들 수 있게 한다 (2026-09-25 모바일 요청 화면 겹침·높이 차이).
    */
   .field {
-    @apply h-11 w-full min-w-0 rounded-xl border border-line bg-background px-3 text-base text-foreground outline-none focus:border-accent;
+    /* 포커스: 강조색 테두리 + 옅은 바깥 고리 (2026-10-15 B 시안) */
+    @apply h-11 w-full min-w-0 rounded-xl border border-line bg-surface px-3 text-base text-foreground outline-none focus:border-accent focus:ring-3 focus:ring-accent/15;
   }
   /* iOS Safari 의 날짜 칸은 기본 모양이 최소 폭을 갖고 가운데 정렬이라 좁은 칸에서 옆 칸을 덮는다 — 기본 모양을 끈다 */
   input[type="date"].field,

@@ -2,7 +2,7 @@ export const metadata = { title: "App Header" };
 
 # App Header
 
-모든 화면의 머리. 위 작은 줄(매장·역할)과 화면 제목, 오른쪽에 동작과 내 아바타.
+모든 화면의 머리. 한 줄에 `매장 / 화면 이름` 을 두고 화면 이름을 굵게 강조한다. 오른쪽에 동작과 내 아바타.
 
 <ComponentPreview name="app-header/basic" width="max-w-md" fixed />
 
@@ -19,14 +19,14 @@ export const metadata = { title: "App Header" };
 ```
 AppHeader  <header sticky top-0, border-b, bg-surface/95 blur>
 └─ 폭 틀  <div mx-auto {width} h-16 px-5>
-   ├─ 글자 묶음
-   │  ├─ eyebrow 줄  <p text-xs text-muted>
-   │  │  ├─ 로고 <img alt={logoAlt} h-5 max-w-24> (logoUrl 있을 때 — 매장 이름 글자를 대신)
-   │  │  └─ eyebrow  <span 한 줄 자름>
-   │  └─ title    <h1 text-xl font-bold, 한 줄 자름>
-   └─ 오른쪽 묶음
+   ├─ 한 줄 묶음  <div flex items-center gap-1.5>
+   │  ├─ 로고 <img alt={logoAlt} h-5 max-w-24> (logoUrl 있을 때 — 매장 이름 글자를 대신)
+   │  ├─ eyebrow  <span text-[15px] font-medium text-muted, 한 줄 자름> (값이 있을 때)
+   │  ├─ 나눔 "/"  <span aria-hidden text-muted/50> (로고나 eyebrow 가 있을 때)
+   │  └─ title    <h1 text-lg(18px) font-bold, 줄어들지 않음>
+   └─ 오른쪽 묶음  <div gap-1>
       ├─ actions  (넘긴 그대로)
-      └─ Avatar md, label "<nickname> (나)"
+      └─ Avatar sm(32px), label "<nickname> (나)"
 ```
 
 ## 마스터 + 로그아웃
@@ -37,7 +37,7 @@ AppHeader  <header sticky top-0, border-b, bg-surface/95 blur>
 
 ## 긴 글자 자르기
 
-매장·제목이 길면 한 줄에서 말줄임한다. 틀 폭 320px.
+자리가 모자라면 매장 이름 쪽만 말줄임하고 화면 이름은 끝까지 보인다. 틀 폭 320px.
 
 <ComponentPreview name="app-header/truncate" width="max-w-[320px]" fixed />
 
@@ -49,7 +49,7 @@ AppHeader  <header sticky top-0, border-b, bg-surface/95 blur>
 
 ## 로고
 
-매장 로고가 있으면 `logoUrl` 로 넘긴다. eyebrow 줄 맨 앞에 높이 20px, 가로 최대 96px 로 비율을 지켜 놓인다. **로고가 매장 이름 글자를 대신한다** — eyebrow 에서 매장 이름을 빼고(멤버는 빈 값, 마스터는 `"사장님"`), 이름은 `logoAlt` 로 넘겨 스크린리더가 읽게 한다. 규칙은 <DocLink path="docs/prd/11-store-logo.md">PRD 11</DocLink>.
+매장 로고가 있으면 `logoUrl` 로 넘긴다. 한 줄 맨 앞, 매장 이름 자리에 높이 20px, 가로 최대 96px 로 비율을 지켜 놓인다. **로고가 매장 이름 글자를 대신한다** — eyebrow 에서 매장 이름을 빼고(멤버는 빈 값, 마스터는 `"사장님"`), 이름은 `logoAlt` 로 넘겨 스크린리더가 읽게 한다. 규칙은 <DocLink path="docs/prd/11-store-logo.md">PRD 11</DocLink>.
 
 <ComponentPreview name="app-header/logo" width="max-w-md" fixed />
 
@@ -67,12 +67,12 @@ AppHeader  <header sticky top-0, border-b, bg-surface/95 blur>
 
 <PropsTable
   rows={[
-    { prop: "eyebrow", type: "string", required: true, description: "위 작은 줄" },
-    { prop: "title", type: "string", required: true, description: "화면 제목(`h1`)" },
-    { prop: "me", type: "{ id: string; nickname: string }", required: true, description: "내 아바타. `id` 가 색 seed" },
+    { prop: "eyebrow", type: "string", required: true, description: "제목 앞 매장 자리(15px 회색). 로고도 eyebrow 도 없으면 나눔 `/` 를 그리지 않는다" },
+    { prop: "title", type: "string", required: true, description: "화면 이름(`h1`, 18px 굵게). 줄어들지 않는다" },
+    { prop: "me", type: "{ id: string; nickname: string }", required: true, description: "내 아바타(sm 32px). `id` 가 색 seed" },
     { prop: "actions", type: "React.ReactNode", description: "아바타 앞 동작" },
     { prop: "width", type: "string (Tailwind max-w 클래스)", default: '"max-w-3xl"', description: "안쪽 폭" },
-    { prop: "logoUrl", type: "string | null", description: "매장 로고 주소. 있으면 eyebrow 줄 맨 앞에 두고 매장 이름 글자를 대신한다" },
+    { prop: "logoUrl", type: "string | null", description: "매장 로고 주소. 있으면 한 줄 맨 앞에 두고 매장 이름 글자를 대신한다" },
     { prop: "logoAlt", type: "string", default: '""', description: "로고의 대체 텍스트 — 매장 이름. 로고가 이름을 대신하므로 비우지 않는다" },
   ]}
 />

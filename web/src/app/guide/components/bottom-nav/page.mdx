@@ -2,7 +2,7 @@ export const metadata = { title: "Bottom Nav" };
 
 # Bottom Nav
 
-화면 하단 고정 내비게이션. 아이콘 위, 이름 아래. 모든 로그인 화면의 푸터.
+화면 하단 고정 내비게이션. 아이콘 위, 이름 아래. 활성 항목은 옅은 바탕 칩과 진한 글자로 보인다. 모든 로그인 화면의 푸터.
 
 <ComponentPreview name="bottom-nav/basic" fixed />
 
@@ -26,11 +26,12 @@ BottomNav  <nav aria-label="주요 메뉴", fixed bottom-0, bg-surface/95, 안�
 └─ <ul grid, 열 수 = items.length>
    └─ <li> × items
       └─ <Link href> 또는 <button onSelect>   aria-current="page" (활성)
-         ├─ 활성 윗선  <span h-0.5 bg-accent> (활성만)
+         │  글자 11px — 활성 font-semibold text-foreground / 비활성 font-medium text-muted
+         ├─ 활성 칩  <span aria-hidden absolute inset-x-1 inset-y-1.5 rounded-xl bg-background> (활성만)
          ├─ 아이콘 틀
-         │  ├─ Icon 22px (선 2.4 활성 / 1.8)
-         │  └─ 배지  <span bg-warn, 9 초과는 "9+"> (badge > 0 일 때)
-         ├─ label
+         │  ├─ Icon 20px (선 2.2 활성 / 1.8)
+         │  └─ 배지  <span rounded-md bg-warn, 9 초과는 "9+"> (badge > 0 일 때)
+         ├─ label  <span relative> (칩 위에 그린다)
          └─ sr-only " (처리할 것 N건)" (badge > 0 일 때)
 ```
 

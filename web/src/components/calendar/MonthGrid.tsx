@@ -1,13 +1,19 @@
 "use client";
 // 월 격자 — 월요일 시작, 날짜 칸은 버튼. 멤버·마스터 달력이 같이 쓴다. docs/design/calendar.md §3·§7
+// 모양은 2026-10-15 B 시안: 작은 모서리 칸, 기록 있는 날 옅은 바탕, 오늘은 강조색 굵은 테두리, 선택은 진한 바탕 + 굵은 날짜
 import { Hourglass, TriangleAlert } from "lucide-react";
 import { monthCells } from "@/lib/calendar";
-import { Card } from "../ui";
+import { Card, NUM } from "../ui";
 
 export type Marks = { open?: "today" | "stale"; pending?: boolean; dashed?: boolean };
 
 const WEEK = ["월", "화", "수", "목", "금", "토", "일"];
-const HEIGHT = { 56: "h-[52px]", 64: "h-[60px]" } as const; // 칸 높이에서 m-0.5 위아래 4px 를 뺀 버튼 높이
+const HEIGHT = { 56: "h-[52px]", 64: "h-[60px]" } as const; // 칸 높이에서 칸 사이 간격을 뺀 버튼 높이
+
+// 선택된 칸(진한 바탕) 안의 글자는 바탕색으로 뒤집는다 — 칸 내용(body)은 부르는 쪽이 그리므로 여기서 덮는다
+const SELECTED_BODY = "[&_.text-foreground]:text-background [&_.text-muted]:text-background/75";
+// 기록 있는 날 = 칸 내용(data-body)에 그려진 것이 있는 날. 내용 글자(시간·쉼)가 같이 보이므로 색만으로 구별하지 않는다
+const HAS_RECORD = "[&:has([data-body]>*)]:bg-background";
 
 export function MonthGrid({ year, month, todayKey, selectedKey, onSelect, busy = false, cellHeight, cell, footer }: {
   year: number;
@@ -21,27 +27,27 @@ export function MonthGrid({ year, month, todayKey, selectedKey, onSelect, busy =
   footer?: React.ReactNode; // 범례·빈 달 문구
 }) {
   return (
-    <Card className="px-2 py-3">
+    <Card className="p-2.5">
       <div role="group" aria-label={`${year}년 ${month + 1}월 달력`} aria-busy={busy}>
-        <div aria-hidden className="grid grid-cols-7">
+        <div aria-hidden className="grid grid-cols-7 gap-[3px]">
           {WEEK.map((w) => (
-            <span key={w} className="flex h-6 items-center justify-center text-[11px] text-muted">{w}</span>
+            <span key={w} className="flex h-6 items-center justify-center text-[11px] font-semibold text-muted">{w}</span>
           ))}
         </div>
-        <div className="grid grid-cols-7">
+        <div className="grid grid-cols-7 gap-[3px]">
           {monthCells(year, month).map((c) => {
             if (!c.inMonth)
               return (
-                <div key={c.key} aria-hidden className={`m-0.5 ${HEIGHT[cellHeight]} px-0.5 pt-0.5 text-xs tabular-nums text-muted opacity-40`}>
-                  <span className="inline-flex h-5 w-5 items-center justify-center">{c.day}</span>
+                <div key={c.key} aria-hidden className={`${HEIGHT[cellHeight]} p-1 text-[11px] font-semibold text-muted opacity-40 ${NUM}`}>
+                  {c.day}
                 </div>
               );
             const { label, marks, body } = cell(c.key);
             const today = c.key === todayKey;
             const selected = c.key === selectedKey;
             const shown = busy ? {} : marks;
-            // 선택은 테두리 없이 연한 배경 + 굵은 날짜로 표시한다 (2026-09-25 사용자 요청: 선택 시 파란 선 제거)
-            const border = `${shown.dashed ? "border border-dashed border-muted" : "border border-transparent"}${selected ? " bg-accent/10" : ""}`;
+            const edge = shown.dashed ? "border-dashed border-muted" : today ? "border-accent" : selected ? "border-foreground" : "border-line";
+            const fill = selected ? `bg-foreground text-background ${SELECTED_BODY}` : `bg-surface ${HAS_RECORD}`;
             return (
               <button
                 key={c.key}
@@ -50,17 +56,18 @@ export function MonthGrid({ year, month, todayKey, selectedKey, onSelect, busy =
                 aria-label={label}
                 aria-pressed={selected}
                 aria-current={today ? "date" : undefined}
-                className={`relative m-0.5 flex min-w-0 flex-col rounded-lg text-left ${HEIGHT[cellHeight]} ${border} focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent`}
+                className={`relative flex min-w-0 flex-col rounded-md border text-left ${HEIGHT[cellHeight]} ${edge} ${fill} ${today ? "ring-1 ring-inset ring-accent" : ""} focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent`}
               >
-                <span className="flex items-start justify-between px-0.5 pt-0.5">
-                  <span className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-xs tabular-nums ${today ? "font-bold text-accent ring-[1.5px] ring-accent" : selected ? "font-bold" : "font-medium"}`}>{c.day}</span>
-                  <span aria-hidden className="flex items-center gap-0.5 pt-1">
-                    {shown.open === "today" && <OpenDot />}
-                    {shown.open === "stale" && <TriangleAlert size={10} className="text-warn" />}
-                    {shown.pending && <Hourglass size={10} className="text-caution" />}
+                <span className="flex items-start justify-between px-1 pt-1">
+                  <span className={`text-[11px] leading-none ${NUM} ${selected ? "font-bold" : today ? "font-bold text-accent" : "font-semibold"}`}>{c.day}</span>
+                  {/* 선택된 칸에서는 표시를 바탕색으로 — 모양(점·삼각형·모래시계)이 뜻을 담는다 */}
+                  <span aria-hidden className="flex items-center gap-0.5">
+                    {shown.open === "today" && (selected ? <span className="inline-block h-1.5 w-1.5 rounded-full bg-background" /> : <OpenDot />)}
+                    {shown.open === "stale" && <TriangleAlert size={10} className={selected ? "" : "text-warn"} />}
+                    {shown.pending && <Hourglass size={10} className={selected ? "" : "text-caution"} />}
                   </span>
                 </span>
-                <span aria-hidden className="flex min-w-0 flex-1 flex-col items-center justify-center overflow-hidden">
+                <span data-body aria-hidden className="flex min-w-0 flex-1 flex-col items-end justify-end overflow-hidden px-1 pb-1">
                   {!busy && body}
                 </span>
               </button>
@@ -68,7 +75,7 @@ export function MonthGrid({ year, month, todayKey, selectedKey, onSelect, busy =
           })}
         </div>
       </div>
-      {footer && <div className="mt-2 px-1">{footer}</div>}
+      {footer && <div className="mt-2.5 px-0.5">{footer}</div>}
     </Card>
   );
 }

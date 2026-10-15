@@ -2,7 +2,7 @@ export const metadata = { title: "Icon Button" };
 
 # Icon Button
 
-헤더 오른쪽에 두는 아이콘만 있는 둥근 버튼. 이름은 `aria-label` 과 `title` 로 붙는다.
+아이콘만 있는 버튼. 헤더에는 테두리 없는 `ghost`, 월 이동처럼 본문 안에는 테두리 있는 `outline` 을 쓴다. 이름은 `aria-label` 과 `title` 로 붙는다.
 
 <ComponentPreview name="icon-button/basic" />
 
@@ -17,8 +17,10 @@ export const metadata = { title: "Icon Button" };
 ## 구성
 
 ```
-IconButton  <button type="button" aria-label={label} title={label}, 44×44 rounded-full>
-└─ Icon 20px aria-hidden
+IconButton  <button type="button" aria-label={label} title={label}, 44×44 rounded-xl(6px)>
+│  ghost   text-muted, 마우스를 올리면 bg-line/60
+│  outline border border-line bg-surface text-foreground, 마우스를 올리면 bg-background
+└─ Icon aria-hidden — ghost 20px / outline 18px
 ```
 
 ## 헤더 안
@@ -26,6 +28,12 @@ IconButton  <button type="button" aria-label={label} title={label}, 44×44 round
 `AppHeader` 의 `actions` 자리. App Header 의 "마스터 + 로그아웃" 과 같은 데이터다.
 
 <ComponentPreview name="icon-button/in-header" fixed />
+
+## Outline
+
+`variant="outline"`. 본문 안에서 버튼 자리가 보여야 할 때 쓴다 — `MonthPicker` 의 이전·다음 달 화살표가 이 모양이다.
+
+<ComponentPreview name="icon-button/outline" />
 
 ## 사용 규칙
 
@@ -43,5 +51,6 @@ IconButton  <button type="button" aria-label={label} title={label}, 44×44 round
     { prop: "icon", type: "LucideIcon", required: true },
     { prop: "label", type: "string", required: true, description: "`aria-label`·`title`" },
     { prop: "onClick", type: "() => void", required: true },
+    { prop: "variant", type: '"ghost" | "outline"', default: '"ghost"', description: "`ghost` 테두리 없음(헤더), `outline` 가는 선 + 흰 바탕(본문 안)" },
   ]}
 />

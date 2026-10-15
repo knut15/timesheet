@@ -49,3 +49,7 @@
 | 2026-10-07 | 디자인 새로 잡기: 라이트 청록·다크 민트(강조색 계열 통일), 토큰 값 교체, 움직임은 CSS 만, 라이트 상태 색 한 단계 진하게, `DESIGN.md` 를 루트에 | [DESIGN.md](../DESIGN.md) §1·§2·§5, [설계](superpowers/specs/2026-10-07-design-refresh-design.md) |
 | 2026-10-08 | 헤더를 푸터처럼: 바탕 `bg-surface/95`, 높이 64px(`h-16`) 고정 | [timesheet-ui](../.claude/skills/timesheet-ui/SKILL.md) §1, [가이드 명세](design/component-guide.md) AppHeader |
 | 2026-10-08 | 헤더 바탕은 화면 폭 전체(푸터처럼) — `AppHeader` 를 폭 틀 밖에, 폭 제한은 `main` 에 | [timesheet-ui](../.claude/skills/timesheet-ui/SKILL.md) §1, [가이드 명세](design/component-guide.md) AppHeader |
+| 2026-10-15 | 모양을 "B — 정밀·업무 도구"로: 1px 선, 모서리 카드 8px·버튼 6px·배지 4px, 숫자는 고정폭 글꼴, 카드 구역 머리(아이콘 + 작은 글자). 색 토큰은 그대로 | [DESIGN.md](../DESIGN.md) §1·§3·§4 |
+| 2026-10-15 | 헤더는 "매장 / 화면 이름" 한 줄, 화면 이름 18px 굵게. 출퇴근 시계·큰 급여 숫자는 강조색 | [DESIGN.md](../DESIGN.md) §4, [timesheet-ui](../.claude/skills/timesheet-ui/SKILL.md) §1 |
+| 2026-10-15 | 모션은 GSAP — 화면 진입·출퇴근 누름·숫자 변화·완료 순간. 동작 줄이기면 투명도만 | [DESIGN.md](../DESIGN.md) §5 |
+| 2026-10-15 | 일러스트는 사람 없이 lucide 아이콘 조합(빈 상태·완료·로그인·가입·온보딩), 구역 아이콘도 lucide | [DESIGN.md](../DESIGN.md) §4 |

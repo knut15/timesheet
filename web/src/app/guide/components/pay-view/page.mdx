@@ -2,11 +2,11 @@ export const metadata = { title: "Pay View" };
 
 # Pay View
 
-월 급여 요약 카드와 주별 내역 카드. 멤버 급여 탭과 마스터 멤버 상세가 같이 쓴다. 계산은 `lib/pay.ts` 가 하고 이 컴포넌트는 보여주기만 한다. 아래 금액은 모두 미리보기가 `pay.ts` 로 계산한 값이다.
+월 급여 요약 카드와 주별 내역 카드. 큰 급여 숫자는 강조색이고, 바뀔 때 숫자가 올라가며 바뀐다. 멤버 급여 탭과 마스터 멤버 상세가 같이 쓴다. 계산은 `lib/pay.ts` 가 하고 이 컴포넌트는 보여주기만 한다. 아래 금액은 모두 미리보기가 `pay.ts` 로 계산한 값이다.
 
 <ComponentPreview name="pay-view/basic" width="max-w-md" />
 
-<FileLocation path="web/src/components/PayView.tsx" importLine={`import { PayView, holidayStatus } from "@/components/PayView";`} />
+<FileLocation path="web/src/components/PayView.tsx" importLine={`import { DotRow, PayView, holidayStatus } from "@/components/PayView";`} />
 
 ## 사용법
 
@@ -17,15 +17,18 @@ export const metadata = { title: "Pay View" };
 ## 구성
 
 ```
-PayView  <div space-y-4>
+PayView  <Enter space-y-3 replay={replay}>   카드가 차례로 나타난다
 ├─ 요약 Card
-│  ├─ "예상 급여 (세전)" + 총액 text-3xl
-│  ├─ <dl> 기본급(시간) · 주휴수당 · 휴가수당(있을 때만) · 연장 가산(시간)
-│  └─ 안내 글자 (합산 기준·미반영 항목)
+│  ├─ SectionLabel PiggyBank "예상 급여 (세전)"
+│  ├─ 총액 <p text-[30px] font-semibold text-accent NUM> <CountUp value={total} format={won} />
+│  ├─ <dl text-[13px]> DotRow × 기본급(시간) · 주휴수당 · 휴가수당(있을 때만) · 연장 가산(시간)
+│  │     금액이 0원인 줄은 muted
+│  └─ 안내 글자 text-xs (합산 기준·미반영 항목)
 ├─ 빈 달 글자 "이 달 기록이 없어요." (주가 0개일 때)
 └─ WeekCard (내부) × 주
-   ├─ 기간 date(주 시작) ~ date(주 끝 − 1ms) + 주 합계
-   ├─ <dl> 근무 · 기본급 · 휴가수당(있을 때) · 주휴수당 · holidayStatus · 연장(5인 미만 표시)
+   ├─ SectionLabel CalendarDays "10/13 (월) ~ 10/19 (일)" 오른쪽 = 주 합계
+   ├─ <dl> DotRow × 근무 · 기본급 · 휴가수당(있을 때) · 주휴수당 · holidayStatus · 연장(5인 미만 표시)
+   │     주휴 상태 글자: 개근 text-ok, 진행 중 text-caution
    └─ 한도 경고 text-warn (연장 12시간 초과)
 ```
 
@@ -55,6 +58,12 @@ PayView  <div space-y-4>
 
 <ComponentPreview name="pay-view/empty" width="max-w-md" />
 
+## 점선 이음 줄 — DotRow
+
+`이름 ··········· 값` 한 줄. `PayView` 안의 내역이 쓰고, 다른 화면에서도 같은 모양으로 쓰도록 내보낸다. `<dl className="mt-2.5 grid gap-1.5 text-[13px]">` 안에 쌓는다. 점선은 줄의 `::after` 로 그려 `dt`·`dd` 구조를 해치지 않는다.
+
+<ComponentPreview name="pay-view/dot-row" width="max-w-md" />
+
 ## 사용 규칙
 
 계산식은 <DocLink path="docs/prd/02-pay.md">PRD 02</DocLink>·<DocLink path="docs/prd/03-overtime.md">PRD 03</DocLink>, 휴가는 <DocLink path="docs/prd/09-leave-substitution.md">PRD 09</DocLink>. 프로젝트 규칙 "화면 컴포넌트에서 금액을 계산하지 않는다"(`CLAUDE.md` §2).
@@ -77,6 +86,17 @@ PayView  <div space-y-4>
     { prop: "month", type: "number", required: true, description: "0~11" },
     { prop: "now", type: "number", required: true, description: "진행 중 근무와 주 진행 여부 기준 시각" },
     { prop: "absences", type: 'Absence[] ({ date: "YYYY-MM-DD"; kind: "paid_leave" | "unpaid_leave" | "substitution" })', default: "[]", description: "승인된 휴가·대타" },
+    { prop: "replay", type: "unknown", description: "값이 바뀌면 카드 등장(`Enter`)을 다시 한다. 불러오기가 끝났을 때 바뀌는 값을 넘긴다" },
+  ]}
+/>
+
+### DotRow
+
+<PropsTable
+  rows={[
+    { prop: "term", type: "React.ReactNode", required: true, description: "왼쪽 이름(`dt`, muted)" },
+    { prop: "children", type: "React.ReactNode", required: true, description: "오른쪽 값(`dd`). 숫자면 `NUM` 을 씌운다" },
+    { prop: "muted", type: "boolean", default: "false", description: "값을 옅게(`font-medium text-muted`). 0원 줄에 쓴다. 아니면 `font-semibold`" },
   ]}
 />
 

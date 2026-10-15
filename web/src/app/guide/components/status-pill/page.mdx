@@ -2,7 +2,7 @@ export const metadata = { title: "Status Pill" };
 
 # Status Pill
 
-요청 상태 배지. 수정 요청·휴가·대타가 같이 쓴다.
+요청 상태 배지. 높이 20px 작은 사각 배지다. 수정 요청·휴가·대타가 같이 쓴다.
 
 <ComponentPreview name="status-pill/states" />
 
@@ -17,7 +17,7 @@ export const metadata = { title: "Status Pill" };
 ## 구성
 
 ```
-StatusPill  <span rounded-full px-2 py-0.5 text-xs font-medium {tone}>
+StatusPill  <span inline-flex h-5 rounded-md(4px) px-1.5 text-[11px] font-semibold {tone}>
 └─ 상태 이름 글자
 ```
 

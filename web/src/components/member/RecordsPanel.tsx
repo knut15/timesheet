@@ -10,7 +10,8 @@ import { CalendarLegend } from "../calendar/CalendarLegend";
 import { MonthGrid } from "../calendar/MonthGrid";
 import { useSelectedDay } from "../calendar/useSelectedDay";
 import { ViewToggle } from "../calendar/ViewToggle";
-import { Card, date, ErrorText, Field, hm, StatusPill, time, toLocalInput, useNow } from "../ui";
+import { Enter } from "../motion";
+import { BTN, Card, date, ErrorText, Field, hm, NUM, SectionLabel, StatusPill, time, toLocalInput, useNow } from "../ui";
 
 const MESSAGES: Record<string, string> = {
   REQUEST_PENDING: "이 기록에는 이미 대기 중인 요청이 있어요.",
@@ -41,19 +42,20 @@ export function RecordsPanel(props: Props) {
   const pendingByShift = new Map(props.corrections.filter((c) => c.status === "pending" && c.shiftId).map((c) => [c.shiftId!, c]));
 
   return (
-    <div className="space-y-4">
+    // 카드가 차례로 나타나고, 불러오기가 끝나면(loading 이 바뀌면) 다시
+    <Enter className="space-y-3" replay={props.loading}>
       <ViewToggle value={view} onChange={setView} />
       {props.failed ? (
         <Card className="space-y-3">
           <ErrorText>기록을 불러오지 못했어요.</ErrorText>
-          <button type="button" onClick={props.onRetry} className="w-full rounded-xl border border-line py-2.5 text-sm">다시 시도</button>
+          <button type="button" onClick={props.onRetry} className={`${BTN.secondary} w-full`}>다시 시도</button>
         </Card>
       ) : view === "calendar" ? (
         <CalendarView {...props} fs={fs} pendingByShift={pendingByShift} />
       ) : (
         <ListView {...props} fs={fs} pendingByShift={pendingByShift} />
       )}
-    </div>
+    </Enter>
   );
 }
 
@@ -75,7 +77,7 @@ function CalendarView({ shifts, absences, corrections, year, month, loading, fs,
       marks: { open: d?.open ?? undefined, pending: d?.pending, dashed: !!d?.absence },
       body: (
         <>
-          {!!d?.minutes && <span className="text-[11px] font-semibold tabular-nums text-foreground">{compactHours(d.minutes)}</span>}
+          {!!d?.minutes && <span className={`text-[11px] font-semibold text-foreground ${NUM}`}>{compactHours(d.minutes)}</span>}
           {d?.absence && <span className="text-[10px] text-muted">{ABSENCE_SHORT[d.absence]}</span>}
         </>
       ),
@@ -110,30 +112,28 @@ function CalendarView({ shifts, absences, corrections, year, month, loading, fs,
           )
         }
       />
-      <section className="space-y-3">
-        <h2 aria-live="polite" className="px-1 text-sm font-semibold">
-          {selected ? `${date(parseDay(selected))}${sel?.minutes ? ` · ${hm(sel.minutes)}` : ""}` : ""}
-        </h2>
+      <Card>
+        <div aria-live="polite">
+          <SectionLabel>
+            <span className={NUM}>{selected ? `${date(parseDay(selected))}${sel?.minutes ? ` · ${hm(sel.minutes)}` : ""}` : ""}</span>
+          </SectionLabel>
+        </div>
         {!selected ? (
-          <p className="px-1 text-sm text-muted">날짜를 누르면 그날 기록이 나와요.</p>
+          <p className="mt-2 text-sm text-muted">날짜를 누르면 그날 기록이 나와요.</p>
         ) : loading ? (
-          <p className="px-1 text-sm text-muted">불러오는 중…</p>
+          <p className="mt-2 text-sm text-muted">불러오는 중…</p>
+        ) : nothing ? (
+          <p className="mt-2 text-sm text-muted">이 날 기록이 없어요.</p>
         ) : (
-          <>
-            {nothing ? (
-              <p className="px-1 text-sm text-muted">이 날 기록이 없어요.</p>
-            ) : (
-              <ul className="space-y-3">
-                {dayShifts.map((s) => <RecordRow key={s.id} shift={s} pending={pendingByShift.has(s.id)} fs={fs} showDate={false} />)}
-                {dayAdds.map((c) => <PendingAddRow key={c.id} correction={c} showDate={false} />)}
-                {dayAbsences.map((a) => <AbsenceRow key={`${a.sourceId}-${a.date}`} absence={a} showDate={false} />)}
-              </ul>
-            )}
-          </>
+          <ul className={ROWS}>
+            {dayShifts.map((s) => <RecordRow key={s.id} shift={s} pending={pendingByShift.has(s.id)} fs={fs} showDate={false} />)}
+            {dayAdds.map((c) => <PendingAddRow key={c.id} correction={c} showDate={false} />)}
+            {dayAbsences.map((a) => <AbsenceRow key={`${a.sourceId}-${a.date}`} absence={a} showDate={false} />)}
+          </ul>
         )}
-        <AddRequest fs={fs} />
-        <Hint />
-      </section>
+      </Card>
+      <AddRequest fs={fs} />
+      <Hint />
     </>
   );
 }
@@ -155,16 +155,19 @@ function ListView({ shifts, absences, corrections, year, month, loading, fs, pen
     <div className="space-y-3">
       <AddRequest fs={fs} />
       {pendingAdds.length > 0 && (
-        <ul className="space-y-3">
-          {pendingAdds.map((c) => <PendingAddRow key={c.id} correction={c} showDate />)}
-        </ul>
+        <Card className="py-1.5">
+          <ul className={ROWS_FLUSH}>
+            {pendingAdds.map((c) => <PendingAddRow key={c.id} correction={c} showDate />)}
+          </ul>
+        </Card>
       )}
       {loading ? (
-        <Card><p className="text-center text-muted">불러오는 중…</p></Card>
+        <Card><p className="text-center text-sm text-muted">불러오는 중…</p></Card>
+      ) : rows.length === 0 ? (
+        <Card><p className="text-center text-sm text-muted">이 달 기록이 없어요.</p></Card>
       ) : (
-        <>
-          {rows.length === 0 && <Card><p className="text-center text-muted">이 달 기록이 없어요.</p></Card>}
-          <ul className="space-y-3">
+        <Card className="py-1.5">
+          <ul className={ROWS_FLUSH}>
             {rows.map((r) =>
               "shift" in r && r.shift ? (
                 <RecordRow key={r.shift.id} shift={r.shift} pending={pendingByShift.has(r.shift.id)} fs={fs} showDate />
@@ -173,48 +176,50 @@ function ListView({ shifts, absences, corrections, year, month, loading, fs, pen
               ) : null,
             )}
           </ul>
-        </>
+        </Card>
       )}
       <Hint />
     </div>
   );
 }
 
+// 카드 안 목록 — 줄 사이는 점선 (2026-10-15 B 시안 .list-row)
+const ROWS = "mt-1 divide-y divide-dashed divide-line";
+const ROWS_FLUSH = "divide-y divide-dashed divide-line";
+const ROW = "flex items-center gap-2.5 py-2.5 text-[13px]";
+
 /** 기록 한 줄 — 목록과 달력 상세가 같이 쓴다. 대기 중인 요청이 있으면 버튼 대신 "승인 대기" */
 function RecordRow({ shift, pending, fs, showDate }: { shift: Shift; pending: boolean; fs: FormState; showDate: boolean }) {
   const { form, setForm, onChange } = fs;
-  const times = `${time(shift.start)} ~ ${shift.end ? time(shift.end) : "근무 중"} · ${hm(shiftMinutes(shift))}`;
+  const span = `${time(shift.start)} ~ ${shift.end ? time(shift.end) : "근무 중"}`;
   return (
-    <li className="rounded-2xl border border-line bg-surface px-5 py-4">
-      <div className="flex items-start justify-between gap-3">
-        {showDate ? (
-          <div>
-            <p className="font-medium">{date(shift.start)}</p>
-            <p className="text-sm text-muted tabular-nums">{times}</p>
-          </div>
-        ) : (
-          <p className="self-center font-medium tabular-nums">{times}</p>
-        )}
+    <li>
+      <div className={ROW}>
+        <div className="min-w-0 flex-1">
+          <p className={`font-medium ${NUM}`}>{showDate ? date(shift.start) : span}</p>
+          <p className={`mt-px text-xs text-muted ${NUM}`}>{showDate ? `${span} · ${hm(shiftMinutes(shift))}` : hm(shiftMinutes(shift))}</p>
+        </div>
         {pending ? (
           <StatusPill status="pending" />
         ) : (
-          <div className="flex gap-1">
-            <button onClick={() => setForm({ mode: "edit", shift })} aria-label="수정 요청" title="수정 요청" className="rounded-lg p-2 text-muted hover:bg-line/60 hover:text-foreground"><PencilLine size={18} aria-hidden /></button>
-            <button onClick={() => setForm({ mode: "delete", shift })} aria-label="삭제 요청" title="삭제 요청" className="rounded-lg p-2 text-muted hover:bg-line/60 hover:text-warn"><Trash2 size={18} aria-hidden /></button>
+          // 목록 안 보조 동작이라 작은 버튼(h-8)
+          <div className="flex shrink-0 gap-1">
+            <button type="button" onClick={() => setForm({ mode: "edit", shift })} className={BTN.small}><PencilLine size={13} aria-hidden />수정 요청</button>
+            <button type="button" onClick={() => setForm({ mode: "delete", shift })} className={BTN.danger}><Trash2 size={13} aria-hidden />삭제 요청</button>
           </div>
         )}
       </div>
-      {form?.shift?.id === shift.id && <div className="mt-3"><CorrectionForm form={form} onDone={() => (setForm(null), onChange())} onCancel={() => setForm(null)} /></div>}
+      {form?.shift?.id === shift.id && <div className="pb-3"><CorrectionForm form={form} onDone={() => (setForm(null), onChange())} onCancel={() => setForm(null)} /></div>}
     </li>
   );
 }
 
-/** 휴가·대타 한 줄 (점선) */
+/** 휴가·대타 한 줄 — 점선 테두리 표시 + 글자 (색만으로 구별하지 않는다) */
 function AbsenceRow({ absence, showDate }: { absence: Absence; showDate: boolean }) {
   return (
-    <li className="rounded-2xl border border-dashed border-line px-5 py-3">
-      {showDate && <p className="text-sm font-medium">{date(parseDay(absence.date))}</p>}
-      <p className={showDate ? "text-sm text-muted" : "text-sm font-medium text-muted"}>{ABSENCE_LABEL[absence.kind]}</p>
+    <li className={ROW}>
+      {showDate && <p className={`min-w-0 flex-1 font-medium ${NUM}`}>{date(parseDay(absence.date))}</p>}
+      <span className="inline-flex h-5 shrink-0 items-center rounded-md border border-dashed border-muted px-1.5 text-[11px] font-semibold text-muted">{ABSENCE_LABEL[absence.kind]}</span>
     </li>
   );
 }
@@ -223,15 +228,11 @@ function AbsenceRow({ absence, showDate }: { absence: Absence; showDate: boolean
 function PendingAddRow({ correction: c, showDate }: { correction: Correction; showDate: boolean }) {
   const times = `${time(Date.parse(c.start!))} ~ ${time(Date.parse(c.end!))}`;
   return (
-    <li className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-line bg-surface px-5 py-4">
-      {showDate ? (
-        <div>
-          <p className="text-sm font-medium">추가 요청 · {date(Date.parse(c.start!))}</p>
-          <p className="text-sm text-muted tabular-nums">{times}</p>
-        </div>
-      ) : (
-        <p className="text-sm font-medium tabular-nums">추가 요청 · {times}</p>
-      )}
+    <li className={ROW}>
+      <div className="min-w-0 flex-1">
+        <p className={`font-medium ${NUM}`}>{showDate ? `추가 요청 · ${date(Date.parse(c.start!))}` : times}</p>
+        <p className={`mt-px text-xs text-muted ${NUM}`}>{showDate ? times : "추가 요청"}</p>
+      </div>
       <StatusPill status={c.status} />
     </li>
   );
@@ -241,19 +242,24 @@ function AddRequest({ fs }: { fs: FormState }) {
   const { form, setForm, onChange } = fs;
   return (
     <>
-      <button onClick={() => setForm({ mode: "add" })} className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-line py-3 text-sm text-muted hover:text-foreground">
+      <button type="button" onClick={() => setForm({ mode: "add" })} className={`${BTN.dashed} w-full`}>
         <Plus size={16} aria-hidden /> 빠진 기록 추가 요청
       </button>
-      {form?.mode === "add" && <CorrectionForm form={form} onDone={() => (setForm(null), onChange())} onCancel={() => setForm(null)} />}
+      {form?.mode === "add" && (
+        <Card>
+          <CorrectionForm form={form} onDone={() => (setForm(null), onChange())} onCancel={() => setForm(null)} flat />
+        </Card>
+      )}
     </>
   );
 }
 
 function Hint() {
-  return <p className="px-1 text-xs text-muted">요청은 사장님이 승인하면 기록에 반영돼요. 요청 탭에서 진행 상황을 볼 수 있어요.</p>;
+  return <p className="px-0.5 text-xs leading-relaxed text-muted">요청은 사장님이 승인하면 기록에 반영돼요. 요청 탭에서 진행 상황을 볼 수 있어요.</p>;
 }
 
-function CorrectionForm({ form, onDone, onCancel }: { form: Form; onDone: () => void; onCancel: () => void }) {
+/** flat: 카드 안에 바로 둘 때(바탕 상자 없이). 목록 줄 안에서는 옅은 바탕 상자로 줄과 구별한다 */
+function CorrectionForm({ form, onDone, onCancel, flat = false }: { form: Form; onDone: () => void; onCancel: () => void; flat?: boolean }) {
   const base = form.shift;
   const [start, setStart] = useState(base ? toLocalInput(base.start) : "");
   const [end, setEnd] = useState(base?.end ? toLocalInput(base.end) : "");
@@ -270,8 +276,8 @@ function CorrectionForm({ form, onDone, onCancel }: { form: Form; onDone: () => 
   };
 
   return (
-    <form onSubmit={submit} className="space-y-3 rounded-xl bg-background p-4">
-      <p className="text-sm font-semibold">{title}</p>
+    <form onSubmit={submit} className={`space-y-3 ${flat ? "" : "rounded-xl bg-background p-3"}`}>
+      <SectionLabel as="h3">{title}</SectionLabel>
       {form.mode !== "delete" && (
         <div className="grid grid-cols-1 gap-2">
           <Field label="바른 출근"><input type="datetime-local" required value={start} onChange={(e) => setStart(e.target.value)} className="field" /></Field>
@@ -281,8 +287,8 @@ function CorrectionForm({ form, onDone, onCancel }: { form: Form; onDone: () => 
       <Field label="사유"><input required maxLength={200} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="예: 퇴근을 깜빡했어요" className="field" /></Field>
       <ErrorText>{error}</ErrorText>
       <div className="flex gap-2">
-        <button className="flex-1 rounded-xl bg-accent py-2.5 text-sm font-semibold text-on-accent">요청 보내기</button>
-        <button type="button" onClick={onCancel} className="flex-1 rounded-xl border border-line py-2.5 text-sm">취소</button>
+        <button className={`${BTN.primary} flex-1`}>요청 보내기</button>
+        <button type="button" onClick={onCancel} className={`${BTN.secondary} flex-1`}>취소</button>
       </div>
     </form>
   );

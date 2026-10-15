@@ -20,9 +20,9 @@ export const metadata = { title: "Calendar Legend" };
 CalendarLegend  <div text-[11px] text-muted>
 ├─ <ul flex-wrap>
 │  ├─ OpenDot + "근무 중"
-│  ├─ TriangleAlert 10px + "퇴근 기록 없음"
-│  ├─ Hourglass 10px + "요청 대기"
-│  └─ 점선 상자 12×10 + "휴가·대타"(member) / "쉰 사람 있음"(master)
+│  ├─ TriangleAlert 12px text-warn + "퇴근 기록 없음"
+│  ├─ Hourglass 12px text-caution + "요청 대기"
+│  └─ 점선 상자 12×10 rounded-[2px] + "휴가·대타"(member) / "쉰 사람 있음"(master)
 └─ <p> "유급·무급: 휴가 · 대타: 대타로 쉰 날" (member 만)
 ```
 
