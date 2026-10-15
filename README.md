@@ -10,6 +10,7 @@
 ![React](https://img.shields.io/badge/React-19.2.8-61DAFB?style=flat-square&logo=react&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3.3-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
 ![GSAP](https://img.shields.io/badge/GSAP-3.15.0-0AE448?style=flat-square&logo=greensock&logoColor=white)
+![Recharts](https://img.shields.io/badge/Recharts-3.10.1-22B5BF?style=flat-square)
 ![pnpm](https://img.shields.io/badge/pnpm-11.20.0-F69220?style=flat-square&logo=pnpm&logoColor=white)
 
 파트타임 근무자의 출퇴근 기록과 급여를 관리하는 앱이다. 로그인부터 배포까지 직접 구현하는 것이 목표다.
@@ -77,7 +78,9 @@ pnpm dev:web
 | 디자인 컴포넌트 가이드 — 웹 `/guide` (MDX) | 배포 — https://timesheet-brown-ten.vercel.app/guide |
 | 매장 로고 업로드·헤더 노출 | 배포 ([PRD 11](docs/prd/11-store-logo.md)) |
 | 초대 코드 문자 보내기(휴대폰 문자 앱·공유), 가입 링크 | 배포 ([PRD 06](docs/prd/06-store-invite.md)) |
-| 디자인 B — 가는 선·작은 모서리·고정폭 숫자, GSAP 모션, lucide 일러스트 | `claude/design-b` 브랜치, release 반영 전 ([DESIGN.md](DESIGN.md)) |
+| 멤버 오늘 근무 대시보드 — 출퇴근 탭 시계 아래 | release 반영(#8) — 운영 배포 대기 ([PRD 12](docs/prd/12-member-today.md), [디자인](docs/design/member-today.md)) |
+| 근무 시간표 — 요일·출퇴근 시각, 날짜별 변경(마스터), 시급 천 단위 쉼표 | release 반영(#8) — 운영 배포 대기 ([PRD 13](docs/prd/13-work-schedule.md)) |
+| 디자인 B — 가는 선·작은 모서리·고정폭 숫자·회색 중립색, GSAP 모션, lucide 일러스트, 근무 조건 그래프(주간 리듬 카드), 기록 요청 모달 | release 반영 — 운영 배포 대기 ([DESIGN.md](DESIGN.md)) |
 | 배포 | 웹 https://timesheet-brown-ten.vercel.app · API·Neon DB ([docs/deploy.md](docs/deploy.md)) |
 
 ## 문서

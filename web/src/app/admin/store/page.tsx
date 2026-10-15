@@ -6,15 +6,16 @@ import { CircleCheck, ImageUp, LocateFixed, MapPin, Store as StoreIcon } from "l
 import { api, type Store } from "@/api/client";
 import { authFetch, reloadMe } from "@/auth/session";
 import { Enter, reducedMotion, useAppear } from "@/components/motion";
-import { BTN, Card, ErrorText, Field, NUM, SectionLabel, Spinner } from "@/components/ui";
+import { BTN, Card, ErrorText, Field, NUM, SectionLabel } from "@/components/ui";
 import { useApi } from "@/lib/useApi";
+import { StoreSkeleton } from "../_skeletons";
 
 export default function StorePage() {
   const { data, reload } = useApi(() => api.GET("/api/stores/me"), "");
   // 저장 횟수(0 이면 알림 없음). StoreForm 은 저장 뒤 다시 읽은 값으로 새로 그려지므로(key) 알림은 여기서 그린다 —
   // 안에 두면 다시 그려질 때 알림이 한 번 더 나타난다
   const [saved, setSaved] = useState(0);
-  if (!data) return <Spinner />;
+  if (!data) return <StoreSkeleton />;
   return (
     <Enter className="space-y-3">
       <LogoCard store={data} onSaved={reload} />

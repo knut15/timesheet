@@ -7,9 +7,10 @@ import { api, type Member } from "@/api/client";
 import { holidayStatus } from "@/components/PayView";
 import { CountUp, Enter } from "@/components/motion";
 import { Avatar } from "@/components/shell";
-import { Card, dayLabel, hm, MonthPicker, NUM, SectionLabel, Spinner, time, toShift, useMonthCursor, useNow, won } from "@/components/ui";
+import { Card, dayLabel, hm, MonthPicker, NUM, SectionLabel, time, toShift, useMonthCursor, useNow, won } from "@/components/ui";
 import { computeMonth, computeWeeks, dayKey, MINIMUM_WAGE, shiftMinutes, startOfWeek, type PaySettings } from "@/lib/pay";
 import { useApi } from "@/lib/useApi";
+import { DashboardSkeleton } from "./_skeletons";
 
 const LONG_OPEN_MIN = 12 * 60;
 /** 카드 안 목록 행 — 점선으로 나눈다 (B 시안 .list-row) */
@@ -34,7 +35,7 @@ export default function DashboardPage() {
     });
   }, [data, now, cursor.year, cursor.month]);
 
-  if (!data) return <Spinner />;
+  if (!data) return <DashboardSkeleton />;
 
   const working = rows.flatMap((r) => r.shifts.filter((s) => s.end === null).map((s) => ({ member: r.member, shift: s })));
   const today = dayKey(now);
@@ -53,7 +54,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <Enter className="grid gap-3 sm:grid-cols-2">
+    // 달을 바꿔 새 data 가 오면 카드가 다시 차례로 나타난다
+    <Enter className="grid gap-3 sm:grid-cols-2" replay={data}>
       <Card>
         <SectionLabel icon={Timer} right={`${cameToday}/${rows.length}명 출근${onLeaveToday.length > 0 ? ` · 휴가·대타 ${onLeaveToday.length}명` : ""}`}>지금 근무 중</SectionLabel>
         {working.length === 0 ? (

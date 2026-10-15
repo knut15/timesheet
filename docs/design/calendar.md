@@ -299,7 +299,7 @@
 
 | 상태 | 멤버 | 마스터 |
 |---|---|---|
-| 로딩 (처음·달 이동) | 격자는 날짜 숫자만 그린 채 바로 보인다(날짜는 기기에서 계산). 칸 내용·표시는 비운다. 격자 컨테이너 `aria-busy="true"`, 범례 자리에 `불러오는 중…`. 상세 자리 `불러오는 중…` | 같음. 달 요약 줄 자리에 `불러오는 중…` |
+| 로딩 (처음·달 이동) | 격자는 날짜 숫자만 그린 채 바로 보인다(날짜는 기기에서 계산). 칸 내용·표시는 비운다. 격자 컨테이너 `aria-busy="true"`, 칸은 작은 스켈레톤 막대, 범례는 그대로(데이터와 무관). 상세 자리는 같은 크기 스켈레톤 1행(`Bone`, `Loading`) — 글자 "불러오는 중…" 은 쓰지 않는다 | 격자는 날짜 숫자만 그린 채 바로 보이고 칸 내용·표시는 비운다(`aria-busy="true"`). 글자 대신 불러온 뒤와 같은 크기의 스켈레톤(`Bone`): 달 요약 줄 자리 한 줄(`h-5`), 범례 자리 한 줄(`h-4`), 상세 자리 멤버 행 2개(`MemberDayRow` 와 같은 `px-5 py-4` 카드, `Loading` 으로 감싼다). 코드 `web/src/app/admin/_skeletons.tsx` |
 | 빈 달 (기록·휴가 0) | 격자는 그대로(숫자만). 범례 위에 한 줄 `이 달 기록이 없어요.` (`text-sm text-muted` 가운데). 오늘·선택 표시는 유지 | `이 달 근무 기록이 없어요.` 멤버가 0명이면 대신 `아직 멤버가 없어요. 초대 코드를 발급해 보세요.` + `/admin/invites` 링크 (대시보드 문구와 같게) |
 | 오류 | 격자 카드 대신 `Card` 하나: `ErrorText` "기록을 불러오지 못했어요." + `다시 시도` 버튼(`reload`, `rounded-xl border border-line py-2.5 text-sm w-full`) | 같음, 문구 "근무 기록을 불러오지 못했어요." |
 | 선택한 날 비어 있음 | 머리 `9월 24일 목요일` + `이 날 기록이 없어요.`(`text-sm text-muted`) + 추가 요청 버튼 | 머리 + `이 날 일한 사람이 없어요.` |
@@ -348,7 +348,7 @@
 |---|---|---|---|
 | 오늘 숫자·테두리 | `--accent` #0f766e | #2dd4bf | 5.47 / 8.97 ✓ |
 | 선택 바탕·글자 | `bg-foreground` 위 `text-background` | 같음 | 본문 대비와 같은 쌍(라이트 14.23 / 다크 16.46) ✓ |
-| 점선 테두리 (휴가·대타) | `--muted` #5b6f6f | #86a19f | 5.32 / 6.05 ✓ — `--line` 은 1.22 / 1.23 이라 **쓰지 않는다** |
+| 점선 테두리 (휴가·대타) | `--muted` #6b6b74 | #a1a1aa | 5.28 / 6.91 ✓ — `--line` 은 1.27 / 1.19 라 **쓰지 않는다** |
 | 근무 중 점 | `--ok` #166534 | #4ade80 | 7.13 / 9.58 ✓ — 대시보드·달력 모두 같은 `bg-ok` |
 | 퇴근 기록 없음 | `--warn` #b91c1c | #f87171 | 6.47 / 6.04 ✓ |
 | 요청 대기 아이콘 | `--caution` #92400e | #fbbf24 | 7.09 / 10.0 ✓ |
@@ -410,7 +410,7 @@ export function MonthGrid(props: {
 
 - `Card className="p-2.5"` 로 감싼다. 요일 줄, 칸, `footer` 순서.
 - 칸 버튼: `relative flex min-w-0 flex-col rounded-md border text-left` + 상태별 클래스(§3 표). 테두리 기본 `border-line`, 점선 `border-dashed border-muted`, 오늘 `border-accent ring-1 ring-inset ring-accent`, 선택 `bg-foreground text-background` + 날짜 `font-bold` (색 테두리 없음, 점선은 유지).
-- 오늘 숫자: `inline-flex h-5 w-5 items-center justify-center rounded-full ring-[1.5px] ring-accent text-accent font-bold`.
+- 오늘: 칸에 `border-accent ring-1 ring-inset ring-accent`, 숫자는 `text-accent font-bold` (2026-10-15 B 시안 — 숫자 둘레 원 대신 칸 테두리).
 
 ### `components/calendar/AvatarStack.tsx`
 

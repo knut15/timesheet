@@ -8,8 +8,9 @@ import { api, errorCode, type Correction, type LeaveReq, type Member, type Subst
 import { EmptyState } from "@/components/illust";
 import { Enter } from "@/components/motion";
 import { Avatar } from "@/components/shell";
-import { BTN, Card, date, ErrorText, Field, NUM, SectionLabel, Spinner, StatusPill, time } from "@/components/ui";
+import { BTN, Card, date, ErrorText, Field, NUM, SectionLabel, StatusPill, time } from "@/components/ui";
 import { useApi } from "@/lib/useApi";
+import { RequestsSkeleton } from "../_skeletons";
 
 const MESSAGES: Record<string, string> = {
   REQUEST_CLOSED: "이미 처리된 요청이에요.",
@@ -32,7 +33,7 @@ const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60_00
 export default function RequestsPage() {
   const req = useApi(() => api.GET("/api/stores/me/requests"), "");
   const members = useApi(() => api.GET("/api/stores/me/members"), "");
-  if (!req.data || !members.data) return <Spinner />;
+  if (!req.data || !members.data) return <RequestsSkeleton />;
   const { corrections, leaves, substitutions } = req.data;
   const team = members.data.filter((m) => m.role === "member");
   const reload = req.reload;

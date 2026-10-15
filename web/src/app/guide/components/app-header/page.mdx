@@ -19,11 +19,14 @@ export const metadata = { title: "App Header" };
 ```
 AppHeader  <header sticky top-0, border-b, bg-surface/95 blur>
 └─ 폭 틀  <div mx-auto {width} h-16 px-5>
-   ├─ 한 줄 묶음  <div flex items-center gap-1.5>
+   ├─ 한 줄 묶음  <div flex h-7 items-center gap-1.5>
    │  ├─ 로고 <img alt={logoAlt} h-5 max-w-24> (logoUrl 있을 때 — 매장 이름 글자를 대신)
    │  ├─ eyebrow  <span text-[15px] font-medium text-muted, 한 줄 자름> (값이 있을 때)
    │  ├─ 나눔 "/"  <span aria-hidden text-muted/50> (로고나 eyebrow 가 있을 때)
-   │  └─ title    <h1 text-lg(18px) font-bold, 줄어들지 않음>
+   │  ├─ title    <h1 text-lg(18px) font-bold, 줄어들지 않음> (crumbs 가 없을 때)
+   │  └─ 브레드크럼  <nav aria-label="현재 위치"><ol> (crumbs 가 있을 때)
+   │     ├─ 상위 화면 <Link text-[15px] font-medium text-muted> + ChevronRight 15px × crumbs
+   │     └─ title  <h1 aria-current="page" text-lg font-bold, 한 줄 자름>
    └─ 오른쪽 묶음  <div gap-1>
       ├─ actions  (넘긴 그대로)
       └─ Avatar sm(32px), label "<nickname> (나)"
@@ -53,6 +56,12 @@ AppHeader  <header sticky top-0, border-b, bg-surface/95 blur>
 
 <ComponentPreview name="app-header/logo" width="max-w-md" fixed />
 
+## 하위 화면 — 브레드크럼과 서브헤더
+
+탭 안의 하위 화면(멤버 › 근무 기록, 멤버 › 초대 코드)은 `crumbs` 로 상위 화면 링크를 같은 한 줄의 제목 앞에 붙인다 — `데모 카페 성수점 / 멤버 › 근무 기록`. 상위 화면은 15px 회색 링크, 마지막 화면 이름만 18px 굵게다. 한 줄 묶음은 `h-7` 고정이라 헤더 높이(64px)는 그대로다. 뒤로 가기는 헤더 바로 아래 `SubHeader` 에 둔다. 서브헤더는 헤더와 같은 폭의 띠(`bg-surface` + 아래 선)라 본문과 확실히 나뉜다 (2026-09-25 사용자 요청).
+
+<ComponentPreview name="app-header/breadcrumb" width="max-w-3xl" />
+
 ## 사용 규칙
 
 <DocLink path=".claude/skills/timesheet-ui/SKILL.md" hash="1-헤더--appheader">timesheet-ui 스킬 §1 헤더</DocLink> — eyebrow·title·width 값.
@@ -74,5 +83,16 @@ AppHeader  <header sticky top-0, border-b, bg-surface/95 blur>
     { prop: "width", type: "string (Tailwind max-w 클래스)", default: '"max-w-3xl"', description: "안쪽 폭" },
     { prop: "logoUrl", type: "string | null", description: "매장 로고 주소. 있으면 한 줄 맨 앞에 두고 매장 이름 글자를 대신한다" },
     { prop: "logoAlt", type: "string", default: '""', description: "로고의 대체 텍스트 — 매장 이름. 로고가 이름을 대신하므로 비우지 않는다" },
+    { prop: "crumbs", type: "Crumb[] ({ label: string; href: string })", description: "상위 화면 링크. 있으면 한 줄이 `매장 / 멤버 › 근무 기록` 모양이 된다" },
+  ]}
+/>
+
+### SubHeader
+
+<PropsTable
+  rows={[
+    { prop: "backHref", type: "string", required: true, description: "돌아갈 화면" },
+    { prop: "backLabel", type: "string", required: true, description: "버튼 글자 (예: 멤버 목록)" },
+    { prop: "width", type: "string", default: '"max-w-3xl"', description: "헤더와 같은 안쪽 폭" },
   ]}
 />

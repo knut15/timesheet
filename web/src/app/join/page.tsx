@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { homeOf, useSession } from "@/auth/hooks";
-import { Spinner } from "@/components/ui";
+import { Loading } from "@/components/ui";
 import { rememberInviteCode } from "@/lib/inviteLink";
 
 function Join() {
@@ -19,13 +19,14 @@ function Join() {
     const home = homeOf(session);
     if (home) router.replace(home); // 익명이면 /login → 가입 → /onboarding 에서 코드가 채워진다
   }, [session, router]);
-  return <Spinner />;
+  // 곧 다른 화면으로 옮겨 간다 — 보이는 자리 표시 없이 스크린리더에만 알린다
+  return <Loading>{null}</Loading>;
 }
 
 export default function JoinPage() {
   // useSearchParams 는 정적 렌더에서 Suspense 경계가 필요하다
   return (
-    <Suspense fallback={<Spinner />}>
+    <Suspense fallback={<Loading>{null}</Loading>}>
       <Join />
     </Suspense>
   );

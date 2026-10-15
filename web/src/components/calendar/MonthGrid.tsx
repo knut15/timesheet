@@ -3,7 +3,7 @@
 // 모양은 2026-10-15 B 시안: 작은 모서리 칸, 기록 있는 날 옅은 바탕, 오늘은 강조색 굵은 테두리, 선택은 진한 바탕 + 굵은 날짜
 import { Hourglass, TriangleAlert } from "lucide-react";
 import { monthCells } from "@/lib/calendar";
-import { Card, NUM } from "../ui";
+import { Bone, Card, NUM } from "../ui";
 
 export type Marks = { open?: "today" | "stale"; pending?: boolean; dashed?: boolean };
 
@@ -21,7 +21,7 @@ export function MonthGrid({ year, month, todayKey, selectedKey, onSelect, busy =
   todayKey: string;
   selectedKey: string | null;
   onSelect: (key: string) => void;
-  busy?: boolean; // aria-busy, 칸 내용 숨김
+  busy?: boolean; // aria-busy, 칸 내용·표시 대신 막대
   cellHeight: 56 | 64; // 멤버 56, 마스터 64
   cell: (key: string) => { label: string; marks: Marks; body: React.ReactNode }; // body = 2·3줄
   footer?: React.ReactNode; // 범례·빈 달 문구
@@ -29,6 +29,7 @@ export function MonthGrid({ year, month, todayKey, selectedKey, onSelect, busy =
   return (
     <Card className="p-2.5">
       <div role="group" aria-label={`${year}년 ${month + 1}월 달력`} aria-busy={busy}>
+        {busy && <span className="sr-only" role="status">불러오는 중</span>}
         <div aria-hidden className="grid grid-cols-7 gap-[3px]">
           {WEEK.map((w) => (
             <span key={w} className="flex h-6 items-center justify-center text-[11px] font-semibold text-muted">{w}</span>
@@ -47,7 +48,8 @@ export function MonthGrid({ year, month, todayKey, selectedKey, onSelect, busy =
             const selected = c.key === selectedKey;
             const shown = busy ? {} : marks;
             const edge = shown.dashed ? "border-dashed border-muted" : today ? "border-accent" : selected ? "border-foreground" : "border-line";
-            const fill = selected ? `bg-foreground text-background ${SELECTED_BODY}` : `bg-surface ${HAS_RECORD}`;
+            // 불러오는 동안은 칸 내용이 막대라 "기록 있는 날" 바탕을 칠하지 않는다
+            const fill = selected ? `bg-foreground text-background ${SELECTED_BODY}` : `bg-surface ${busy ? "" : HAS_RECORD}`;
             return (
               <button
                 key={c.key}
@@ -68,7 +70,7 @@ export function MonthGrid({ year, month, todayKey, selectedKey, onSelect, busy =
                   </span>
                 </span>
                 <span data-body aria-hidden className="flex min-w-0 flex-1 flex-col items-end justify-end overflow-hidden px-1 pb-1">
-                  {!busy && body}
+                  {busy ? <Bone className="h-2.5 w-6" /> : body}
                 </span>
               </button>
             );

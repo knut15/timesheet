@@ -28,15 +28,18 @@ export const GUIDE_NAV: { title: string; items: GuidePage[] }[] = [
       { href: "/guide/components/section-label", label: "Section Label", description: "카드 구역 머리. 아이콘·번호·오른쪽 요약 값." },
       { href: "/guide/components/scene", label: "Scene", description: "lucide 아이콘을 엮은 장면 그림과 빈 상태(EmptyState)." },
       { href: "/guide/components/spinner", label: "Spinner", description: "불러오는 중 자리 표시 글자." },
+      { href: "/guide/components/skeleton", label: "Skeleton", description: "불러온 뒤와 같은 크기의 자리 표시 막대. 화면이 움직이지 않는다." },
+      { href: "/guide/components/progress-bar", label: "Progress Bar", description: "목표 대비 값을 보이는 가로 막대. 읽는 값은 글자로." },
     ],
   },
   {
     title: "입력",
     items: [
-      { href: "/guide/components/buttons", label: "Buttons", description: "버튼 모양 상수 BTN. 주·보조·작은·점선·삭제." },
+      { href: "/guide/components/button", label: "Button", description: "버튼 모양 BTN — 주(진한 바탕)·보통(선)·작은·점선·지우기(올리면 빨강)." },
       { href: "/guide/components/field", label: "Field", description: "입력칸 이름표와 .field 입력칸." },
       { href: "/guide/components/error-text", label: "Error Text", description: "오류 한 줄. 내용이 없으면 그리지 않는다." },
       { href: "/guide/components/month-picker", label: "Month Picker", description: "이전·다음 달 이동." },
+      { href: "/guide/components/dialog", label: "Dialog", description: "화면 위 모달. 조건 수정 폼과 취소·저장." },
     ],
   },
   {
@@ -53,7 +56,12 @@ export const GUIDE_NAV: { title: string; items: GuidePage[] }[] = [
   },
   {
     title: "화면 조각",
-    items: [{ href: "/guide/components/pay-view", label: "Pay View", description: "월 급여 요약과 주별 내역 카드." }],
+    items: [
+      { href: "/guide/components/clock-card", label: "Clock Card", description: "출퇴근 탭의 시계, 지금 상태, 출근·퇴근 버튼." },
+      { href: "/guide/components/today-dashboard", label: "Today Dashboard", description: "오늘 근무·처리할 것·이번 주·이번 달 요약 카드." },
+      { href: "/guide/components/pay-view", label: "Pay View", description: "월 급여 요약과 주별 내역 카드." },
+      { href: "/guide/components/work-terms-charts", label: "Work Terms Charts", description: "내 정보 근무 조건 그림 — 주간 리듬 카드·주 시간 게이지·근무일 점." },
+    ],
   },
 ];
 

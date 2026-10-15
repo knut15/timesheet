@@ -1,6 +1,8 @@
 "use client";
 import { ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
 import { IconButton } from "./shell";
+import { Skeleton } from "./ui/skeleton";
+import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import type { ShiftDto } from "@/api/client";
 import type { Shift } from "@/lib/pay";
@@ -47,20 +49,9 @@ export function useNow(intervalMs: number) {
   return now;
 }
 
-/** 숫자(시각·시간·금액·날짜)는 고정폭 글꼴 — 자릿수가 바뀌어도 흔들리지 않는다 (2026-10-15 B 시안) */
-export const NUM = "font-mono tabular-nums";
-
-/**
- * 버튼 모양. 색 테두리 없이 — 주 동작은 진한 바탕, 보통은 선, 추가는 점선 (2026-10-15 B 시안).
- * 높이: 기본 44px(h-11), 작은 것 32px(h-8). 모양만 주고 폭·여백은 쓰는 쪽에서 더한다.
- */
-export const BTN = {
-  primary: "inline-flex h-11 items-center justify-center gap-1.5 rounded-xl bg-foreground px-4 text-[15px] font-semibold text-background disabled:bg-line disabled:text-muted",
-  secondary: "inline-flex h-11 items-center justify-center gap-1.5 rounded-xl border border-line bg-surface px-4 text-sm font-medium text-foreground hover:bg-background disabled:opacity-50",
-  small: "inline-flex h-8 items-center justify-center gap-1 rounded-xl border border-line bg-surface px-2.5 text-xs font-medium text-foreground hover:bg-background disabled:opacity-50",
-  dashed: "inline-flex h-11 items-center justify-center gap-1.5 rounded-xl border border-dashed border-muted/60 px-4 text-sm font-medium text-muted hover:text-foreground",
-  danger: "inline-flex h-8 items-center justify-center gap-1 rounded-xl border border-line bg-surface px-2.5 text-xs font-medium text-foreground hover:border-warn/40 hover:text-warn",
-} as const;
+// 숫자 글꼴·버튼 모양은 서버 컴포넌트에서도 문자열로 쓰도록 "use client" 없는 styles.ts 에 둔다
+import { BTN, NUM } from "./styles";
+export { BTN, NUM };
 
 /** 카드. 구역을 나눌 때는 className="divide-y divide-line p-0" 으로 두고 안에 <div className="px-4 py-3.5"> 를 쌓는다 */
 export function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -139,4 +130,41 @@ const STATUS: Record<string, { label: string; tone: string }> = {
 export function StatusPill({ status }: { status: string }) {
   const s = STATUS[status] ?? { label: status, tone: "bg-line/60 text-muted" };
   return <span className={`inline-flex h-5 items-center whitespace-nowrap rounded-md px-1.5 text-[11px] font-semibold ${s.tone}`}>{s.label}</span>;
+}
+
+/** 진행 막대. 넘친 값은 가득 채우고 실제 값은 valueText 가 말한다. docs/design/member-today.md §5-4 */
+export function ProgressBar({ value, max, label, valueText }: { value: number; max: number; label: string; valueText: string }) {
+  const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
+  return (
+    <div
+      role="progressbar"
+      aria-label={label}
+      aria-valuemin={0}
+      aria-valuemax={max}
+      aria-valuenow={Math.min(value, max)}
+      aria-valuetext={valueText}
+      className="h-2 w-full overflow-hidden rounded-full bg-line"
+    >
+      <div className="h-full rounded-full bg-accent" style={{ width: `${pct}%` }} />
+    </div>
+  );
+}
+
+/**
+ * 스켈레톤 막대 — shadcn Skeleton 원본에 바탕색만 덮는다. 원본의 bg-muted 는 우리 쪽에서 글자색이라 너무 진하다.
+ * 불러온 뒤 모양과 **같은 크기**로 둔다: 글자 줄은 그 글자 크기의 줄 높이(text-xs h-4, text-sm h-5, text-base h-6, text-lg·xl h-7).
+ * 규칙은 timesheet-ui 스킬 §0 "불러오는 중".
+ */
+export function Bone({ className }: { className?: string }) {
+  return <Skeleton aria-hidden className={cn("bg-line", className)} />;
+}
+
+/** 스켈레톤 영역을 감싼다 — 스크린리더에는 "불러오는 중" 한 번만 읽힌다 */
+export function Loading({ children, className, label = "불러오는 중" }: { children: React.ReactNode; className?: string; label?: string }) {
+  return (
+    <div aria-busy="true" className={className}>
+      <span className="sr-only" role="status">{label}</span>
+      {children}
+    </div>
+  );
 }

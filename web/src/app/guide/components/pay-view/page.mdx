@@ -6,7 +6,7 @@ export const metadata = { title: "Pay View" };
 
 <ComponentPreview name="pay-view/basic" width="max-w-md" />
 
-<FileLocation path="web/src/components/PayView.tsx" importLine={`import { DotRow, PayView, holidayStatus } from "@/components/PayView";`} />
+<FileLocation path="web/src/components/PayView.tsx" importLine={`import { DotRow, PayView, PayViewSkeleton, holidayStatus, holidayTone } from "@/components/PayView";`} />
 
 ## 사용법
 
@@ -17,7 +17,7 @@ export const metadata = { title: "Pay View" };
 ## 구성
 
 ```
-PayView  <Enter space-y-3 replay={replay}>   카드가 차례로 나타난다
+PayView  <Enter space-y-3>   카드가 차례로 나타난다(마운트될 때 한 번 — 불러오는 동안은 PayViewSkeleton 이 그려지므로 불러오기가 끝나면 다시 나타난다)
 ├─ 요약 Card
 │  ├─ SectionLabel PiggyBank "예상 급여 (세전)"
 │  ├─ 총액 <p text-[30px] font-semibold text-accent NUM> <CountUp value={total} format={won} />
@@ -28,7 +28,7 @@ PayView  <Enter space-y-3 replay={replay}>   카드가 차례로 나타난다
 └─ WeekCard (내부) × 주
    ├─ SectionLabel CalendarDays "10/13 (월) ~ 10/19 (일)" 오른쪽 = 주 합계
    ├─ <dl> DotRow × 근무 · 기본급 · 휴가수당(있을 때) · 주휴수당 · holidayStatus · 연장(5인 미만 표시)
-   │     주휴 상태 글자: 개근 text-ok, 진행 중 text-caution
+   │     주휴 상태 글자색 holidayTone: 개근 text-ok, 진행 중 text-caution
    └─ 한도 경고 text-warn (연장 12시간 초과)
 ```
 
@@ -58,6 +58,12 @@ PayView  <Enter space-y-3 replay={replay}>   카드가 차례로 나타난다
 
 <ComponentPreview name="pay-view/empty" width="max-w-md" />
 
+## 불러오는 중
+
+`PayViewSkeleton` — 요약 카드와 주 카드를 같은 틀·줄 높이로 두고 값 대신 막대. 주 카드 수는 "일요일이 이 달에 있고 `now` 까지 시작한 주" 수로 잡는다(매주 근무하는 사람의 주 카드 수와 같다). 휴가수당 줄·한도 경고는 없는 것으로 둔다 — 있으면 그 줄만큼 움직인다.
+
+<ComponentPreview name="pay-view/loading" width="max-w-md" />
+
 ## 점선 이음 줄 — DotRow
 
 `이름 ··········· 값` 한 줄. `PayView` 안의 내역이 쓰고, 다른 화면에서도 같은 모양으로 쓰도록 내보낸다. `<dl className="mt-2.5 grid gap-1.5 text-[13px]">` 안에 쌓는다. 점선은 줄의 `::after` 로 그려 `dt`·`dd` 구조를 해치지 않는다.
@@ -86,7 +92,6 @@ PayView  <Enter space-y-3 replay={replay}>   카드가 차례로 나타난다
     { prop: "month", type: "number", required: true, description: "0~11" },
     { prop: "now", type: "number", required: true, description: "진행 중 근무와 주 진행 여부 기준 시각" },
     { prop: "absences", type: 'Absence[] ({ date: "YYYY-MM-DD"; kind: "paid_leave" | "unpaid_leave" | "substitution" })', default: "[]", description: "승인된 휴가·대타" },
-    { prop: "replay", type: "unknown", description: "값이 바뀌면 카드 등장(`Enter`)을 다시 한다. 불러오기가 끝났을 때 바뀌는 값을 넘긴다" },
   ]}
 />
 
@@ -100,6 +105,16 @@ PayView  <Enter space-y-3 replay={replay}>   카드가 차례로 나타난다
   ]}
 />
 
+### PayViewSkeleton
+
+<PropsTable
+  rows={[
+    { prop: "year", type: "number", required: true },
+    { prop: "month", type: "number", required: true, description: "0~11" },
+    { prop: "now", type: "number", required: true, description: "주 카드 수를 정하는 기준 시각" },
+  ]}
+/>
+
 ### holidayStatus(week, settings, now): string
 
 주휴 상태 글자. 결과는 아래 중 하나다.
@@ -109,3 +124,7 @@ PayView  <Enter space-y-3 replay={replay}>   카드가 차례로 나타난다
 - `대상 아님 (그 주 전부 휴가)`
 - `진행 중 (n/m일)`
 - `미충족 (n/m일)`
+
+### holidayTone(status): string
+
+`holidayStatus` 글자의 색 클래스. `개근` 이면 `text-ok`, `진행 중` 으로 시작하면 `text-caution`, 그 밖은 빈 문자열이다. 뜻은 글자가 담고 색은 보조라, 색만 따로 쓰지 않는다. Today Dashboard 의 주휴수당 줄도 같은 함수를 쓴다.

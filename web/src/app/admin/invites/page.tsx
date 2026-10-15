@@ -1,15 +1,15 @@
 "use client";
 // 초대 코드 발급·보내기(문자·공유)·복사·취소. docs/prd/06-store-invite.md
-import Link from "next/link";
 import { useState } from "react";
-import { ChevronLeft, Copy, MessageSquareText, Share2, TicketPlus } from "lucide-react";
+import { Copy, MessageSquareText, Share2, TicketPlus } from "lucide-react";
 import { api, type Invite } from "@/api/client";
 import { Enter } from "@/components/motion";
 import { Avatar } from "@/components/shell";
 import { useSession } from "@/auth/hooks";
-import { BTN, Card, dayLabel, Field, NUM, Spinner } from "@/components/ui";
+import { BTN, Card, dayLabel, Field, NUM } from "@/components/ui";
 import { inviteMessage, joinUrl, smsHref } from "@/lib/inviteLink";
 import { useApi } from "@/lib/useApi";
+import { InvitesSkeleton } from "../_skeletons";
 
 const STATUS: Record<Invite["status"], string> = { active: "사용 가능", used: "사용됨", expired: "만료", revoked: "취소됨" };
 /** 상태 배지 — 쓸 수 있는 코드만 강조색, 나머지는 중립 (B 시안 .pill) */
@@ -22,7 +22,7 @@ export default function InvitesPage() {
   const [sending, setSending] = useState<string | null>(null);
   const session = useSession();
   const storeName = session.status === "authenticated" ? (session.me.membership?.store.name ?? "") : "";
-  if (!data) return <Spinner />;
+  if (!data) return <InvitesSkeleton />;
 
   const issue = async () => {
     setBusy(true);
@@ -41,10 +41,6 @@ export default function InvitesPage() {
 
   return (
     <Enter className="space-y-3">
-      {/* 초대는 내비에서 빠져 멤버 화면 안으로 들어갔다 — 돌아갈 길 */}
-      <Link href="/admin/members" className="inline-flex min-h-11 items-center gap-1 text-sm text-muted hover:text-foreground">
-        <ChevronLeft size={16} aria-hidden /> 멤버
-      </Link>
       <Card>
         <h2 className="font-semibold">알바생 초대</h2>
         <p className="mt-1 text-[13px] leading-relaxed text-muted">코드는 7일 동안, 한 명만 쓸 수 있어요. 알바생은 가입한 뒤 이 코드를 입력하면 매장에 들어와요.</p>
@@ -78,6 +74,7 @@ export default function InvitesPage() {
                     <button onClick={() => copy(i.code)} className={BTN.secondary}>
                       <Copy size={14} aria-hidden /> {copied === i.code ? "복사됨" : "복사"}
                     </button>
+                    {/* 동작 버튼은 44px — 2026-10-07 터치 영역 결정(DESIGN.md §6). 취소는 올리면 빨강 */}
                     <button onClick={() => revoke(i.id)} className={`${BTN.secondary} hover:border-warn/40 hover:text-warn`}>취소</button>
                   </div>
                 )}

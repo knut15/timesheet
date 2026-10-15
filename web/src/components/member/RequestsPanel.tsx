@@ -8,7 +8,7 @@ import { api, errorCode, type Colleague, type MyRequests } from "@/api/client";
 import { EmptyState } from "../illust";
 import { Enter } from "../motion";
 import { Avatar } from "../shell";
-import { BTN, Card, date, ErrorText, Field, NUM, SectionLabel, StatusPill, time } from "../ui";
+import { Bone, BTN, Card, date, ErrorText, Field, Loading, NUM, SectionLabel, StatusPill, time } from "../ui";
 
 const MESSAGES: Record<string, string> = {
   LEAVE_OVERLAP: "이미 신청한 휴가와 날짜가 겹쳐요.",
@@ -19,7 +19,7 @@ const MESSAGES: Record<string, string> = {
 const msg = (e: unknown) => MESSAGES[errorCode(e) ?? ""] ?? "잠시 뒤 다시 시도해 주세요.";
 const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
 
-export function RequestsPanel({ requests, colleagues, onChange }: { requests: MyRequests | null; colleagues: Colleague[]; onChange: () => void }) {
+export function RequestsPanel({ requests, failed = false, colleagues, onChange }: { requests: MyRequests | null; failed?: boolean; colleagues: Colleague[]; onChange: () => void }) {
   const incoming = (requests?.substitutionsIn ?? []).filter((s) => s.status === "requested");
   return (
     // 카드가 차례로 나타나고, 요청 목록을 다 읽으면 다시
@@ -36,7 +36,8 @@ export function RequestsPanel({ requests, colleagues, onChange }: { requests: My
       )}
       <LeaveForm onDone={onChange} />
       <SubstitutionForm colleagues={colleagues} onDone={onChange} />
-      <MyList requests={requests} onChange={onChange} />
+      {/* 읽기 전(null)이면 목록 자리. 읽기에 실패하면 예전처럼 목록을 숨긴다 */}
+      {requests || failed ? <MyList requests={requests} onChange={onChange} /> : <MyListSkeleton />}
     </Enter>
   );
 }
@@ -138,6 +139,28 @@ function SubstitutionForm({ colleagues, onDone }: { colleagues: Colleague[]; onD
         <button className={`${BTN.secondary} w-full`}>요청</button>
       </form>
     </Card>
+  );
+}
+
+/** 내 요청 목록을 읽는 동안 — MyList 와 같은 Card·행 틀(py-2.5)에 3행. 행마다 종류(text-xs)·내용(13px) 줄 자리 막대와 상태 배지(h-5) 자리 */
+function MyListSkeleton() {
+  return (
+    <Loading>
+      <Card>
+        <SectionLabel icon={ClipboardList} right={<Bone className="inline-block h-3 w-3 align-middle" />}>내 요청</SectionLabel>
+        <ul className="mt-1 divide-y divide-dashed divide-line">
+          {[0, 1, 2].map((i) => (
+            <li key={i} className="flex items-start justify-between gap-3 py-2.5">
+              <div className="min-w-0">
+                <div className="text-xs"><Bone className="inline-block h-3 w-14 align-middle" /></div>
+                <div className="mt-px text-[13px]"><Bone className="inline-block h-3.5 w-40 align-middle" /></div>
+              </div>
+              <Bone className="h-5 w-14 rounded-md" />
+            </li>
+          ))}
+        </ul>
+      </Card>
+    </Loading>
   );
 }
 

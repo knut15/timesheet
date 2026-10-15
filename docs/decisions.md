@@ -31,6 +31,11 @@
 | 2026-09-25 | 휴가·대타는 마스터가 승인하고 직접 등록·삭제 | [PRD 09](prd/09-leave-substitution.md) |
 | 2026-09-25 | 휴가 유급 여부는 멤버가 고르지 않고 마스터가 승인 때 정한다 | [PRD 09](prd/09-leave-substitution.md) §1 |
 | 2026-09-25 | 근무 달력 — 마스터는 전체 멤버, 멤버는 본인만 | [PRD 10](prd/10-calendar.md) |
+| 2026-09-25 | 멤버 첫 화면에 오늘 근무 대시보드 — 출퇴근 탭의 시계 바로 아래 | [PRD 12](prd/12-member-today.md) |
+| 2026-09-25 | 퇴근하면 다시 출근 없음 — 내일 0시까지 출근 버튼 비활성, 50m 알림도 끔 | [PRD 12](prd/12-member-today.md) T-7 |
+| 2026-09-25 | 마스터가 멤버별 근무 요일·출퇴근 시각을 정하고, 주 시간·일수는 그 시간표로 계산 | [PRD 13](prd/13-work-schedule.md) |
+| 2026-09-25 | 대타·사정으로 달라지는 날은 날짜별 변경(쉼·시각)으로 — 마스터만 | [PRD 13](prd/13-work-schedule.md) |
+| 2026-09-25 | 시급 입력은 천 단위 쉼표 | [PRD 13](prd/13-work-schedule.md) WS-6 |
 | 2026-09-25 | 마스터가 로고(PNG·JPG·SVG) 업로드, 헤더에 노출 | [PRD 11](prd/11-store-logo.md) |
 | 2026-09-25 | 로고가 있으면 매장 이름 글자는 지운다 | [PRD 11](prd/11-store-logo.md) LG-5 |
 | 2026-09-25 | 초대 코드는 휴대폰 문자 앱(공유)으로 보낸다 — 서버 자동 문자 아님 | [PRD 06](prd/06-store-invite.md) "초대 코드 보내기" |
@@ -44,6 +49,14 @@
 | 2026-09-25 | 달력 선택 시 파란 테두리 없음 | [달력 명세](design/calendar.md) §3, timesheet-ui §4 |
 | 2026-09-25 | 좌우 화살표는 심플한 아이콘 — lucide Chevron | timesheet-ui §0·§2, [가이드 명세](design/component-guide.md) §2-5 |
 | 2026-09-25 | 스크롤은 전부 shadcn ScrollArea | timesheet-ui §0·§2, [가이드 명세](design/component-guide.md) §2-5 |
+| 2026-09-25 | 멤버 시계는 모바일에서도 한 줄 — HH:MM:SS | `web/src/lib/format.ts` clockText, [PRD 12](prd/12-member-today.md) |
+| 2026-09-25 | 멤버 카드의 글자 링크(근무 기록·조건 수정·퇴사처리)는 버튼 모양으로 | timesheet-ui §0 "버튼" |
+| 2026-09-25 | 멤버 카드 버튼은 작게(h-8), 조건 수정은 shadcn Dialog 모달, 저장·취소는 h-9 | timesheet-ui §0 "버튼", [가이드 명세](design/component-guide.md) §4-19 |
+| 2026-09-25 | 멤버를 매장에서 빼는 동작의 이름은 "퇴사처리" ("내보내기" 아님) | [PRD 06](prd/06-store-invite.md) |
+| 2026-09-25 | 불러오는 중은 전부 shadcn Skeleton — 불러온 뒤와 같은 크기, layout shift 없음 | timesheet-ui §0 "불러오는 중", 가이드 `/guide/components/skeleton` |
+| 2026-09-25 | 멤버 상세 기록의 수정·삭제도 작은 테두리 버튼 | timesheet-ui §0 "버튼" |
+| 2026-09-25 | 버튼은 색 테두리 없이 모던하게 — 주 동작 검정, 보통 회색, 지우기는 올리면 빨강 | timesheet-ui §0 "버튼", 가이드 `/guide/components/button` |
+| 2026-09-25 | 하위 화면은 헤더 브레드크럼(멤버 › 근무 기록) + 헤더 폭 서브헤더(뒤로 가기) | timesheet-ui §0 "하위 화면", 가이드 App Header |
 | 2026-09-25 | 글꼴은 Pretendard | timesheet-ui §0, [가이드 명세](design/component-guide.md) §2-2, 웹 `/guide/foundations` |
 | 2026-10-07 | 브랜치 전략: 작업 브랜치는 release 에서 분기 → release 위로 리베이스 → release 에 스쿼시 머지. main 은 release 를 fast-forward(스쿼시 안 함) = 운영 배포 | [브랜치 전략](branching.md) |
 | 2026-10-07 | 디자인 새로 잡기: 라이트 청록·다크 민트(강조색 계열 통일), 토큰 값 교체, 움직임은 CSS 만, 라이트 상태 색 한 단계 진하게, `DESIGN.md` 를 루트에 | [DESIGN.md](../DESIGN.md) §1·§2·§5, [설계](superpowers/specs/2026-10-07-design-refresh-design.md) |
@@ -53,3 +66,7 @@
 | 2026-10-15 | 헤더는 "매장 / 화면 이름" 한 줄, 화면 이름 18px 굵게. 출퇴근 시계·큰 급여 숫자는 강조색 | [DESIGN.md](../DESIGN.md) §4, [timesheet-ui](../.claude/skills/timesheet-ui/SKILL.md) §1 |
 | 2026-10-15 | 모션은 GSAP — 화면 진입·출퇴근 누름·숫자 변화·완료 순간. 동작 줄이기면 투명도만 | [DESIGN.md](../DESIGN.md) §5 |
 | 2026-10-15 | 일러스트는 사람 없이 lucide 아이콘 조합(빈 상태·완료·로그인·가입·온보딩), 구역 아이콘도 lucide | [DESIGN.md](../DESIGN.md) §4 |
+| 2026-10-15 | 버튼 체계를 하나로 — B 시안의 `BTN`(styles.ts). PR #8 의 `buttons.ts` 이름은 별칭으로 남김. "보통 동작 회색 채움"(09-25)은 회색 선으로 | [DESIGN.md](../DESIGN.md) §3, [timesheet-ui](../.claude/skills/timesheet-ui/SKILL.md) §0 "버튼" |
+| 2026-10-15 | 중립색을 시안 B 처럼 청록 기운 없는 회색으로(바탕 #fafafa·글자 #18181b·선 #e4e4e7·보조 #6b6b74, 다크도 회색). 강조·상태색은 그대로 | [DESIGN.md](../DESIGN.md) §2 |
+| 2026-10-15 | 멤버 기록의 빠진 기록 추가·수정·삭제 요청은 모두 모달로 | [timesheet-requests](../.claude/skills/timesheet-requests/SKILL.md) §1 끝 |
+| 2026-10-15 | 내 정보 근무 조건의 시간표·주 시간·근무일은 그래프로(Recharts) — 주간 시간표 막대, 주 시간 게이지(주휴 15h·법정 40h), 근무일 점 | [DESIGN.md](../DESIGN.md) §4 |

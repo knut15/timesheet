@@ -6,7 +6,7 @@ import { api, errorCode } from "@/api/client";
 import { useArea } from "@/auth/hooks";
 import { logout, reloadMe } from "@/auth/session";
 import { Scene } from "@/components/illust";
-import { BTN, Card, ErrorText, Field, Spinner } from "@/components/ui";
+import { BTN, Bone, Card, ErrorText, Field, Loading } from "@/components/ui";
 import { clearInviteCode, peekInviteCode } from "@/lib/inviteLink";
 
 const MESSAGES: Record<string, string> = {
@@ -22,7 +22,7 @@ export default function OnboardingPage() {
   const [storeName, setStoreName] = useState("");
   const [error, setError] = useState<{ which: "code" | "store"; msg: string } | null>(null);
   const [busy, setBusy] = useState(false);
-  if (!me) return <Spinner />;
+  if (!me) return <OnboardingSkeleton />;
 
   const run = async (which: "code" | "store", send: () => Promise<{ error?: unknown }>) => {
     setBusy(true);
@@ -94,5 +94,42 @@ export default function OnboardingPage() {
 
       <button onClick={() => logout()} className="mt-4.5 w-full py-2 text-[13px] text-muted underline">로그아웃</button>
     </div>
+  );
+}
+
+/** 로그인 확인 전 — 아래 화면(B 시안 13번)과 같은 틀·같은 줄 높이 (2026-09-25 "layout shift 없도록 스켈레톤") */
+function OnboardingSkeleton() {
+  const card = (
+    <Card>
+      <div className="flex items-center gap-2.5">
+        <Bone className="size-[22px] shrink-0 rounded-md" />
+        <div>
+          <div className="flex h-[22px] items-center"><Bone className="h-3.5 w-24" /></div>
+          <div className="mt-px flex h-4 items-center"><Bone className="h-3 w-48" /></div>
+        </div>
+      </div>
+      <div className="mt-2.5 grid gap-2.5">
+        <div>
+          <div className="flex h-5 items-center"><Bone className="h-3 w-16" /></div>
+          <Bone className="mt-1.5 h-11 rounded-xl" />
+        </div>
+        <Bone className="h-11 rounded-xl" />
+      </div>
+    </Card>
+  );
+  return (
+    <Loading className="mx-auto w-full max-w-sm flex-1 px-6 py-10">
+      <div className="flex items-end gap-3.5">
+        <div className="grid h-[72px] w-[96px] shrink-0 place-items-center"><Bone className="size-16 rounded-full" /></div>
+        <div>
+          <div className="flex h-[33px] items-center"><Bone className="h-6 w-48" /></div>
+          <div className="mt-1 flex h-5 items-center"><Bone className="h-3.5 w-32" /></div>
+        </div>
+      </div>
+      <div className="mt-6 grid gap-3">
+        {card}
+        {card}
+      </div>
+    </Loading>
   );
 }

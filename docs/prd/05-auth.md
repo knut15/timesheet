@@ -38,7 +38,7 @@ FE 와 API 를 서로 다른 `*.vercel.app` 주소로 직접 부르면 **다른 
 | 메서드·경로 | 인증 | CSRF | 설명 |
 |---|---|---|---|
 | `GET /api/auth/csrf` | — | — | CSRF 토큰 발급 |
-| `POST /api/auth/signup` | — | — | `{ email, password, nickname }` → 201 |
+| `POST /api/auth/signup` | — | ✅ | `{ email, password, nickname }` → 201 (쿠키 세션 전환 뒤 모든 변경 요청에 전역 CSRF — `server/src/app.ts`) |
 | `POST /api/auth/login` | — | ✅ | 200 토큰 + 리프레시 쿠키 |
 | `POST /api/auth/refresh` | 쿠키 | ✅ | 회전 |
 | `POST /api/auth/logout` | 쿠키 | ✅ | 204, 멱등 |

@@ -3,15 +3,15 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
-import { ChevronLeft } from "lucide-react";
 import { api, errorCode, type ShiftDto } from "@/api/client";
 import { useSession } from "@/auth/hooks";
 import { PayView } from "@/components/PayView";
 import { Enter } from "@/components/motion";
 import { Avatar } from "@/components/shell";
-import { BTN, Card, date, ErrorText, Field, hm, MonthPicker, NUM, monthRange, Spinner, time, toLocalInput, toShift, useMonthCursor, useNow } from "@/components/ui";
+import { BTN, Card, date, ErrorText, Field, hm, MonthPicker, NUM, monthRange, time, toLocalInput, toShift, useMonthCursor, useNow } from "@/components/ui";
 import { parseDay, shiftMinutes, type PaySettings } from "@/lib/pay";
 import { useApi } from "@/lib/useApi";
+import { MemberDetailSkeleton } from "../../_skeletons";
 
 export default function MemberDetailPage() {
   const { userId } = useParams<{ userId: string }>();
@@ -31,7 +31,8 @@ export default function MemberDetailPage() {
 
   const member = members.data?.find((m) => m.userId === userId);
   if (members.data && !member) return <Card><p className="text-sm text-muted">이 매장의 멤버가 아니에요. <Link href="/admin/members" className="font-medium text-accent">멤버 목록</Link></p></Card>;
-  if (!member || !shiftsRes.data || session.status !== "authenticated") return <Spinner />;
+  // 휴가 목록(absRes)도 기다린다 — 기록 목록 위에 뒤늦게 끼어들어 행이 밀리지 않게
+  if (!member || !shiftsRes.data || !absRes.data || session.status !== "authenticated") return <MemberDetailSkeleton />;
 
   const settings: PaySettings = {
     hourlyWage: member.hourlyWage,
@@ -48,18 +49,14 @@ export default function MemberDetailPage() {
 
   return (
     <Enter className="space-y-3">
-      <div>
-        <Link href="/admin/members" className="inline-flex min-h-11 items-center gap-1 text-sm text-muted hover:text-foreground">
-          <ChevronLeft size={16} aria-hidden /> 멤버
-        </Link>
-        <Card className="flex items-center gap-3">
-          <Avatar name={member.nickname} seed={member.userId} size="lg" />
-          <div className="min-w-0">
-            <h2 className="truncate text-xl font-bold tracking-tight">{member.nickname}</h2>
-            <p className="truncate text-[13px] text-muted">{member.email}</p>
-          </div>
-        </Card>
-      </div>
+      {/* 뒤로 가기는 헤더 아래 SubHeader 가 맡는다 (2026-09-25 사용자 요청) */}
+      <Card className="flex items-center gap-3">
+        <Avatar name={member.nickname} seed={member.userId} size="lg" />
+        <div className="min-w-0">
+          <h2 className="truncate text-xl font-bold tracking-tight">{member.nickname}</h2>
+          <p className="truncate text-[13px] text-muted">{member.email}</p>
+        </div>
+      </Card>
       <MonthPicker cursor={cursor} onChange={setCursor} />
       {/* 보기 전환 — 옅은 바탕 틀 안에서 고른 쪽만 카드 바탕 (B 시안 .seg) */}
       <div className="grid grid-cols-2 rounded-xl bg-line/60 p-[3px] text-[13px]">

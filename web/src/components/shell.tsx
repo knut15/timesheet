@@ -1,7 +1,8 @@
 "use client";
 // 앱 셸 — 헤더·하단 내비게이션·멤버 아바타. 규칙은 .claude/skills/timesheet-ui/SKILL.md
 import Link from "next/link";
-import type { LucideIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, type LucideIcon } from "lucide-react";
+import { Bone } from "./ui";
 
 /** 아바타 배경. 흰 글자와 대비 4.5:1 이상인 중간 채도만 둔다. */
 const AVATAR_COLORS = ["#2563eb", "#7c3aed", "#db2777", "#dc2626", "#c2410c", "#15803d", "#0f766e", "#4338ca"];
@@ -45,23 +46,44 @@ export function Avatar({ name, seed, size = "md", label }: { name: string; seed:
   );
 }
 
+/** 하위 화면 브레드크럼의 상위 화면 하나 */
+export type Crumb = { label: string; href: string };
+
 /**
- * 모든 화면의 머리. 한 줄로 "매장 / 화면 이름" — 화면 이름을 18px 굵게 강조한다 (2026-10-15 B 시안). 오른쪽에 동작과 내 아바타.
- * width 는 본문 폭과 같게 준다 — 멤버 max-w-md, 관리 max-w-3xl.
+ * 모든 화면의 머리. 한 줄로 "매장 / 화면 이름" — 화면 이름을 18px 굵게 (2026-10-15 B 시안). 오른쪽에 동작과 내 아바타.
+ * crumbs 가 있으면 화면 이름 앞에 "멤버 › 근무 기록" 처럼 상위 화면 링크를 붙인다 (2026-09-25 사용자 요청).
+ * width 는 본문 폭과 같게 — 멤버 max-w-md, 관리 max-w-3xl.
  * logoUrl 이 있으면 매장 자리 맨 앞에 매장 로고(높이 20px, 가로 최대 96px, 비율 유지)를 둔다 (docs/prd/11).
  * 로고가 매장 이름을 대신한다 — 부르는 쪽은 eyebrow 에서 매장 이름을 빼고, 이름은 logoAlt 로 넘긴다.
  */
-export function AppHeader({ eyebrow, title, me, actions, width = "max-w-3xl", logoUrl, logoAlt = "" }: { eyebrow: string; title: string; me: { id: string; nickname: string }; actions?: React.ReactNode; width?: string; logoUrl?: string | null; logoAlt?: string }) {
+export function AppHeader({ eyebrow, title, me, actions, width = "max-w-3xl", logoUrl, logoAlt = "", crumbs }: { eyebrow: string; title: string; me: { id: string; nickname: string }; actions?: React.ReactNode; width?: string; logoUrl?: string | null; logoAlt?: string; crumbs?: Crumb[] }) {
   return (
     <header className="sticky top-0 z-20 border-b border-line bg-surface/95 backdrop-blur">
       <div className={`mx-auto flex ${width} h-16 items-center justify-between gap-3 px-5`}>
-        <div className="flex min-w-0 items-center gap-1.5">
+        <div className="flex h-7 min-w-0 items-center gap-1.5">
           {/* 로고가 매장 이름 글자를 대신하므로 alt 에 매장 이름을 둔다 (2026-09-25 사용자 요청: 로고 옆 이름 글자 제거) */}
           {/* eslint-disable-next-line @next/next/no-img-element -- 인증 쿠키로 받는 API 이미지라 next/image 최적화 대상이 아니다 */}
           {logoUrl && <img src={logoUrl} alt={logoAlt} className="h-5 w-auto max-w-24 shrink-0 object-contain" />}
           {eyebrow && <span className="truncate text-[15px] font-medium text-muted">{eyebrow}</span>}
           {(logoUrl || eyebrow) && <span aria-hidden className="text-[15px] text-muted/50">/</span>}
-          <h1 className="shrink-0 text-lg font-bold tracking-tight">{title}</h1>
+          {crumbs?.length ? (
+            // 하위 화면: "매장 / 멤버 › 근무 기록" — 상위 화면은 링크, 마지막 화면 이름만 18px 굵게 (2026-09-25 브레드크럼 + 2026-10-15 B 시안)
+            <nav aria-label="현재 위치" className="min-w-0">
+              <ol className="flex min-w-0 items-center gap-1">
+                {crumbs.map((c) => (
+                  <li key={c.href} className="flex shrink-0 items-center gap-1">
+                    <Link href={c.href} className="text-[15px] font-medium text-muted hover:text-foreground">{c.label}</Link>
+                    <ChevronRight size={15} aria-hidden className="text-muted" />
+                  </li>
+                ))}
+                <li className="min-w-0">
+                  <h1 aria-current="page" className="truncate text-lg font-bold tracking-tight">{title}</h1>
+                </li>
+              </ol>
+            </nav>
+          ) : (
+            <h1 className="shrink-0 text-lg font-bold tracking-tight">{title}</h1>
+          )}
         </div>
         <div className="flex shrink-0 items-center gap-1">
           {actions}
@@ -120,5 +142,55 @@ export function IconButton({ icon: Icon, label, onClick, variant = "ghost" }: { 
     <button type="button" onClick={onClick} aria-label={label} title={label} className={`inline-flex h-11 w-11 items-center justify-center rounded-xl ${look}`}>
       <Icon size={variant === "outline" ? 18 : 20} aria-hidden />
     </button>
+  );
+}
+
+/** 로그인 확인 전 헤더 자리 — AppHeader 와 같은 높이 64px(h-16)·같은 바탕(bg-surface/95). */
+export function HeaderSkeleton({ width = "max-w-3xl" }: { width?: string }) {
+  return (
+    <div aria-hidden className="sticky top-0 z-20 border-b border-line bg-surface/95">
+      <div className={`mx-auto flex ${width} h-16 items-center justify-between gap-3 px-5`}>
+        {/* B 헤더와 같은 한 줄 — 매장 이름 자리 + 화면 이름 자리, 오른쪽 아바타 sm */}
+        <div className="flex h-7 items-center gap-1.5">
+          <Bone className="h-3.5 w-20" />
+          <Bone className="h-5 w-14" />
+        </div>
+        <Bone className="h-8 w-8 rounded-[6px]" />
+      </div>
+    </div>
+  );
+}
+
+/** 로그인 확인 전 하단 내비 자리 — BottomNav 와 같은 h-16 칸 count 개 */
+export function BottomNavSkeleton({ count, width = "max-w-3xl" }: { count: number; width?: string }) {
+  return (
+    <div aria-hidden className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)]">
+      <div className={`mx-auto grid ${width}`} style={{ gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))` }}>
+        {Array.from({ length: count }, (_, i) => (
+          <div key={i} className="flex h-16 flex-col items-center justify-center gap-1">
+            <Bone className="h-5 w-5 rounded-md" />
+            <Bone className="h-3 w-8" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * 하위 화면의 서브헤더 — 헤더 아래 헤더와 같은 폭의 띠에 뒤로 가기. 본문과 확실히 나뉜다 (2026-09-25 사용자 요청
+ * "뒤로가기 버튼 영역을 width 100% 로 서브헤더 영역을 만들던지 확실히 구분되게").
+ */
+export function SubHeader({ backHref, backLabel, width = "max-w-3xl" }: { backHref: string; backLabel: string; width?: string }) {
+  return (
+    <div className="border-b border-line bg-surface">
+      {/* 작은 버튼 — 카드 안 버튼과 같은 h-8 (2026-09-25 "멤버목록 버튼 작은 사이즈로") */}
+      <div className={`mx-auto flex ${width} items-center px-3 py-1.5`}>
+        <Link href={backHref} className="inline-flex h-8 items-center gap-0.5 rounded-lg px-2 text-xs font-medium text-muted hover:bg-line/60 hover:text-foreground">
+          <ChevronLeft size={14} aria-hidden />
+          {backLabel}
+        </Link>
+      </div>
+    </div>
   );
 }
