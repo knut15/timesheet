@@ -78,9 +78,9 @@ pnpm dev:web
 | 디자인 컴포넌트 가이드 — 웹 `/guide` (MDX) | 배포 — https://timesheet-brown-ten.vercel.app/guide |
 | 매장 로고 업로드·헤더 노출 | 배포 ([PRD 11](docs/prd/11-store-logo.md)) |
 | 초대 코드 문자 보내기(휴대폰 문자 앱·공유), 가입 링크 | 배포 ([PRD 06](docs/prd/06-store-invite.md)) |
-| 멤버 오늘 근무 대시보드 — 출퇴근 탭 시계 아래 | release 반영(#8) — 운영 배포 대기 ([PRD 12](docs/prd/12-member-today.md), [디자인](docs/design/member-today.md)) |
-| 근무 시간표 — 요일·출퇴근 시각, 날짜별 변경(마스터), 시급 천 단위 쉼표 | release 반영(#8) — 운영 배포 대기 ([PRD 13](docs/prd/13-work-schedule.md)) |
-| 디자인 B — 가는 선·작은 모서리·고정폭 숫자·회색 중립색, GSAP 모션, lucide 일러스트, 근무 조건 그래프(주간 리듬 카드), 기록 요청 모달 | release 반영 — 운영 배포 대기 ([DESIGN.md](DESIGN.md)) |
+| 멤버 오늘 근무 대시보드 — 출퇴근 탭 시계 아래 | 배포 (2026-10-15) ([PRD 12](docs/prd/12-member-today.md), [디자인](docs/design/member-today.md)) |
+| 근무 시간표 — 요일·출퇴근 시각, 날짜별 변경(마스터), 시급 천 단위 쉼표 | 배포 (2026-10-15) ([PRD 13](docs/prd/13-work-schedule.md)) |
+| 디자인 B — 가는 선·작은 모서리·고정폭 숫자·회색 중립색, GSAP 모션, lucide 일러스트, 근무 조건 그래프(주간 리듬 카드), 기록 요청 모달 | 배포 (2026-10-15, 항상 다크) ([DESIGN.md](DESIGN.md)) |
 | 배포 | 웹 https://timesheet-brown-ten.vercel.app · API·Neon DB ([docs/deploy.md](docs/deploy.md)) |
 
 ## 문서
