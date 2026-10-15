@@ -44,7 +44,7 @@ export function RecordsPanel(props: Props) {
 
   return (
     // 카드가 차례로 나타나고, 불러오기가 끝나면(loading 이 바뀌면) 다시
-    <Enter className="space-y-3" replay={props.loading}>
+    <Enter className="space-y-3">
       <ViewToggle value={view} onChange={setView} />
       {props.failed ? (
         <Card className="space-y-3">

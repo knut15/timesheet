@@ -34,7 +34,7 @@ export function PayView({ shifts, settings, year, month, now, absences = [] }: {
     // 카드가 차례로 나타난다. 불러오는 동안은 PayViewSkeleton 이 그려지므로, 불러오기가 끝나면 여기서 다시 한 번
     <Enter className="space-y-3">
       <Card>
-        <SectionLabel icon={PiggyBank}>예상 급여 (세전)</SectionLabel>
+        <SectionLabel tone="title" icon={PiggyBank}>예상 급여 (세전)</SectionLabel>
         {/* 포인트 컬러: 큰 급여 숫자만 강조색 (2026-10-15 사용자 지시) */}
         <p className={`mt-1.5 text-[30px] font-semibold leading-tight text-accent ${NUM}`}>
           <CountUp value={m.total} format={won} />
@@ -72,7 +72,7 @@ export function PayViewSkeleton({ year, month, now }: { year: number; month: num
     <Loading>
       <Enter className="space-y-3">
         <Card>
-          <SectionLabel icon={PiggyBank}>예상 급여 (세전)</SectionLabel>
+          <SectionLabel tone="title" icon={PiggyBank}>예상 급여 (세전)</SectionLabel>
           {/* text-[30px] leading-tight 줄 = 37.5px */}
           <div className="mt-1.5 flex h-[37.5px] items-center"><Bone className="h-8 w-40" /></div>
           <dl className={DL}>

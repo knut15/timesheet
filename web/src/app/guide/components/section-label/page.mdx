@@ -27,6 +27,12 @@ SectionLabel  <div flex justify-between text-xs font-semibold text-muted>
 
 `NUM` 은 `font-mono tabular-nums` — 번호와 오른쪽 값은 고정폭 숫자로 그린다.
 
+## 카드 제목 — `tone="title"`
+
+카드 하나가 한 가지 일을 할 때 그 카드의 제목으로 쓴다. "매장 근처 출근 알림" 과 같은 14px 굵게·본문색이고 아이콘만 회색이다. 멤버 요청 탭(받은 대타 요청·휴가 신청·대타 요청·내 요청), 급여 탭(예상 급여), 내 정보 탭(근무 조건·날짜별 근무 변경)이 쓴다 (2026-10-15 사용자 요청 "타이틀은 강조해줘 폰트 키우고"). 카드 안을 여러 구역으로 나눈 머리(대시보드 01~04 등)는 기본 `tone="label"` 그대로 작은 회색이다.
+
+<ComponentPreview name="section-label/title" width="max-w-md" />
+
 ## 번호와 오른쪽 값
 
 `index="01"` 로 구역 번호를, `right` 로 그 구역의 요약 값을 단다.
@@ -60,5 +66,6 @@ SectionLabel  <div flex justify-between text-xs font-semibold text-muted>
     { prop: "index", type: "string", description: "구역 번호(예 `\"01\"`). 옅은 고정폭 숫자" },
     { prop: "right", type: "React.ReactNode", description: "오른쪽 요약 값. 고정폭 숫자" },
     { prop: "as", type: '"h2" | "h3" | "p"', default: '"h2"', description: "제목 태그" },
+    { prop: "tone", type: '"label" | "title"', default: '"label"', description: "label: 작은 회색 구역 머리(12px). title: 카드 제목(14px 굵게·본문색, 아이콘 회색)" },
   ]}
 />

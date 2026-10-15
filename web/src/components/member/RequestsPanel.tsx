@@ -23,10 +23,10 @@ export function RequestsPanel({ requests, failed = false, colleagues, onChange }
   const incoming = (requests?.substitutionsIn ?? []).filter((s) => s.status === "requested");
   return (
     // 카드가 차례로 나타나고, 요청 목록을 다 읽으면 다시
-    <Enter className="space-y-3" replay={!!requests}>
+    <Enter className="space-y-3">
       {incoming.length > 0 && (
         <Card>
-          <SectionLabel icon={ArrowLeftRight} right={incoming.length}>받은 대타 요청</SectionLabel>
+          <SectionLabel tone="title" icon={ArrowLeftRight} right={incoming.length}>받은 대타 요청</SectionLabel>
           <ul className="mt-1 divide-y divide-dashed divide-line">
             {incoming.map((s) => (
               <IncomingSub key={s.id} sub={s} onChange={onChange} />
@@ -85,7 +85,7 @@ function LeaveForm({ onDone }: { onDone: () => void }) {
   };
   return (
     <Card>
-      <SectionLabel icon={Plane}>휴가 신청</SectionLabel>
+      <SectionLabel tone="title" icon={Plane}>휴가 신청</SectionLabel>
       <p className="mt-1.5 text-[13px] leading-relaxed text-muted">유급·무급은 사장님이 승인하면서 정해요.</p>
       <form onSubmit={submit} className="mt-3 space-y-3">
         <div className="grid grid-cols-2 gap-2">
@@ -119,7 +119,7 @@ function SubstitutionForm({ colleagues, onDone }: { colleagues: Colleague[]; onD
   };
   return (
     <Card>
-      <SectionLabel icon={ArrowLeftRight}>대타 요청</SectionLabel>
+      <SectionLabel tone="title" icon={ArrowLeftRight}>대타 요청</SectionLabel>
       <p className="mt-1.5 text-[13px] leading-relaxed text-muted">동료가 수락하고 사장님이 승인하면 그날은 결근으로 세지 않아요.</p>
       <form onSubmit={submit} className="mt-3 space-y-3">
         <div className="grid grid-cols-2 gap-2">
@@ -147,7 +147,7 @@ function MyListSkeleton() {
   return (
     <Loading>
       <Card>
-        <SectionLabel icon={ClipboardList} right={<Bone className="inline-block h-3 w-3 align-middle" />}>내 요청</SectionLabel>
+        <SectionLabel tone="title" icon={ClipboardList} right={<Bone className="inline-block h-3 w-3 align-middle" />}>내 요청</SectionLabel>
         <ul className="mt-1 divide-y divide-dashed divide-line">
           {[0, 1, 2].map((i) => (
             <li key={i} className="flex items-start justify-between gap-3 py-2.5">
@@ -206,7 +206,7 @@ function MyList({ requests, onChange }: { requests: MyRequests | null; onChange:
 
   return (
     <Card>
-      <SectionLabel icon={ClipboardList} right={rows.length}>내 요청</SectionLabel>
+      <SectionLabel tone="title" icon={ClipboardList} right={rows.length}>내 요청</SectionLabel>
       <ErrorText>{error}</ErrorText>
       {rows.length === 0 ? (
         // 화면의 주 빈 상태라 장면 일러스트를 둔다

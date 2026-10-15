@@ -55,7 +55,7 @@ export default function DashboardPage() {
 
   return (
     // 달을 바꿔 새 data 가 오면 카드가 다시 차례로 나타난다
-    <Enter className="grid gap-3 sm:grid-cols-2" replay={data}>
+    <Enter className="grid gap-3 sm:grid-cols-2">
       <Card>
         <SectionLabel icon={Timer} right={`${cameToday}/${rows.length}명 출근${onLeaveToday.length > 0 ? ` · 휴가·대타 ${onLeaveToday.length}명` : ""}`}>지금 근무 중</SectionLabel>
         {working.length === 0 ? (

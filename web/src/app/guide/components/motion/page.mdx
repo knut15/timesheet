@@ -33,7 +33,7 @@ GSAP 로 만든 모션 4종. 화면 진입(`Enter`), 숫자 변화(`CountUp`), �
 
 ## 화면 진입 — Enter
 
-맨 위 미리보기. 화면을 처음 열 때 본문 묶음을 감싼다. 불러오기가 끝나 내용이 바뀌면 `replay` 에 바뀌는 값을 넘겨 다시 한다.
+맨 위 미리보기. 화면을 처음 열 때 본문 묶음을 감싼다. **처음 그릴 때 한 번만** 한다 — 불러오기가 끝나 스켈레톤이 내용으로 바뀔 때 다시 하면 이미 보이던 카드가 투명해졌다 돌아와 깜빡인다(2026-10-15). 다시 보여 줘야 하면 `key` 를 바꿔 새로 그린다.
 
 ## 숫자 변화 — CountUp
 
@@ -72,7 +72,6 @@ GSAP 로 만든 모션 4종. 화면 진입(`Enter`), 숫자 변화(`CountUp`), �
   rows={[
     { prop: "children", type: "React.ReactNode", required: true, description: "바로 아래 자식마다 차례로 나타난다" },
     { prop: "className", type: "string", description: "감싸는 `div` 의 클래스" },
-    { prop: "replay", type: "unknown", description: "값이 바뀌면 다시 한다" },
   ]}
 />
 

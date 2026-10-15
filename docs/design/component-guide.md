@@ -1389,6 +1389,7 @@ SectionLabel  <div flex justify-between text-xs font-semibold text-muted>
 | `index` | `string` | — | 구역 번호(예 `"01"`). 옅은 고정폭 숫자 |
 | `right` | `React.ReactNode` | — | 오른쪽 요약 값. 고정폭 숫자 |
 | `as` | `"h2" \| "h3" \| "p"` | `"h2"` | 제목 태그 |
+| `tone` | `"label" \| "title"` | `"label"` | `label`: 작은 회색 구역 머리(12px). `title`: 카드 제목 — "매장 근처 출근 알림" 과 같은 14px 굵게·본문색, 아이콘만 회색. 멤버 요청·급여·내 정보 탭의 카드 제목이 쓴다 (2026-10-15) |
 
 ---
 
@@ -1483,7 +1484,7 @@ EmptyState  <div grid justify-items-center px-4 py-6 text-center>
 
 | 예시 (H2) | 설명 | 가짜 데이터 |
 |---|---|---|
-| Basic — Enter | 카드 3장이 차례로, `다시 보기` 로 `replay` 를 바꿈 | `오늘 근무` `이번 주 합계` `예상 급여` |
+| Basic — Enter | 카드 3장이 차례로, `다시 보기` 로 `key` 를 바꿔 새로 그림 | `오늘 근무` `이번 주 합계` `예상 급여` |
 | 숫자 변화 — CountUp | `9월`/`10월` 버튼으로 값 바꿈, `format={won}`, 큰 숫자 `text-accent` + `NUM` | `190920` ↔ `247680` |
 | 글자 바뀜 — SwapText | 버튼으로 상태 전환 | `근무 중` ↔ `퇴근함` |
 | 완료 순간 — useAppear | `저장` 을 누르면 완료 상자가 나타남 | `CircleCheck` + `저장했어요` |
@@ -1498,7 +1499,7 @@ EmptyState  <div grid justify-items-center px-4 py-6 text-center>
 
 | 이름 | Props | 설명 |
 |---|---|---|
-| `Enter` | `children` **필수**, `className?: string`, `replay?: unknown` | `replay` 가 바뀌면 다시 한다 |
+| `Enter` | `children` **필수**, `className?: string` | 처음 그릴 때 한 번만. 불러오기가 끝나도 다시 하지 않는다 — 다시 하면 보이던 카드가 투명해졌다 돌아와 깜빡인다 (2026-10-15) |
 | `CountUp` | `value: number` **필수**, `format: (n: number) => string` **필수**, `className?: string` | 움직이는 동안 `format` 에 반올림한 정수가 들어온다 |
 | `SwapText` | `text: string` **필수**, `className?: string` | 바깥 `span`(`inline-flex overflow-hidden`)의 클래스 |
 | `useAppear<T extends HTMLElement>()` | — | ref 객체를 돌려준다. 붙인 요소가 마운트될 때 한 번 |
