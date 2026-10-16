@@ -5,6 +5,7 @@
 // 회전·재사용 탐지·grace 는 서버가 웹과 똑같이 한다. 앱은 한 번에 하나만 refresh 한다(single-flight).
 import * as SecureStore from "expo-secure-store";
 import { useSyncExternalStore } from "react";
+import { forgetStoreGeofence } from "@/lib/geofence";
 import type { components } from "../../../web/src/api/schema";
 
 type Me = components["schemas"]["MeDto"];
@@ -47,6 +48,7 @@ function setState(next: SessionState) {
 async function dropSession(reason?: "logout" | "expired" | "reused") {
   accessToken = null;
   await SecureStore.deleteItemAsync(REFRESH_KEY);
+  await forgetStoreGeofence().catch(() => {});
   setState({ status: "anonymous", reason });
 }
 
@@ -107,6 +109,8 @@ async function runRefresh(retried: boolean): Promise<boolean> {
   }
   // 409: 같은 토큰으로 방금 회전이 끝났다. 저장소의 새 토큰으로 한 번만 다시
   if (!retried && r.status === 409) return runRefresh(true);
+  // 401·409 만 세션이 끝난 것이다. 5xx·429 같은 일시 오류에 토큰을 지우면 서버 세션이 살아 있는데도 다시 로그인해야 한다
+  if (r.status !== 401 && r.status !== 409) throw new Error(`refresh ${r.status}`);
   const wasIn = state.status === "authenticated";
   await dropSession((r.body as ErrorResponse | null)?.code === "REFRESH_TOKEN_REUSED" ? "reused" : wasIn ? "expired" : undefined);
   return false;

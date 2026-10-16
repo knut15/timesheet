@@ -92,6 +92,13 @@ export async function stopStoreGeofence() {
   await resetAlert();
 }
 
+/** 로그아웃·세션 만료 — OS 감시를 멈추고 이 계정의 매장·출근 기록을 지운다. 다음 계정에 이전 매장 알림이 가지 않게 */
+export async function forgetStoreGeofence() {
+  await stopStoreGeofence();
+  await SecureStore.deleteItemAsync(STORE_KEY, KEYCHAIN);
+  await SecureStore.deleteItemAsync(DAY_KEY, KEYCHAIN);
+}
+
 /** 출근했거나 오늘 퇴근했다 — 오늘은 더 알리지 않는다. 출근 기록이 없으면(null) 다시 알린다 */
 export async function markClockedToday(clocked: boolean) {
   if (clocked) {
