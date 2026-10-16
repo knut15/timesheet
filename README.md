@@ -87,7 +87,7 @@ cd mobile && pnpm exec expo run:ios
 | 멤버 오늘 근무 대시보드 — 출퇴근 탭 시계 아래 | 배포 (2026-10-15) ([PRD 12](docs/prd/12-member-today.md), [디자인](docs/design/member-today.md)) |
 | 근무 시간표 — 요일·출퇴근 시각, 날짜별 변경(마스터), 시급 천 단위 쉼표 | 배포 (2026-10-15) ([PRD 13](docs/prd/13-work-schedule.md)) |
 | 디자인 B — 가는 선·작은 모서리·고정폭 숫자·회색 중립색, GSAP 모션, lucide 일러스트, 근무 조건 그래프(주간 리듬 카드), 기록 요청 모달 | 배포 (2026-10-15, 항상 다크) ([DESIGN.md](DESIGN.md)) |
-| 네이티브 앱 (iOS·Android, Expo) — 멤버·사장님 화면 전부, 앱 전용 토큰 로그인, 앱을 닫아도 오는 출근 알림 | 개발 중 — iOS 시뮬레이터 확인, Android·실기기 미확인 ([PRD 14](docs/prd/14-native-app.md)) |
+| 네이티브 앱 (iOS·Android, Expo) — 멤버·사장님 화면 전부, 앱 전용 토큰 로그인, 앱을 닫아도 오는 출근 알림 | 서버(앱 토큰 로그인) 운영 배포 2026-10-16. 앱은 스토어 배포 전 — iOS 시뮬레이터·아이폰 실기기(개발 빌드) 확인, Android 미확인 ([PRD 14](docs/prd/14-native-app.md)) |
 | 배포 | 웹 https://timesheet-brown-ten.vercel.app · API·Neon DB ([docs/deploy.md](docs/deploy.md)) |
 
 ## 문서

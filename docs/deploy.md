@@ -83,3 +83,7 @@ curl -s -o /dev/null -w "%{http_code}\n" https://timesheet-brown-ten.vercel.app/
 
 무료 요금제는 하루 파일 업로드 5000개가 한도다(`api-upload-free`, "try again in 24 hours"). prebuilt 배포는 파일을 하나씩 올려 금방 찬다.
 배포 명령에 **`--archive=tgz`** 를 붙여 묶음 하나로 올린다 — 웹: `vercel deploy --prebuilt --prod --yes --archive=tgz`, API: `vercel deploy --prod --yes --archive=tgz`.
+
+## 앱 빌드 폴더는 올리지 않는다 (2026-10-16)
+
+`expo run:ios` 를 한 번 돌리면 `mobile/ios` 에 Pods·빌드 산출물이 수 GB 생긴다(이날 3.8GB). git 에서는 빠지지만 `vercel deploy` 는 `.gitignore` 가 아니라 `.vercelignore` 를 본다. 그래서 `.vercelignore` 에 `mobile/ios`·`mobile/android`·`mobile/.expo` 를 넣었다. 이 줄이 없던 2026-10-16 API 배포는 release 를 깨끗하게 새로 받은 사본(`git worktree add --detach <경로> origin/release`)에서 했다.
