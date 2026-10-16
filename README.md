@@ -11,6 +11,8 @@
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.3.3-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
 ![GSAP](https://img.shields.io/badge/GSAP-3.15.0-0AE448?style=flat-square&logo=greensock&logoColor=white)
 ![Recharts](https://img.shields.io/badge/Recharts-3.10.1-22B5BF?style=flat-square)
+![Expo](https://img.shields.io/badge/Expo-57.0.29-000020?style=flat-square&logo=expo&logoColor=white)
+![React Native](https://img.shields.io/badge/React_Native-0.86.3-61DAFB?style=flat-square&logo=react&logoColor=white)
 ![pnpm](https://img.shields.io/badge/pnpm-11.20.0-F69220?style=flat-square&logo=pnpm&logoColor=white)
 
 파트타임 근무자의 출퇴근 기록과 급여를 관리하는 앱이다. 로그인부터 배포까지 직접 구현하는 것이 목표다.
@@ -30,6 +32,7 @@
 |---|---|---|
 | `server/` | `timesheet-server` | Express API. Prisma 로 Postgres 에 붙는다. 로그인(쿠키 세션·argon2·CSRF)·매장·초대·근무 기록·수정 요청·휴가·대타 |
 | `web/` | `timesheet-web` | Next.js App Router. 멤버 화면 `/`, 마스터 관리 화면 `/admin`. `/api/*` 를 rewrites 로 서버에 넘긴다 |
+| `mobile/` | `timesheet-mobile` | Expo(React Native) 앱. 웹과 같은 화면이고, 급여 계산은 `web/src/lib` 를 같이 쓴다. 로그인은 앱 전용 토큰 방식 ([PRD 14](docs/prd/14-native-app.md)) |
 
 - 급여 계산은 `web/src/lib/pay.ts` 한 곳에만 있다. 서버는 기록과 조건만 내려준다
 - API 계약은 `server/src/contract.ts`(zod)에서 `docs/api/openapi.json` 으로 내보내고, 웹은 그 파일로 타입을 만든다
@@ -54,6 +57,9 @@ pnpm dev:server
 
 # 웹 → http://localhost:3200
 pnpm dev:web
+
+# 앱 (Xcode 필요) → iOS 시뮬레이터. 처음 한 번 네이티브 빌드를 하고, 그 뒤는 Metro 만 띄워도 된다
+cd mobile && pnpm exec expo run:ios
 ```
 
 | 검사 | 명령 |
@@ -81,6 +87,7 @@ pnpm dev:web
 | 멤버 오늘 근무 대시보드 — 출퇴근 탭 시계 아래 | 배포 (2026-10-15) ([PRD 12](docs/prd/12-member-today.md), [디자인](docs/design/member-today.md)) |
 | 근무 시간표 — 요일·출퇴근 시각, 날짜별 변경(마스터), 시급 천 단위 쉼표 | 배포 (2026-10-15) ([PRD 13](docs/prd/13-work-schedule.md)) |
 | 디자인 B — 가는 선·작은 모서리·고정폭 숫자·회색 중립색, GSAP 모션, lucide 일러스트, 근무 조건 그래프(주간 리듬 카드), 기록 요청 모달 | 배포 (2026-10-15, 항상 다크) ([DESIGN.md](DESIGN.md)) |
+| 네이티브 앱 (iOS·Android, Expo) — 멤버·사장님 화면 전부, 앱 전용 토큰 로그인, 앱을 닫아도 오는 출근 알림 | 개발 중 — iOS 시뮬레이터 확인, Android·실기기 미확인 ([PRD 14](docs/prd/14-native-app.md)) |
 | 배포 | 웹 https://timesheet-brown-ten.vercel.app · API·Neon DB ([docs/deploy.md](docs/deploy.md)) |
 
 ## 문서

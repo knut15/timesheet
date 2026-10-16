@@ -71,3 +71,6 @@
 | 2026-10-15 | 멤버 기록의 빠진 기록 추가·수정·삭제 요청은 모두 모달로 | [timesheet-requests](../.claude/skills/timesheet-requests/SKILL.md) §1 끝 |
 | 2026-10-15 | 내 정보 근무 조건의 시간표·주 시간·근무일은 그래프로(Recharts) — 주간 시간표 막대, 주 시간 게이지(주휴 15h·법정 40h), 근무일 점 | [DESIGN.md](../DESIGN.md) §4 |
 | 2026-10-15 | 항상 다크 — 기기 설정과 상관없이 `<html class="dark">`(잠깐 "항상 라이트" 였다가 "그냥 다크모드로하자"). 라이트 값은 `:root` 에 남김 | [DESIGN.md](../DESIGN.md) §1·§2 |
+| 2026-10-15 | timesheet 를 네이티브 앱으로 — React Native(Expo)로 새로 만든다, iOS·Android, 멤버+마스터 전부. 확인은 지금 iOS 시뮬레이터만 | [14-native-app.md](prd/14-native-app.md) |
+| 2026-10-15 | 앱 로그인은 앱 전용 토큰 방식 — `X-Client: native` 면 토큰을 본문·Bearer 로, CSRF 없음, 리프레시 토큰은 기기 보안 저장소. 웹은 그대로 | [05-auth.md](prd/05-auth.md), [timesheet-auth](../.claude/skills/timesheet-auth/SKILL.md) §4-1 |
+| 2026-10-16 | 앱에서도 매장 로고를 올린다 — `expo-image-picker` 설치 | [14-native-app.md](prd/14-native-app.md) "웹과 다른 점" |

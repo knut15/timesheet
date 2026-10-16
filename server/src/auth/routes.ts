@@ -2,12 +2,13 @@ import argon2 from "argon2";
 import { Router, type CookieOptions, type Request, type Response } from "express";
 import { rateLimit } from "express-rate-limit";
 import { Prisma } from "@prisma/client";
-import { LoginBody, SignupBody } from "../contract.js";
+import { LoginBody, NativeRefreshBody, SignupBody } from "../contract.js";
 import { prisma } from "../db.js";
 import { env } from "../env.js";
 import { AppError } from "../errors.js";
 import { toMyMembershipDto, toUserDto } from "../lib/dto.js";
 import { CSRF_COOKIE, csrfCookieOptions, issueCsrfToken } from "./csrf.js";
+import { isNative } from "./client.js";
 import { requireAuth } from "./guard.js";
 import { issueRefreshToken, revokeFamilyByToken, rotateRefreshToken, type Issued } from "./refresh.js";
 import { signAccessToken } from "./tokens.js";
@@ -30,11 +31,22 @@ function clearAuthCookies(res: Response) {
   res.clearCookie(ACCESS_COOKIE, accessCookieBase);
 }
 
-async function sendTokens(res: Response, issued: Issued) {
+async function sendTokens(req: Request, res: Response, issued: Issued) {
   const user = await prisma.user.findUniqueOrThrow({ where: { id: issued.userId } });
+  res.set("Cache-Control", "no-store");
+  // 네이티브 앱은 쿠키가 없다 — 두 토큰을 본문으로 준다. 앱은 리프레시 토큰을 기기 보안 저장소에 둔다 (docs/prd/14-native-app.md)
+  if (isNative(req)) {
+    res.json({
+      expiresIn: env.ACCESS_TOKEN_TTL_SEC,
+      user: toUserDto(user),
+      accessToken: await signAccessToken(issued.userId, issued.familyId),
+      refreshToken: issued.token,
+      refreshExpiresAt: issued.expiresAt.toISOString(),
+    });
+    return;
+  }
   res.cookie(REFRESH_COOKIE, issued.token, { ...refreshCookieBase, expires: issued.expiresAt });
   res.cookie(ACCESS_COOKIE, await signAccessToken(issued.userId, issued.familyId), { ...accessCookieBase, maxAge: env.ACCESS_TOKEN_TTL_SEC * 1000 });
-  res.set("Cache-Control", "no-store");
   res.json({ expiresIn: env.ACCESS_TOKEN_TTL_SEC, user: toUserDto(user) });
 }
 
@@ -76,25 +88,32 @@ authRouter.post("/auth/login", loginLimiter, async (req, res) => {
   const user = await prisma.user.findUnique({ where: { email: body.email.toLowerCase() } });
   const ok = await argon2.verify(user?.passwordHash ?? (await dummyHash), body.password);
   if (!user || !ok) throw new AppError(401, "INVALID_CREDENTIALS");
-  await sendTokens(res, await issueRefreshToken(user.id, meta(req)));
+  await sendTokens(req, res, await issueRefreshToken(user.id, meta(req)));
 });
 
+/** 웹은 쿠키에서, 네이티브 앱은 본문 { refreshToken } 에서만 읽는다 */
+function refreshTokenOf(req: Request): unknown {
+  if (!isNative(req)) return req.cookies?.[REFRESH_COOKIE];
+  const body = NativeRefreshBody.safeParse(req.body ?? {});
+  return body.success ? body.data.refreshToken : undefined;
+}
+
 authRouter.post("/auth/refresh", async (req, res) => {
-  const token: unknown = req.cookies?.[REFRESH_COOKIE];
+  const token = refreshTokenOf(req);
   try {
     if (typeof token !== "string") throw new AppError(401, "REFRESH_TOKEN_INVALID");
-    await sendTokens(res, await rotateRefreshToken(token, meta(req)));
+    await sendTokens(req, res, await rotateRefreshToken(token, meta(req)));
   } catch (e) {
     // 401 이면 죽은 쿠키를 지운다. 409(grace 안의 동시 요청)는 앞 요청이 새 쿠키를 이미 내려보냈으니 건드리지 않는다.
-    if (e instanceof AppError && e.statusCode === 401) clearAuthCookies(res);
+    if (e instanceof AppError && e.statusCode === 401 && !isNative(req)) clearAuthCookies(res);
     throw e;
   }
 });
 
 authRouter.post("/auth/logout", async (req, res) => {
-  const token: unknown = req.cookies?.[REFRESH_COOKIE];
+  const token = refreshTokenOf(req);
   if (typeof token === "string") await revokeFamilyByToken(token);
-  clearAuthCookies(res);
+  if (!isNative(req)) clearAuthCookies(res);
   res.status(204).end();
 });
 

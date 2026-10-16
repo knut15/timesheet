@@ -109,7 +109,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** 로그인 */
+        /** 로그인 — X-Client: native 면 NativeSessionResponse, 쿠키 없음 */
         post: {
             parameters: {
                 query?: never;
@@ -131,7 +131,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["SessionResponse"];
+                        "application/json": components["schemas"]["SessionResponse"] | components["schemas"]["NativeSessionResponse"];
                     };
                 };
                 /** @description INVALID_CREDENTIALS */
@@ -178,7 +178,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** 토큰 회전 */
+        /** 토큰 회전 — X-Client: native 면 본문 NativeRefreshBody */
         post: {
             parameters: {
                 query?: never;
@@ -188,7 +188,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["NativeRefreshBody"];
+                };
+            };
             responses: {
                 /** @description OK */
                 200: {
@@ -196,7 +200,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["SessionResponse"];
+                        "application/json": components["schemas"]["SessionResponse"] | components["schemas"]["NativeSessionResponse"];
                     };
                 };
                 /** @description REFRESH_TOKEN_INVALID | REFRESH_TOKEN_REUSED */
@@ -243,7 +247,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** 로그아웃 */
+        /** 로그아웃 — X-Client: native 면 본문 NativeRefreshBody */
         post: {
             parameters: {
                 query?: never;
@@ -253,7 +257,11 @@ export interface paths {
                 path?: never;
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["NativeRefreshBody"];
+                };
+            };
             responses: {
                 /** @description No Content */
                 204: {
@@ -2587,9 +2595,19 @@ export interface components {
             expiresIn: number;
             user: components["schemas"]["UserDto"];
         };
+        NativeSessionResponse: {
+            expiresIn: number;
+            user: components["schemas"]["UserDto"];
+            accessToken: string;
+            refreshToken: string;
+            refreshExpiresAt: string;
+        };
         LoginBody: {
             email: string;
             password: string;
+        };
+        NativeRefreshBody: {
+            refreshToken: string;
         };
         MeDto: {
             user: components["schemas"]["UserDto"];

@@ -7,7 +7,9 @@ import { ERROR_CODES } from "./errors.js";
 export const registry = new OpenAPIRegistry();
 // 액세스 토큰은 HttpOnly 쿠키다. 브라우저가 자동으로 싣는다.
 const cookieAuth = registry.registerComponent("securitySchemes", "accessCookie", { type: "apiKey", in: "cookie", name: "access_token" });
-const secured = [{ [cookieAuth.name]: [] }];
+// 네이티브 앱은 쿠키 대신 Authorization: Bearer + X-Client: native (auth/client.ts)
+const bearerAuth = registry.registerComponent("securitySchemes", "nativeBearer", { type: "http", scheme: "bearer", bearerFormat: "JWT" });
+const secured = [{ [cookieAuth.name]: [] }, { [bearerAuth.name]: [] }];
 
 // ── 스키마 ─────────────────────────────────────────────
 export const ErrorResponse = z
@@ -20,6 +22,14 @@ export const UserDto = z
 
 // 토큰은 본문에 없다 — access_token·refresh_token 쿠키로 간다.
 export const SessionResponse = z.object({ expiresIn: z.number().int(), user: UserDto }).meta({ id: "SessionResponse" });
+
+// 네이티브 앱(X-Client: native) 전용 — 쿠키가 없어 토큰을 본문으로 주고받는다 (docs/prd/14-native-app.md)
+export const NativeSessionResponse = SessionResponse.extend({
+  accessToken: z.string(),
+  refreshToken: z.string(),
+  refreshExpiresAt: z.string(),
+}).meta({ id: "NativeSessionResponse" });
+export const NativeRefreshBody = z.object({ refreshToken: z.string().max(256) }).meta({ id: "NativeRefreshBody" });
 
 export const CsrfResponse = z.object({ csrfToken: z.string() }).meta({ id: "CsrfResponse" });
 
@@ -279,9 +289,9 @@ const id = (name: string) => z.object({ [name]: z.string() });
 
 path("get", "/api/auth/csrf", "CSRF 토큰 발급", { ok: [200, CsrfResponse] });
 path("post", "/api/auth/signup", "가입", { body: SignupBody, ok: [201, UserDto], errors: { 400: "VALIDATION_FAILED", 409: "EMAIL_TAKEN" } });
-path("post", "/api/auth/login", "로그인", { csrf: true, body: LoginBody, ok: [200, SessionResponse], errors: { 401: "INVALID_CREDENTIALS", 403: "CSRF_*", 429: "TOO_MANY_REQUESTS" } });
-path("post", "/api/auth/refresh", "토큰 회전", { csrf: true, ok: [200, SessionResponse], errors: { 401: "REFRESH_TOKEN_INVALID | REFRESH_TOKEN_REUSED", 403: "CSRF_*", 409: "REFRESH_TOKEN_ROTATED" } });
-path("post", "/api/auth/logout", "로그아웃", { csrf: true, ok: [204, null], errors: { 403: "CSRF_*" } });
+path("post", "/api/auth/login", "로그인 — X-Client: native 면 NativeSessionResponse, 쿠키 없음", { csrf: true, body: LoginBody, ok: [200, SessionResponse.or(NativeSessionResponse)], errors: { 401: "INVALID_CREDENTIALS", 403: "CSRF_*", 429: "TOO_MANY_REQUESTS" } });
+path("post", "/api/auth/refresh", "토큰 회전 — X-Client: native 면 본문 NativeRefreshBody", { csrf: true, body: NativeRefreshBody.optional(), ok: [200, SessionResponse.or(NativeSessionResponse)], errors: { 401: "REFRESH_TOKEN_INVALID | REFRESH_TOKEN_REUSED", 403: "CSRF_*", 409: "REFRESH_TOKEN_ROTATED" } });
+path("post", "/api/auth/logout", "로그아웃 — X-Client: native 면 본문 NativeRefreshBody", { csrf: true, body: NativeRefreshBody.optional(), ok: [204, null], errors: { 403: "CSRF_*" } });
 path("get", "/api/users/me", "내 정보와 소속", { auth: true, ok: [200, MeDto], errors: { 401: "ACCESS_TOKEN_INVALID" } });
 
 path("post", "/api/stores", "매장 만들기 (마스터가 된다)", { auth: true, body: CreateStoreBody, ok: [201, MyMembershipDto], errors: { 409: "ALREADY_IN_STORE" } });

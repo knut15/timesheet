@@ -33,6 +33,7 @@
 |---|---|
 | `web/` | Next.js App Router. 멤버 화면(`/`), 마스터 관리 화면(`/admin`), 로그인. `/api/*` 는 rewrites 로 server 에 넘긴다 |
 | `server/` | Express + Prisma + Postgres. 로그인(JWT 직접 구현)·매장·초대·근무 기록 API |
+| `mobile/` | Expo(React Native) 네이티브 앱. 웹과 같은 화면, 계산은 `web/src/lib` 를 같이 쓴다 ([14-native-app.md](docs/prd/14-native-app.md)) |
 
 ## 4. API 계약과 인증
 
@@ -62,7 +63,9 @@ pnpm --filter timesheet-web build
 pnpm --filter timesheet-web test       # 급여·거리·알림 로직 단위 테스트 (node --test)
 pnpm --filter timesheet-server db:up   # 로컬 Postgres (5434)
 pnpm --filter timesheet-server dev     # API http://localhost:4200, Swagger /api/docs
-pnpm --filter timesheet-server test:e2e        # API 가 떠 있어야 한다
+pnpm --filter timesheet-server test:e2e        # API 가 떠 있어야 한다 (앱 토큰 방식 test/native.test.ts 포함)
+pnpm --filter timesheet-mobile typecheck       # 앱 타입 검사
+cd mobile && pnpm exec expo run:ios            # 앱 빌드 + iOS 시뮬레이터 + Metro
 pnpm --filter timesheet-server openapi:export  # → docs/api/openapi.json
 pnpm --filter timesheet-web gen:api            # → web/src/api/schema.d.ts
 pnpm typecheck
