@@ -5,7 +5,7 @@ description: timesheet의 기획·디자인·시니어·주니어·QA·마케팅
 
 # timesheet 팀 운영
 
-경로는 저장소 루트 기준이다. 먼저 CLAUDE.md, docs/team/README.md, docs/team/roles.md와 해당 작업 카드를 읽는다. 담당자에게는 해당 역할, 관련 PRD, 현재 변경, 허용 파일, 완료 조건만 전달한다.
+경로는 저장소 루트 기준이다. 먼저 CLAUDE.md, docs/team/README.md, docs/team/roles.md와 해당 작업 카드를 읽는다. 구현·검토·재검토 에이전트(구베티·검투사·리플릿)의 이름·메일·모델은 roles.md "에이전트 팀" 절에 있다. 구현·검토·재검토 에이전트(구베티·검투사·리플릿)의 이름·메일·모델은 roles.md "에이전트 팀" 절에 있다. 담당자에게는 해당 역할, 관련 PRD, 현재 변경, 허용 파일, 완료 조건만 전달한다.
 
 ## 작업을 시작할 때
 
