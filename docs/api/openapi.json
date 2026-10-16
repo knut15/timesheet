@@ -10,6 +10,11 @@
         "type": "apiKey",
         "in": "cookie",
         "name": "access_token"
+      },
+      "nativeBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     },
     "schemas": {
@@ -132,6 +137,33 @@
           "user"
         ]
       },
+      "NativeSessionResponse": {
+        "type": "object",
+        "properties": {
+          "expiresIn": {
+            "type": "integer"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserDto"
+          },
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "refreshExpiresAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "expiresIn",
+          "user",
+          "accessToken",
+          "refreshToken",
+          "refreshExpiresAt"
+        ]
+      },
       "LoginBody": {
         "type": "object",
         "properties": {
@@ -147,6 +179,18 @@
         "required": [
           "email",
           "password"
+        ]
+      },
+      "NativeRefreshBody": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "maxLength": 256
+          }
+        },
+        "required": [
+          "refreshToken"
         ]
       },
       "MeDto": {
@@ -1205,7 +1249,7 @@
     },
     "/api/auth/login": {
       "post": {
-        "summary": "로그인",
+        "summary": "로그인 — X-Client: native 면 NativeSessionResponse, 쿠키 없음",
         "parameters": [
           {
             "schema": {
@@ -1231,7 +1275,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SessionResponse"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/SessionResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/NativeSessionResponse"
+                    }
+                  ]
                 }
               }
             }
@@ -1271,7 +1322,7 @@
     },
     "/api/auth/refresh": {
       "post": {
-        "summary": "토큰 회전",
+        "summary": "토큰 회전 — X-Client: native 면 본문 NativeRefreshBody",
         "parameters": [
           {
             "schema": {
@@ -1282,13 +1333,29 @@
             "in": "header"
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NativeRefreshBody"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SessionResponse"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/SessionResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/NativeSessionResponse"
+                    }
+                  ]
                 }
               }
             }
@@ -1328,7 +1395,7 @@
     },
     "/api/auth/logout": {
       "post": {
-        "summary": "로그아웃",
+        "summary": "로그아웃 — X-Client: native 면 본문 NativeRefreshBody",
         "parameters": [
           {
             "schema": {
@@ -1339,6 +1406,15 @@
             "in": "header"
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NativeRefreshBody"
+              }
+            }
+          }
+        },
         "responses": {
           "204": {
             "description": "No Content"
@@ -1362,6 +1438,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "responses": {
@@ -1394,6 +1473,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -1445,6 +1527,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "responses": {
@@ -1475,6 +1560,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -1526,6 +1614,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -1608,6 +1699,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -1641,6 +1735,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "responses": {
@@ -1666,6 +1763,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "responses": {
@@ -1699,6 +1799,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -1741,6 +1844,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -1784,6 +1890,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -1855,6 +1964,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "responses": {
@@ -1890,6 +2002,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -1947,6 +2062,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -1990,6 +2108,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -2042,6 +2163,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -2111,6 +2235,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -2154,6 +2281,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -2200,6 +2330,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -2263,6 +2396,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -2320,6 +2456,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -2363,6 +2502,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -2406,6 +2548,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -2461,6 +2606,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -2503,6 +2651,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -2545,6 +2696,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -2606,6 +2760,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -2656,6 +2813,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -2707,6 +2867,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -2757,6 +2920,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -2808,6 +2974,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -2858,6 +3027,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -2908,6 +3080,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -2958,6 +3133,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "responses": {
@@ -2980,6 +3158,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -3025,6 +3206,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "responses": {
@@ -3050,6 +3234,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "responses": {
@@ -3082,6 +3269,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -3137,6 +3327,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -3206,6 +3399,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -3265,6 +3461,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -3326,6 +3525,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -3385,6 +3587,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -3444,6 +3649,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -3487,6 +3695,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -3538,6 +3749,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -3597,6 +3811,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [
@@ -3656,6 +3873,9 @@
         "security": [
           {
             "accessCookie": []
+          },
+          {
+            "nativeBearer": []
           }
         ],
         "parameters": [

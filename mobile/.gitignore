@@ -1,0 +1,5 @@
+# 빌드할 때 expo prebuild 가 app.json 으로 다시 만든다 (CNG). 손으로 고치지 않는다
+/ios
+/android
+.expo/
+node_modules/

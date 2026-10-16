@@ -2,6 +2,7 @@ import cookieParser from "cookie-parser";
 import express, { type RequestHandler } from "express";
 import helmetImport from "helmet";
 import swaggerUi from "swagger-ui-express";
+import { isNative } from "./auth/client.js";
 import { csrfGuard } from "./auth/csrf.js";
 import { authRouter } from "./auth/routes.js";
 import { openApiDocument } from "./contract.js";
@@ -35,8 +36,9 @@ if (env.SWAGGER_ENABLED) {
 }
 
 // 인증이 쿠키라 브라우저가 자동으로 싣는다 — 상태를 바꾸는 모든 요청에 Origin + CSRF 토큰 검사를 건다.
+// 네이티브 앱(X-Client: native)은 쿠키를 쓰지 않으므로 검사하지 않는다 (auth/client.ts).
 const UNSAFE = new Set(["POST", "PUT", "PATCH", "DELETE"]);
-app.use("/api", (req, res, next) => (UNSAFE.has(req.method) ? csrfGuard(req, res, next) : next()));
+app.use("/api", (req, res, next) => (UNSAFE.has(req.method) && !isNative(req) ? csrfGuard(req, res, next) : next()));
 app.use("/api", authRouter, logoRouter, storeRouter, shiftRouter, requestsRouter);
 app.use(errorHandler);
 

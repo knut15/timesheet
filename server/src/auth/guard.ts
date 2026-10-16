@@ -2,6 +2,7 @@ import type { Membership } from "@prisma/client";
 import type { RequestHandler } from "express";
 import { prisma } from "../db.js";
 import { AppError } from "../errors.js";
+import { bearerToken, isNative } from "./client.js";
 import { verifyAccessToken } from "./tokens.js";
 
 declare global {
@@ -13,9 +14,12 @@ declare global {
   }
 }
 
-/** 액세스 토큰은 HttpOnly 쿠키 access_token 에서만 읽는다 (Authorization 헤더는 받지 않는다). */
+/**
+ * 웹은 HttpOnly 쿠키 access_token 에서만 읽는다 (Authorization 헤더는 받지 않는다).
+ * 네이티브 앱(X-Client: native)은 Authorization: Bearer 에서만 읽는다 — 쿠키는 보지 않는다.
+ */
 export const requireAuth: RequestHandler = async (req, _res, next) => {
-  const token: unknown = req.cookies?.access_token;
+  const token: unknown = isNative(req) ? bearerToken(req) : req.cookies?.access_token;
   if (typeof token !== "string" || !token) return next(new AppError(401, "ACCESS_TOKEN_INVALID"));
   try {
     req.auth = await verifyAccessToken(token);

@@ -31,6 +31,7 @@
 | 11 | 매장 로고 — 업로드와 헤더 노출 | [11-store-logo.md](11-store-logo.md) |
 | 12 | 멤버 오늘 근무 대시보드 | [12-member-today.md](12-member-today.md) |
 | 13 | 근무 시간표 — 요일·출퇴근 시각, 날짜별 변경 | [13-work-schedule.md](13-work-schedule.md) |
+| 14 | 네이티브 앱 (iOS·Android) — Expo, 앱 전용 토큰, 앱이 닫혀 있어도 출근 알림 | [14-native-app.md](14-native-app.md) |
 
 ## 1차 MVP 범위 (01~04, 2026-09-25 배포)
 

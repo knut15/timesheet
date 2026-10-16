@@ -1,7 +1,7 @@
 ---
 name: timesheet-auth
 description: >
-  timesheet 로그인 인증 — 액세스·리프레시 토큰을 둘 다 HttpOnly 쿠키로 두고 30일 슬라이딩 세션으로 로그인을 유지한다.
+  timesheet 로그인 인증 — 웹은 액세스·리프레시 토큰을 둘 다 HttpOnly 쿠키로, 네이티브 앱은 X-Client: native 로 토큰을 본문·Bearer 로 주고받으며 30일 슬라이딩 세션으로 로그인을 유지한다.
   "로그인", "로그인 유지", "로그아웃", "세션", "토큰", "쿠키", "CSRF", "401" 이 나오거나 인증 코드를 고칠 때 먼저 읽는다.
 ---
 
@@ -52,6 +52,20 @@ FE 는 `authFetch`(`web/src/auth/session.ts`)가 변경 요청에 헤더를 자�
 | 401 이면 refresh 후 1회만 재시도 | 무한 루프 방지 |
 | 로그인·로그아웃은 `BroadcastChannel("auth")` 로 다른 탭에 알린다 | |
 
+## 4-1. 네이티브 앱 — `X-Client: native` (2026-10-15 사용자 결정)
+
+앱(`mobile/`)은 쿠키가 없어 **토큰을 본문·헤더로** 주고받는다. 이 헤더가 붙은 요청만 다르게 처리하고, 웹 요청은 위 1~4절 그대로다.
+
+| 규칙 | 어디 |
+|---|---|
+| `X-Client: native` 판정과 Bearer 꺼내기 | `server/src/auth/client.ts` |
+| 앱 요청은 CSRF 검사를 하지 않는다 — 다른 출처의 브라우저는 CORS 사전 요청 없이 이 헤더를 못 붙이고, 서버는 CORS 를 열지 않는다 | `server/src/app.ts` |
+| 앱 요청은 `Authorization: Bearer` 만 읽고 **쿠키는 보지 않는다** (피해자 쿠키를 빌려 쓰지 못하게) | `server/src/auth/guard.ts` |
+| 로그인·refresh 응답 본문에 `accessToken`·`refreshToken`·`refreshExpiresAt`, 쿠키 없음. refresh·로그아웃은 본문 `{ refreshToken }` | `server/src/auth/routes.ts` |
+| 앱은 액세스 토큰을 메모리에, 리프레시 토큰을 기기 보안 저장소(`expo-secure-store`)에 둔다. refresh 는 single-flight, 401 이면 refresh 후 1회 재시도 | `mobile/src/auth/session.ts` |
+
+**하지 않는 것**: 웹 요청에서 Bearer 를 받기 시작하는 것 — S6 "Bearer 헤더만 → 401" 이 지켜야 한다. 앱 판정을 헤더 말고 다른 것(User-Agent 등)으로 하는 것.
+
 ## 5. 검증 — `server/test/e2e.test.ts`
 
 | 시나리오 | 무엇 |
@@ -62,6 +76,7 @@ FE 는 `authFetch`(`web/src/auth/session.ts`)가 변경 요청에 헤더를 자�
 | X-2 | refresh 가 새 access 쿠키, 로그아웃이 둘 다 삭제 |
 | S7~S9·S23 | 회전·grace·재사용 탐지 (web-auth 그대로) |
 | S17·S17b | `SESSION_MAX_AGE_SEC=5` 서버에서: 안 쓰면 401, 3초마다 쓰면 9초에도 유지 |
+| N1~N9 | 앱 토큰 방식 — `server/test/native.test.ts`. 본문 토큰·쿠키 없음, Bearer, 쿠키 무시, CSRF 없이 통과(웹 모드면 403), 본문 회전·grace·재사용, 본문 로그아웃 |
 
 브라우저 시나리오(새로고침 유지, 탭 두 개, 로그아웃 동기화)는 자동화로 로그인하지 않으므로 사람이 확인한다.
 
@@ -75,5 +90,6 @@ FE 는 `authFetch`(`web/src/auth/session.ts`)가 변경 요청에 헤더를 자�
 | 세션 유지 방식 | 2절, `docs/prd/05-auth.md` |
 | CSRF 적용 범위 | 3절 |
 | FE 세션 흐름 | 4절 |
+| 앱 토큰 방식 | 4-1절, `docs/prd/14-native-app.md`, `mobile/src/auth/session.ts` |
 | 테스트 | 5절, `docs/verify/auth.md` |
 | 이 프로젝트를 넘어 일반화할 교훈 | `web-auth` 스킬의 `references/cookie-session.md` |

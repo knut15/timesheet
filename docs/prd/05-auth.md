@@ -49,6 +49,10 @@ API 문서(OpenAPI)는 `server` 가 `/api/docs` 로 낸다 (운영에서는 끈�
 
 세션 목록·전체 로그아웃(`/auth/sessions`, `/auth/logout-all`)은 이번 범위에서 뺀다.
 
+### 네이티브 앱 — `X-Client: native` (2026-10-15 사용자 결정 "앱 전용 토큰 방식 추가")
+
+앱에는 쿠키가 없다. 요청에 `X-Client: native` 가 붙으면 서버는 쿠키를 읽지도 쓰지도 않는다. 로그인·refresh 응답 본문에 `accessToken`·`refreshToken`·`refreshExpiresAt` 을 더 주고, 인증은 `Authorization: Bearer`, refresh·로그아웃은 본문 `{ refreshToken }` 으로 받는다. 이 요청에는 CSRF 검사를 하지 않는다. 회전·재사용 탐지·슬라이딩은 같다. 이 헤더가 없는 웹 요청은 위 표 그대로다 — Bearer 만 보내면 여전히 401. 자세한 것은 [14-native-app.md](14-native-app.md) "로그인".
+
 ## 화면
 
 | 경로 | 내용 |

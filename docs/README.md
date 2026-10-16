@@ -17,6 +17,7 @@
   - [10. 근무 달력](prd/10-calendar.md)
   - [11. 매장 로고](prd/11-store-logo.md)
   - [12. 멤버 오늘 근무 대시보드](prd/12-member-today.md)
+  - [14. 네이티브 앱 (iOS·Android)](prd/14-native-app.md)
 
 ## 디자인
 
